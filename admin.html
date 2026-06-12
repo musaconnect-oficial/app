@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Yuvng Miuze</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-black text-white min-h-screen p-4 md:p-8 hidden" id="cuerpoAdmin">
+
+    <!-- Barra Superior -->
+    <header class="flex justify-between items-center mb-10 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+        <h1 class="text-2xl font-black"><span class="text-red-600">PANEL</span> DE CONTROL</h1>
+        <button id="btnCerrarSesion" class="text-sm bg-zinc-800 hover:bg-red-600 text-white py-2 px-4 rounded transition-colors">
+            Cerrar Sesión
+        </button>
+    </header>
+
+    <!-- Área de Trabajo -->
+    <main class="max-w-2xl mx-auto bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-2xl">
+        <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2">Subir Nueva Canción</h2>
+        
+        <form id="formCancion" class="space-y-4">
+            <div>
+                <label class="block text-zinc-400 text-sm font-bold mb-2">Título de la Canción</label>
+                <input type="text" id="titulo" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-red-600" required>
+            </div>
+
+            <div>
+                <label class="block text-zinc-400 text-sm font-bold mb-2">Plataforma</label>
+                <select id="plataforma" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-red-600">
+                    <option value="Spotify">Spotify</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="SoundCloud">SoundCloud</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-zinc-400 text-sm font-bold mb-2">Código Embed (Iframe)</label>
+                <textarea id="enlace_embed" rows="4" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-red-600" placeholder="Pega el código <iframe...> aquí" required></textarea>
+            </div>
+
+            <p id="mensajeExito" class="text-green-500 text-sm hidden font-bold">¡Canción subida con éxito!</p>
+            <p id="mensajeError" class="text-red-500 text-sm hidden font-bold">Hubo un error al subir la canción.</p>
+
+            <button type="submit" id="btnSubir" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded transition-colors mt-4">
+                Publicar Canción
+            </button>
+        </form>
+    </main>
+
+    <!-- LÓGICA Y SEGURIDAD -->
+    <script>
+        
+// 1. Conexión a Supabase
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 2. El Guardia de Seguridad (Verifica si está logueado)
+        async function verificarSesion() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                // Si no hay usuario, lo patea de vuelta al login
+                window.location.href = 'login.html';
+            } else {
+                // Si es el artista, mostramos la pantalla
+                document.getElementById('cuerpoAdmin').classList.remove('hidden');
+            }
+        }
+        verificarSesion();
+
+        // 3. Cerrar Sesión
+        document.getElementById('btnCerrarSesion').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        // 4. Lógica para subir la canción a la Base de Datos
+        document.getElementById('formCancion').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubir');
+            btn.textContent = "Subiendo...";
+
+            const titulo = document.getElementById('titulo').value;
+            const plataforma = document.getElementById('plataforma').value;
+            const enlace_embed = document.getElementById('enlace_embed').value;
+
+            const { error } = await supabase
+                .from('canciones')
+                .insert([{ titulo: titulo, plataforma: plataforma, enlace_embed: enlace_embed }]);
+
+            if (error) {
+                document.getElementById('mensajeError').classList.remove('hidden');
+            } else {
+                document.getElementById('mensajeExito').classList.remove('hidden');
+                document.getElementById('formCancion').reset(); 
+            }
+            btn.textContent = "Publicar Canción";
+        });
