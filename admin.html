@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Creadores | ArtsForo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .tab { padding: 12px 16px; font-size: 13px; font-weight: 700; color: #71717a; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .tab.activo { color: #fff; border-bottom-color: #dc2626; }
+        .tab:hover:not(.activo) { color: #a1a1aa; }
+
+        .input-field {
+            width: 100%; background: #1c1c1c; border: 1.5px solid #27272a;
+            color: #fff; border-radius: 10px; padding: 10px 14px;
+            font-size: 14px; transition: border-color 0.2s;
+        }
+        .input-field:focus { outline: none; border-color: #dc2626; }
+
+        .btn-primary { background: #dc2626; color: #fff; font-weight: 700; padding: 10px 20px; border-radius: 10px; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-primary:hover { background: #b91c1c; }
+        .btn-primary:disabled { background: #3f3f46; cursor: not-allowed; }
+
+        .btn-match-accept { background: #16a34a; color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; transition: all 0.2s; }
+        .btn-match-accept:hover { background: #15803d; }
+        
+        .btn-match-reject { background: #27272a; color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; transition: all 0.2s; border: 1px solid #3f3f46; }
+        .btn-match-reject:hover { background: #3f3f46; color: #f87171; border-color: #f87171; }
+
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen pb-12">
+
+    <header class="bg-[#0e0e0e]/80 backdrop-blur border-b border-zinc-800/50 sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="profile.html" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Mi Perfil
+            </a>
+            <span class="font-black text-sm text-red-500 uppercase tracking-widest">Panel de Control</span>
+            <div class="w-16"></div> </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto pt-6">
+        
+        <div class="border-b border-zinc-800 overflow-x-auto mb-6 px-4">
+            <div class="flex min-w-max">
+                <button class="tab activo" onclick="mostrarTab('posts')" id="tab-posts">Publicar en Feed</button>
+                <button class="tab" onclick="mostrarTab('musica')" id="tab-musica">Gestionar Música</button>
+                <button class="tab" onclick="mostrarTab('match')" id="tab-match">Solicitudes de Match</button>
+            </div>
+        </div>
+
+        <div class="px-4">
+            <div id="contenido-posts" class="fade-in space-y-4">
+                <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6">
+                    <h2 class="text-lg font-black mb-4">Crear nueva publicación</h2>
+                    <textarea id="post-texto" class="input-field resize-none mb-3" rows="3" placeholder="¿Qué estás cocinando en el estudio?"></textarea>
+                    <input type="text" id="post-media" class="input-field mb-4" placeholder="URL de imagen o video corto (opcional)">
+                    
+                    <div id="post-msg" class="hidden text-xs px-3 py-2 rounded-lg mb-3"></div>
+                    <button id="btn-post" onclick="publicarPost()" class="btn-primary w-full">Publicar en el Feed</button>
+                </div>
+            </div>
+
+            <div id="contenido-musica" class="hidden fade-in space-y-4">
+                <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6 mb-6">
+                    <h2 class="text-lg font-black mb-4">Subir nueva canción</h2>
+                    <input type="text" id="cancion-titulo" class="input-field mb-3" placeholder="Título de la canción">
+                    <input type="text" id="cancion-embed" class="input-field mb-4" placeholder="Código iframe de Spotify/Soundcloud">
+                    
+                    <div id="cancion-msg" class="hidden text-xs px-3 py-2 rounded-lg mb-3"></div>
+                    <button id="btn-cancion" onclick="subirCancion()" class="btn-primary w-full">Añadir al portafolio</button>
+                </div>
+
+                <h3 class="font-bold text-zinc-400 text-sm mb-3">Tus canciones publicadas</h3>
+                <div id="lista-mis-canciones" class="space-y-2">
+                    <p class="text-zinc-600 text-sm italic">Cargando...</p>
+                </div>
+            </div>
+
+            <div id="contenido-match" class="hidden fade-in space-y-4">
+                <div class="bg-gradient-to-r from-purple-900/20 to-red-900/20 border border-purple-900/30 rounded-2xl p-6 mb-4">
+                    <h2 class="text-lg font-black mb-1">Colaboraciones pendientes</h2>
+                    <p class="text-xs text-zinc-400">Aquí aparecen los artistas o compositores que quieren trabajar contigo.</p>
+                </div>
+
+                <div id="lista-solicitudes" class="space-y-3">
+                    <p class="text-zinc-600 text-sm italic">Buscando solicitudes...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let usuarioActual = null;
+        let perfilActual = null;
+
+        async function init() {
+            const { data: { user } } = await client.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+            usuarioActual = user;
+
+            const { data: perfil } = await client.from('perfiles').select('*').eq('id', user.id).single();
+            perfilActual = perfil;
+
+            // Filtro de seguridad: Si es fan, lo expulsamos del admin
+            if (perfil.tipo === 'fan') {
+                alert("Acceso denegado. Este panel es exclusivo para Artistas y Compositores.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Ocultar sección música si es solo compositor (opcional, pero lo dejamos por si quieren subir demos)
+            cargarMisCanciones();
+            cargarSolicitudes();
+        }
+
+        // --- NAVEGACIÓN DE TABS ---
+        window.mostrarTab = function(tab) {
+            ['posts', 'musica', 'match'].forEach(t => {
+                document.getElementById('contenido-' + t).classList.toggle('hidden', t !== tab);
+                document.getElementById('tab-' + t).classList.toggle('activo', t === tab);
+            });
+        };
+
+        // --- CRUD: POSTS ---
+        window.publicarPost = async function() {
+            const texto = document.getElementById('post-texto').value.trim();
+            const media = document.getElementById('post-media').value.trim();
+            const msgBox = document.getElementById('post-msg');
+            const btn = document.getElementById('btn-post');
+
+            if (!texto && !media) return mostrarMensaje(msgBox, 'Debes escribir algo o poner una URL multimedia.', false);
+
+            btn.disabled = true;
+            btn.textContent = "Publicando...";
+
+            const { error } = await client.from('feed_posts').insert([{
+                autor_id: usuarioActual.id,
+                texto: texto,
+                media_url: media
+            }]);
+
+            btn.disabled = false;
+            btn.textContent = "Publicar en el Feed";
+
+            if (error) {
+                mostrarMensaje(msgBox, 'Error al publicar: ' + error.message, false);
+            } else {
+                mostrarMensaje(msgBox, '¡Publicado con éxito!', true);
+                document.getElementById('post-texto').value = '';
+                document.getElementById('post-media').value = '';
+            }
+        };
+
+        // --- CRUD: MÚSICA ---
+        window.subirCancion = async function() {
+            const titulo = document.getElementById('cancion-titulo').value.trim();
+            const embed = document.getElementById('cancion-embed').value.trim();
+            const msgBox = document.getElementById('cancion-msg');
+            const btn = document.getElementById('btn-cancion');
+
+            if (!titulo) return mostrarMensaje(msgBox, 'El título es obligatorio.', false);
+
+            btn.disabled = true;
+            btn.textContent = "Guardando...";
+
+            const { error } = await client.from('canciones').insert([{
+                artista_id: usuarioActual.id,
+                titulo: titulo,
+                enlace_embed: embed
+            }]);
+
+            btn.disabled = false;
+            btn.textContent = "Añadir al portafolio";
+
+            if (error) {
+                mostrarMensaje(msgBox, 'Error al guardar: ' + error.message, false);
+            } else {
+                mostrarMensaje(msgBox, '¡Canción guardada!', true);
+                document.getElementById('cancion-titulo').value = '';
+                document.getElementById('cancion-embed').value = '';
+                cargarMisCanciones(); // Refrescar la lista leyendo de la BD
+            }
+        };
+
+        async function cargarMisCanciones() {
+            const lista = document.getElementById('lista-mis-canciones');
+            const { data: canciones } = await client.from('canciones')
+                .select('*')
+                .eq('artista_id', usuarioActual.id)
+                .order('creado_en', { ascending: false });
+
+            if (!canciones || canciones.length === 0) {
+                lista.innerHTML = '<p class="text-zinc-600 text-sm">Aún no has subido canciones.</p>';
+                return;
+            }
+
+            lista.innerHTML = canciones.map(c => `
+                <div class="bg-[#1c1c1c] border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
+                    <div class="truncate pr-4">
+                        <p class="font-bold text-sm text-white truncate">${c.titulo}</p>
+                        <p class="text-xs text-zinc-500 truncate">${c.enlace_embed ? 'Con enlace multimedia' : 'Sin enlace'}</p>
+                    </div>
+                    <button onclick="eliminarCancion(${c.id})" class="text-zinc-600 hover:text-red-500 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.eliminarCancion = async function(id) {
+            if(confirm("¿Seguro que quieres eliminar esta canción de tu perfil?")) {
+                await client.from('canciones').delete().eq('id', id);
+                cargarMisCanciones();
+            }
+        };
+
+        // --- CRUD: MATCH (SOLICITUDES) ---
+        async function cargarSolicitudes() {
+            const lista = document.getElementById('lista-solicitudes');
+            
+            // Leer solicitudes donde el usuario actual es el receptor ('para_id')
+            const { data: solicitudes } = await client.from('match_solicitudes')
+                .select('*')
+                .eq('para_id', usuarioActual.id)
+                .eq('estado', 'pendiente');
+
+            if (!solicitudes || solicitudes.length === 0) {
+                lista.innerHTML = '<p class="text-zinc-600 text-sm text-center py-6">No tienes nuevas solicitudes de colaboración.</p>';
+                return;
+            }
+
+            // Para cada solicitud, leer los datos del remitente
+            let html = '';
+            for (let sol of solicitudes) {
+                const { data: remitente } = await client.from('perfiles').select('nombre_display, username, tipo').eq('id', sol.de_id).single();
+                
+                if(remitente) {
+                    html += `
+                    <div class="bg-[#141414] border border-zinc-800 rounded-xl p-5 fade-in" id="req-${sol.id}">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xs font-black px-2 py-1 bg-zinc-800 rounded text-zinc-300 uppercase">${remitente.tipo}</span>
+                            <a href="profile.html?u=${remitente.username}" target="_blank" class="font-bold text-white hover:text-red-400 transition-colors">${remitente.nombre_display}</a>
+                        </div>
+                        <p class="text-sm text-zinc-400 mb-4 bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 italic">"${sol.mensaje}"</p>
+                        <div class="flex gap-2">
+                            <button onclick="responderMatch(${sol.id}, 'aceptado')" class="btn-match-accept flex-1">Aceptar Colaboración</button>
+                            <button onclick="responderMatch(${sol.id}, 'rechazado')" class="btn-match-reject px-4">Declinar</button>
+                        </div>
+                    </div>`;
+                }
+            }
+            lista.innerHTML = html;
+        }
+
+        window.responderMatch = async function(solicitudId, nuevoEstado) {
+            // Actualizar el estado del match en la base de datos
+            await client.from('match_solicitudes').update({ estado: nuevoEstado }).eq('id', solicitudId);
+            
+            const card = document.getElementById(`req-${solicitudId}`);
+            card.innerHTML = `<p class="text-center text-sm font-bold text-zinc-500 py-4">Solicitud ${nuevoEstado === 'aceptado' ? 'aceptada ✅' : 'declinada ❌'}</p>`;
+            setTimeout(() => card.remove(), 2000);
+        };
+
+        // --- UTILIDADES ---
+        function mostrarMensaje(elemento, mensaje, exito) {
+            elemento.textContent = mensaje;
+            elemento.className = `text-xs px-3 py-2 rounded-lg mb-3 ${exito ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`;
+            elemento.classList.remove('hidden');
+            setTimeout(() => elemento.classList.add('hidden'), 4000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

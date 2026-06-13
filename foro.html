@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foro | ArtsForo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        #progress-bar { position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,#dc2626,#a855f7); z-index:9999; transition:width 0.3s ease; }
+
+        .fade-in { animation:fadeIn 0.35s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        .badge-artista { background:linear-gradient(135deg,#dc2626,#991b1b); font-size:9px; font-weight:900; letter-spacing:0.1em; text-transform:uppercase; padding:2px 8px; border-radius:999px; }
+        .badge-compositor { background:linear-gradient(135deg,#7c3aed,#4c1d95); font-size:9px; font-weight:900; letter-spacing:0.1em; text-transform:uppercase; padding:2px 8px; border-radius:999px; }
+
+        .skeleton { background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        /* FREEMIUM: blur para respuestas sin cuenta */
+        .blur-respuesta { filter: blur(4px); pointer-events:none; user-select:none; }
+
+        /* Banner de registro */
+        .banner-registro {
+            position: relative;
+            background: linear-gradient(135deg, rgba(220,38,38,0.15), rgba(168,85,247,0.15));
+            border: 1px solid rgba(220,38,38,0.3);
+            border-radius: 16px; padding: 20px; text-align:center;
+            margin: -8px 0 16px;
+        }
+
+        textarea:focus, input:focus { outline:none; }
+
+        /* Avatar colores */
+        .av-red { background: linear-gradient(135deg,#dc2626,#991b1b); }
+        .av-purple { background: linear-gradient(135deg,#7c3aed,#4c1d95); }
+        .av-blue { background: linear-gradient(135deg,#2563eb,#1e3a8a); }
+        .av-green { background: linear-gradient(135deg,#16a34a,#14532d); }
+        .av-orange { background: linear-gradient(135deg,#ea580c,#7c2d12); }
+        .av-pink { background: linear-gradient(135deg,#db2777,#831843); }
+    </style>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen pb-20">
+
+    <div id="progress-bar"></div>
+
+    <!-- HEADER -->
+    <header class="bg-[#0e0e0e] border-b border-zinc-800 sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="index.html" class="text-zinc-400 hover:text-white text-sm transition-colors flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Inicio
+            </a>
+            <div class="text-center">
+                <h1 class="text-base font-black tracking-tight">FORO <span class="text-red-500">FANS</span></h1>
+                <p class="text-[10px] text-zinc-600" id="contador-hilos">cargando...</p>
+            </div>
+            <div id="header-derecho">
+                <!-- Se llena con JS según sesión -->
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 pt-5">
+
+        <!-- FORM NUEVO HILO (solo auth) -->
+        <div id="form-nuevo-hilo" class="hidden mb-5 bg-zinc-900 border border-red-900 rounded-2xl p-5 fade-in">
+            <p class="text-xs font-black text-red-400 uppercase tracking-widest mb-4">Abrir nuevo hilo</p>
+            <div class="space-y-3">
+                <input type="text" id="hilo-titulo" placeholder="Título del hilo" maxlength="100"
+                    class="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded-xl px-4 py-3 focus:border-red-500 placeholder-zinc-600">
+                <textarea id="hilo-contenido" rows="3" placeholder="Mensaje inicial..." maxlength="500"
+                    class="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded-xl px-4 py-3 focus:border-red-500 placeholder-zinc-600 resize-none"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="window.publicarHilo()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors text-sm">Publicar hilo</button>
+                    <button onclick="window.ocultarFormHilo()" class="px-5 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition-colors text-sm">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTA DE HILOS -->
+        <div id="vista-lista">
+            <div id="skeletons-foro" class="flex flex-col gap-3">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full mb-3"></div><div class="skeleton h-3 w-1/3"></div></div>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5"><div class="skeleton h-4 w-2/3 mb-2"></div><div class="skeleton h-3 w-full mb-3"></div><div class="skeleton h-3 w-1/4"></div></div>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5"><div class="skeleton h-4 w-4/5 mb-2"></div><div class="skeleton h-3 w-full mb-3"></div><div class="skeleton h-3 w-1/3"></div></div>
+            </div>
+            <div id="lista-hilos" class="flex flex-col gap-3 hidden"></div>
+        </div>
+
+        <!-- HILO ABIERTO -->
+        <div id="vista-hilo" class="hidden">
+            <button onclick="window.volverALista()" class="text-zinc-400 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Volver al foro
+            </button>
+            <div id="detalle-hilo" class="mb-4"></div>
+            <div id="respuestas-hilo" class="flex flex-col gap-3 mb-5"></div>
+
+            <!-- Responder: se llena con JS según sesión -->
+            <div id="zona-responder"></div>
+        </div>
+    </main>
+
+    <script>
+    (function() {
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let hiloActualId = null;
+        let usuarioActual = null;
+        let perfilActual = null;
+
+        const coloresAv = ['av-red','av-purple','av-blue','av-green','av-orange','av-pink'];
+        function colorAvatar(str) { let h=0; for(let c of str) h=c.charCodeAt(0)+((h<<5)-h); return coloresAv[Math.abs(h)%coloresAv.length]; }
+
+        // Barra de progreso
+        const bar = document.getElementById('progress-bar');
+        let pp = 0;
+        const pInt = setInterval(() => { pp = Math.min(pp+20, 80); bar.style.width = pp+'%'; }, 150);
+        function finBar() { clearInterval(pInt); bar.style.width='100%'; setTimeout(()=>bar.style.opacity='0',300); }
+
+        async function init() {
+            const { data: { user } } = await client.auth.getUser();
+            usuarioActual = user;
+
+            if (user) {
+                const { data: p } = await client.from('perfiles').select('*').eq('id', user.id).single();
+                perfilActual = p;
+            }
+
+            renderHeader();
+            await cargarHilos();
+        }
+
+        function renderHeader() {
+            const hd = document.getElementById('header-derecho');
+            if (usuarioActual) {
+                hd.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <a href="profile.html" class="text-zinc-400 hover:text-white text-xs transition-colors">Mi perfil</a>
+                        <button onclick="window.mostrarFormHilo()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors">+ Hilo</button>
+                    </div>`;
+            } else {
+                hd.innerHTML = `<a href="register.html" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors">Unirse</a>`;
+            }
+        }
+
+        // ── FORM ──────────────────────────────────────────
+        window.mostrarFormHilo = function() {
+            if (!usuarioActual) { window.location.href = 'register.html'; return; }
+            document.getElementById('form-nuevo-hilo').classList.remove('hidden');
+        };
+        window.ocultarFormHilo = function() { document.getElementById('form-nuevo-hilo').classList.add('hidden'); };
+
+        window.publicarHilo = async function() {
+            if (!usuarioActual || !perfilActual) return;
+            const titulo = document.getElementById('hilo-titulo').value.trim();
+            const contenido = document.getElementById('hilo-contenido').value.trim();
+            if (!titulo || !contenido) return alert('Completa el título y el mensaje.');
+            const { error } = await client.from('foro_hilos').insert([{ autor_id: usuarioActual.id, titulo, contenido }]);
+            if (error) { alert('Error: ' + error.message); return; }
+            document.getElementById('hilo-titulo').value = '';
+            document.getElementById('hilo-contenido').value = '';
+            window.ocultarFormHilo();
+            await cargarHilos();
+        };
+
+        // ── LISTA ─────────────────────────────────────────
+        async function cargarHilos() {
+            const { data: hilos } = await client.from('foro_hilos').select('*, perfiles(nombre_display, username, tipo, verificado)').order('created_at', { ascending: false });
+            const { data: resp } = await client.from('foro_respuestas').select('hilo_id');
+
+            document.getElementById('skeletons-foro').classList.add('hidden');
+            const lista = document.getElementById('lista-hilos');
+            lista.classList.remove('hidden');
+            finBar();
+
+            if (!hilos || hilos.length === 0) {
+                lista.innerHTML = '<div class="text-center text-zinc-600 py-16 text-sm">No hay hilos todavía.<br><span class="text-zinc-700">¡Abre el primero!</span></div>';
+                document.getElementById('contador-hilos').textContent = '0 hilos';
+                return;
+            }
+
+            document.getElementById('contador-hilos').textContent = hilos.length + ' hilos';
+            const conteo = {};
+            (resp||[]).forEach(r => { conteo[r.hilo_id] = (conteo[r.hilo_id]||0)+1; });
+
+            lista.innerHTML = hilos.map(h => {
+                const perfil = h.perfiles || {};
+                const nombre = perfil.nombre_display || 'Usuario';
+                const tipo = perfil.tipo || 'fan';
+                const fecha = new Date(h.created_at).toLocaleDateString('es-PE', { day:'numeric', month:'short' });
+                const nR = conteo[h.id] || 0;
+                const col = colorAvatar(nombre);
+                const badgeTipo = tipo === 'artista' ? '<span class="badge-artista text-white">Artista</span>' : tipo === 'compositor' ? '<span class="badge-compositor text-white">Compositor</span>' : '';
+                return `
+                <div onclick="window.abrirHilo(${h.id})"
+                    class="bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded-2xl p-4 cursor-pointer transition-all fade-in group">
+                    <div class="flex gap-3">
+                        <a href="profile.html?u=${perfil.username}" onclick="event.stopPropagation()"
+                            class="w-9 h-9 rounded-full ${col} flex items-center justify-center text-sm font-black flex-shrink-0 mt-0.5 hover:opacity-80 transition-opacity">
+                            ${nombre.charAt(0).toUpperCase()}
+                        </a>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-white text-sm leading-snug group-hover:text-red-400 transition-colors mb-1">${h.titulo}</h3>
+                            <p class="text-zinc-500 text-xs truncate mb-2">${h.contenido}</p>
+                            <div class="flex items-center gap-2 flex-wrap text-[10px] text-zinc-600">
+                                <span class="font-bold text-zinc-500">${nombre}</span>
+                                ${badgeTipo}
+                                <span>·</span><span>${fecha}</span>
+                                <span>·</span><span>${nR} resp.</span>
+                            </div>
+                        </div>
+                        <svg class="w-4 h-4 text-zinc-700 flex-shrink-0 mt-1 group-hover:text-zinc-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ── ABRIR HILO ────────────────────────────────────
+        window.abrirHilo = async function(hiloId) {
+            hiloActualId = hiloId;
+            document.getElementById('vista-lista').classList.add('hidden');
+            document.getElementById('form-nuevo-hilo').classList.add('hidden');
+            document.getElementById('vista-hilo').classList.remove('hidden');
+            document.getElementById('detalle-hilo').innerHTML = '<div class="skeleton h-32 rounded-2xl mb-4"></div>';
+
+            const [{ data: hilo }, { data: respuestas }] = await Promise.all([
+                client.from('foro_hilos').select('*, perfiles(nombre_display, username, tipo, verificado)').eq('id', hiloId).single(),
+                client.from('foro_respuestas').select('*, perfiles(nombre_display, username, tipo)').eq('hilo_id', hiloId).order('created_at', { ascending: true })
+            ]);
+
+            const perfil = hilo.perfiles || {};
+            const nombre = perfil.nombre_display || 'Usuario';
+            const tipo = perfil.tipo || 'fan';
+            const fecha = new Date(hilo.created_at).toLocaleDateString('es-PE', { day:'numeric', month:'long', year:'numeric' });
+            const col = colorAvatar(nombre);
+            const badgeTipo = tipo === 'artista' ? '<span class="badge-artista text-white ml-1">Artista</span>' : tipo === 'compositor' ? '<span class="badge-compositor text-white ml-1">Compositor</span>' : '';
+
+            document.getElementById('detalle-hilo').innerHTML = `
+            <div class="bg-zinc-900 border border-red-900 rounded-2xl p-5 mb-1">
+                <div class="flex items-center gap-3 mb-3">
+                    <a href="profile.html?u=${perfil.username}" class="w-9 h-9 rounded-full ${col} flex items-center justify-center text-sm font-black flex-shrink-0 hover:opacity-80 transition-opacity">
+                        ${nombre.charAt(0).toUpperCase()}
+                    </a>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <a href="profile.html?u=${perfil.username}" class="font-bold text-sm text-white hover:text-red-400 transition-colors">${nombre}</a>
+                            ${badgeTipo}
+                            ${perfil.verificado ? '<svg class="w-3.5 h-3.5 text-red-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>' : ''}
+                        </div>
+                        <p class="text-[10px] text-zinc-500">${fecha}</p>
+                    </div>
+                </div>
+                <h2 class="text-xl font-black text-white mb-2">${hilo.titulo}</h2>
+                <p class="text-sm text-zinc-300 leading-relaxed">${hilo.contenido}</p>
+            </div>`;
+
+            renderizarRespuestas(respuestas || []);
+            renderZonaResponder();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function renderizarRespuestas(respuestas) {
+            const cont = document.getElementById('respuestas-hilo');
+            if (respuestas.length === 0) {
+                cont.innerHTML = '<p class="text-xs text-zinc-700 italic text-center py-4">Nadie ha respondido todavía.</p>';
+                return;
+            }
+
+            // Si no hay cuenta: mostrar las 2 primeras normales, el resto borrosas
+            cont.innerHTML = respuestas.map((r, i) => {
+                const p = r.perfiles || {};
+                const nombre = p.nombre_display || 'Usuario';
+                const tipo = p.tipo || 'fan';
+                const fecha = new Date(r.created_at).toLocaleDateString('es-PE', { day:'numeric', month:'short' });
+                const col = colorAvatar(nombre);
+                const badgeTipo = tipo === 'artista' ? '<span class="badge-artista text-white">Artista</span>' : tipo === 'compositor' ? '<span class="badge-compositor text-white">Compositor</span>' : '';
+                const esBorroso = !usuarioActual && i >= 2;
+
+                return `
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 fade-in ${esBorroso ? 'blur-respuesta' : ''}">
+                    <div class="flex items-center gap-2 mb-2">
+                        <a href="profile.html?u=${p.username}" class="w-8 h-8 rounded-full ${col} flex items-center justify-center text-xs font-black flex-shrink-0 hover:opacity-80 transition-opacity">
+                            ${nombre.charAt(0).toUpperCase()}
+                        </a>
+                        <a href="profile.html?u=${p.username}" class="text-xs font-bold text-zinc-300 hover:text-white transition-colors">${nombre}</a>
+                        ${badgeTipo}
+                        <span class="text-[10px] text-zinc-600 ml-auto">#${i+2} · ${fecha}</span>
+                    </div>
+                    <p class="text-sm text-zinc-400 leading-relaxed">${r.contenido}</p>
+                </div>`;
+            }).join('');
+
+            // Si no hay sesión y hay más de 2 respuestas, mostrar banner
+            if (!usuarioActual && respuestas.length > 2) {
+                cont.innerHTML += `
+                <div class="banner-registro fade-in">
+                    <p class="text-sm font-black text-white mb-1">Ve todas las respuestas</p>
+                    <p class="text-zinc-400 text-xs mb-4">Regístrate gratis para leer el hilo completo y participar.</p>
+                    <div class="flex gap-2 justify-center">
+                        <a href="register.html" class="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors">Crear cuenta gratis</a>
+                        <a href="login.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors">Ingresar</a>
+                    </div>
+                </div>`;
+            }
+        }
+
+        function renderZonaResponder() {
+            const zona = document.getElementById('zona-responder');
+            if (usuarioActual && perfilActual) {
+                zona.innerHTML = `
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-7 h-7 rounded-full ${colorAvatar(perfilActual.nombre_display)} flex items-center justify-center text-xs font-black flex-shrink-0">
+                            ${perfilActual.nombre_display.charAt(0).toUpperCase()}
+                        </div>
+                        <span class="text-xs font-bold text-zinc-400">${perfilActual.nombre_display}</span>
+                    </div>
+                    <textarea id="resp-contenido" rows="3" placeholder="Escribe tu respuesta..." maxlength="500"
+                        class="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded-xl px-4 py-3 focus:border-red-500 placeholder-zinc-600 resize-none mb-3"></textarea>
+                    <button onclick="window.responderHilo()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors text-sm">Enviar respuesta</button>
+                </div>`;
+            } else {
+                zona.innerHTML = `
+                <div class="banner-registro">
+                    <p class="text-sm font-black text-white mb-1">¿Tienes algo que decir?</p>
+                    <p class="text-zinc-400 text-xs mb-4">Crea tu cuenta gratis para responder en el foro.</p>
+                    <div class="flex gap-2 justify-center">
+                        <a href="register.html" class="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors">Crear cuenta gratis</a>
+                        <a href="login.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors">Ya tengo cuenta</a>
+                    </div>
+                </div>`;
+            }
+        }
+
+        window.responderHilo = async function() {
+            if (!usuarioActual || !perfilActual) return;
+            const contenido = document.getElementById('resp-contenido').value.trim();
+            if (!contenido) return;
+            const { error } = await client.from('foro_respuestas').insert([{ hilo_id: hiloActualId, autor_id: usuarioActual.id, contenido }]);
+            if (error) { alert('Error: ' + error.message); return; }
+            document.getElementById('resp-contenido').value = '';
+            const { data: resp } = await client.from('foro_respuestas').select('*, perfiles(nombre_display, username, tipo)').eq('hilo_id', hiloActualId).order('created_at', { ascending: true });
+            renderizarRespuestas(resp || []);
+            document.getElementById('respuestas-hilo').lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.volverALista = function() {
+            hiloActualId = null;
+            document.getElementById('vista-hilo').classList.add('hidden');
+            document.getElementById('vista-lista').classList.remove('hidden');
+        };
+
+        init();
+    })();
+    </script>
+</body>
+</html>

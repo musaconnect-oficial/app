@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar | ArtsForo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .input-field {
+            width: 100%; background: #1c1c1c; border: 1.5px solid #27272a;
+            color: #fff; border-radius: 10px; padding: 12px 16px;
+            font-size: 14px; transition: border-color 0.2s;
+        }
+        .input-field:focus { outline: none; border-color: #dc2626; }
+        .input-field::placeholder { color: #52525b; }
+
+        .btn-primary {
+            width: 100%; background: #dc2626; color: #fff; font-weight: 700;
+            padding: 14px; border-radius: 10px; font-size: 15px;
+            transition: background 0.2s, transform 0.1s; border: none; cursor: pointer;
+        }
+        .btn-primary:hover { background: #b91c1c; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { background: #3f3f46; cursor: not-allowed; }
+
+        .slide-up { animation: slideUp 0.4s ease forwards; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-sm slide-up">
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-block">
+                <h1 class="text-2xl font-black tracking-tight">ARTS<span class="text-red-600">FORO</span></h1>
+            </a>
+            <p class="text-zinc-500 text-sm mt-1">Bienvenido de vuelta</p>
+        </div>
+
+        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6">
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="text-xs text-zinc-400 font-bold mb-1 block">Correo electrónico</label>
+                    <input type="email" id="login-email" class="input-field" placeholder="tu@correo.com">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 font-bold mb-1 block">Contraseña</label>
+                    <input type="password" id="login-password" class="input-field" placeholder="••••••••">
+                </div>
+
+                <div id="login-error" class="hidden bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3"></div>
+
+                <button id="btn-login" class="btn-primary mt-2" onclick="iniciarSesion()">Ingresar</button>
+            </div>
+        </div>
+
+        <p class="text-center text-zinc-600 text-sm mt-5">
+            ¿No tienes cuenta? <a href="register.html" class="text-red-500 hover:text-red-400 font-bold">Crear cuenta gratis</a>
+        </p>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Verificar si ya hay una sesión activa al cargar la página
+        async function checkSession() {
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+                window.location.href = 'profile.html'; // Redirigir si ya está logueado
+            }
+        }
+        checkSession();
+
+        async function iniciarSesion() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            const btn = document.getElementById('btn-login');
+
+            // Lógica de validación básica
+            if (!email || !password) {
+                mostrarError('Por favor, completa todos los campos.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Verificando...';
+            errorDiv.classList.add('hidden');
+
+            // Operación de lectura (verificación de credenciales) en la base de datos
+            const { data, error } = await client.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                btn.disabled = false;
+                btn.textContent = 'Ingresar';
+                if (error.message === 'Invalid login credentials') {
+                    mostrarError('Correo o contraseña incorrectos.');
+                } else {
+                    mostrarError(error.message);
+                }
+                return;
+            }
+
+            // Si pasa la validación, redirigimos al perfil
+            window.location.href = 'profile.html';
+        }
+
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.textContent = mensaje;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // Función global para cerrar sesión (puedes llamarla desde cualquier botón en tu app)
+        window.cerrarSesion = async function() {
+            await client.auth.signOut();
+            window.location.href = 'login.html';
+        };
+    </script>
+</body>
+</html>

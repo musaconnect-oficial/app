@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil | ArtsForo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .input-field {
+            width: 100%; background: #1c1c1c; border: 1.5px solid #27272a;
+            color: #fff; border-radius: 10px; padding: 10px 14px;
+            font-size: 14px; transition: border-color 0.2s;
+        }
+        .input-field:focus { outline: none; border-color: #dc2626; }
+        .input-field::placeholder { color: #52525b; }
+
+        .btn-primary {
+            background: #dc2626; color: #fff; font-weight: 700;
+            padding: 12px 24px; border-radius: 10px; font-size: 14px;
+            transition: all 0.2s; border: none; cursor: pointer;
+        }
+        .btn-primary:hover { background: #b91c1c; }
+        
+        .btn-secondary {
+            background: #27272a; color: #a1a1aa; font-weight: 700;
+            padding: 12px 24px; border-radius: 10px; font-size: 14px;
+            transition: all 0.2s; border: 1px solid #3f3f46; cursor: pointer;
+        }
+        .btn-secondary:hover { background: #3f3f46; color: #fff; }
+
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen pb-12">
+
+    <header class="bg-[#0e0e0e]/80 backdrop-blur border-b border-zinc-800/50 sticky top-0 z-50">
+        <div class="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="profile.html" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Cancelar
+            </a>
+            <span class="font-black text-sm">Editar Perfil</span>
+            <button onclick="cerrarSesion()" class="text-zinc-500 hover:text-red-500 text-xs font-bold transition-colors">Salir 🚪</button>
+        </div>
+    </header>
+
+    <main class="max-w-xl mx-auto px-4 pt-6 fade-in">
+        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6 space-y-6">
+            
+            <div class="space-y-4">
+                <h3 class="text-xs font-black text-zinc-400 uppercase tracking-wider">Diseño del perfil</h3>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">URL de Imagen de Avatar (Foto de perfil)</label>
+                    <input type="text" id="edit-avatar" class="input-field" placeholder="https://ejemplo.com/tu-foto.jpg">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">URL de Imagen de Banner</label>
+                    <input type="text" id="edit-banner" class="input-field" placeholder="https://ejemplo.com/tu-banner.jpg">
+                </div>
+            </div>
+
+            <hr class="border-zinc-800">
+
+            <div class="space-y-4">
+                <h3 class="text-xs font-black text-zinc-400 uppercase tracking-wider">Información Básica</h3>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">Nombre en pantalla</label>
+                    <input type="text" id="edit-nombre" class="input-field" placeholder="Tu nombre artístico o de usuario" maxlength="50">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">Biografía</label>
+                    <textarea id="edit-bio" class="input-field resize-none" rows="3" placeholder="Cuéntale al mundo sobre ti..." maxlength="160"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">Ciudad / Ubicación</label>
+                    <input type="text" id="edit-ciudad" class="input-field" placeholder="Ej: Santiago, Chile" maxlength="50">
+                </div>
+            </div>
+
+            <hr class="border-zinc-800">
+
+            <div id="seccion-generos" class="space-y-3">
+                <h3 class="text-xs font-black text-zinc-400 uppercase tracking-wider">Géneros Musicales (Máx. 5)</h3>
+                <div class="flex flex-wrap gap-2" id="generos-contenedor">
+                    </div>
+            </div>
+
+            <hr class="border-zinc-800">
+
+            <div class="space-y-4">
+                <h3 class="text-xs font-black text-zinc-400 uppercase tracking-wider">Redes Sociales</h3>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">Instagram (Solo el usuario, sin @)</label>
+                    <input type="text" id="edit-instagram" class="input-field" placeholder="usuario_instagram">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">Enlace de YouTube</label>
+                    <input type="url" id="edit-youtube" class="input-field" placeholder="https://youtube.com/@tu_canal">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">Enlace de Spotify</label>
+                    <input type="url" id="edit-spotify" class="input-field" placeholder="https://open.spotify.com/artist/...">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-500 font-bold mb-1 block">Enlace de SoundCloud</label>
+                    <input type="url" id="edit-soundcloud" class="input-field" placeholder="https://soundcloud.com/...">
+                </div>
+            </div>
+
+            <div id="edit-error" class="hidden bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3"></div>
+            <div id="edit-exito" class="hidden bg-green-900/30 border border-green-800 text-green-400 text-xs rounded-lg px-4 py-3"></div>
+
+            <div class="flex gap-3 pt-2">
+                <button id="btn-guardar" onclick="guardarPerfil()" class="btn-primary flex-1">Guardar Cambios</button>
+                <a href="profile.html" class="btn-secondary text-center">Volver</a>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let usuarioActual = null;
+        let generosSeleccionados = [];
+
+        const LISTA_GENEROS = ['Trap','R&B','Hip Hop','Reggaeton','Pop','Electrónica','Rock','Cumbia','Salsa','Balada','Indie','Jazz','Soul','Afrobeat','Drill','Corridos'];
+
+        async function init() {
+            // Verificar autenticación
+            const { data: { user } } = await client.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            usuarioActual = user;
+
+            // Obtener los datos actuales del perfil desde Supabase
+            const { data: perfil, error } = await client.from('perfiles').select('*').eq('id', user.id).single();
+            
+            if (error) {
+                mostrarMensaje('error', 'Error al cargar los datos de tu perfil.');
+                return;
+            }
+
+            // Rellenar los campos del formulario con los valores existentes
+            if (perfil) {
+                document.getElementById('edit-avatar').value = perfil.avatar_url || '';
+                document.getElementById('edit-banner').value = perfil.banner_url || '';
+                document.getElementById('edit-nombre').value = perfil.nombre_display || '';
+                document.getElementById('edit-bio').value = perfil.bio || '';
+                document.getElementById('edit-ciudad').value = perfil.ciudad || '';
+                document.getElementById('edit-instagram').value = perfil.instagram || '';
+                document.getElementById('edit-youtube').value = perfil.youtube || '';
+                document.getElementById('edit-spotify').value = perfil.spotify || '';
+                document.getElementById('edit-soundcloud').value = perfil.soundcloud || '';
+                
+                generosSeleccionados = perfil.generos || [];
+            }
+
+            renderizarGeneros();
+        }
+
+        function renderizarGeneros() {
+            const contenedor = document.getElementById('generos-contenedor');
+            contenedor.innerHTML = LISTA_GENEROS.map(g => {
+                const activo = generosSeleccionados.includes(g);
+                return `
+                    <button onclick="toggleGenero('${g}', this)"
+                        class="px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${activo ? 'border-red-600 text-white bg-red-900/20' : 'border-zinc-700 text-zinc-400 bg-zinc-900'}"
+                        data-genero="${g}">${g}</button>
+                `;
+            }).join('');
+        }
+
+        function toggleGenero(g, el) {
+            if (generosSeleccionados.includes(g)) {
+                generosSeleccionados = generosSeleccionados.filter(x => x !== g);
+                el.className = "px-3 py-1.5 rounded-full text-xs font-bold border border-zinc-700 text-zinc-400 bg-zinc-900";
+            } else if (generosSeleccionados.length < 5) {
+                generosSeleccionados.push(g);
+                el.className = "px-3 py-1.5 rounded-full text-xs font-bold border border-red-600 text-white bg-red-900/20";
+            }
+        }
+
+        async function guardarPerfil() {
+            const btn = document.getElementById('btn-guardar');
+            const nombre = document.getElementById('edit-nombre').value.trim();
+            const bio = document.getElementById('edit-bio').value.trim();
+            const ciudad = document.getElementById('edit-ciudad').value.trim();
+            const avatar_url = document.getElementById('edit-avatar').value.trim();
+            const banner_url = document.getElementById('edit-banner').value.trim();
+            const instagram = document.getElementById('edit-instagram').value.trim();
+            const youtube = document.getElementById('edit-youtube').value.trim();
+            const spotify = document.getElementById('edit-spotify').value.trim();
+            const soundcloud = document.getElementById('edit-soundcloud').value.trim();
+
+            if (!nombre) {
+                mostrarMensaje('error', 'El nombre en pantalla es obligatorio.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Guardando cambios...';
+
+            // Actualizar el perfil usando una operación de escritura directa
+            const { error } = await client.from('perfiles').update({
+                nombre_display: nombre,
+                bio: bio,
+                ciudad: ciudad,
+                avatar_url: avatar_url,
+                banner_url: banner_url,
+                instagram: instagram,
+                youtube: youtube,
+                spotify: spotify,
+                soundcloud: soundcloud,
+                generos: generosSeleccionados
+            }).eq('id', usuarioActual.id);
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar Cambios';
+
+            if (error) {
+                mostrarMensaje('error', 'Ocurrió un error al actualizar el perfil: ' + error.message);
+            } else {
+                mostrarMensaje('exito', '¡Perfil actualizado con éxito! Redirigiendo...');
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1500);
+            }
+        }
+
+        function mostrarMensaje(tipo, msg) {
+            const errDiv = document.getElementById('edit-error');
+            const okDiv = document.getElementById('edit-exito');
+            
+            errDiv.classList.add('hidden');
+            okDiv.classList.add('hidden');
+
+            if (tipo === 'error') {
+                errDiv.textContent = msg;
+                errDiv.classList.remove('hidden');
+            } else {
+                okDiv.textContent = msg;
+                okDiv.classList.remove('hidden');
+            }
+        }
+
+        window.cerrarSesion = async function() {
+            await client.auth.signOut();
+            window.location.href = 'login.html';
+        };
+
+        init();
+    </script>
+</body>
+</html>

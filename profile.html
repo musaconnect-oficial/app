@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil | ArtsForo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .banner { height: 180px; background: linear-gradient(135deg, #1a1a2e, #16213e, #1a0a0a); position: relative; }
+        .banner img { width:100%; height:100%; object-fit:cover; }
+        .banner::after { content:''; position:absolute; inset:0; background: linear-gradient(to bottom, transparent 50%, #0e0e0e 100%); }
+
+        .avatar-ring { background: linear-gradient(135deg, #dc2626, #a855f7); padding: 3px; border-radius: 50%; }
+        .avatar-ring img, .avatar-ring .avatar-placeholder { width:88px; height:88px; border-radius:50%; object-fit:cover; display:block; }
+        .avatar-placeholder { background:#27272a; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:28px; }
+
+        .badge-tipo { font-size:10px; font-weight:900; letter-spacing:0.08em; text-transform:uppercase; padding:3px 10px; border-radius:999px; }
+        .badge-fan { background:#1e293b; color:#94a3b8; }
+        .badge-artista { background:linear-gradient(135deg,#dc2626,#991b1b); color:#fff; }
+        .badge-compositor { background:linear-gradient(135deg,#7c3aed,#4c1d95); color:#fff; }
+
+        .tab { padding:12px 16px; font-size:13px; font-weight:700; color:#71717a; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+        .tab.activo { color:#fff; border-bottom-color:#dc2626; }
+        .tab:hover:not(.activo) { color:#a1a1aa; }
+
+        .post-card { background:#161616; border:1px solid #27272a; border-radius:16px; overflow:hidden; }
+        .post-media { width:100%; aspect-ratio:1/1; object-fit:cover; }
+
+        .btn-seguir { padding:8px 20px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+        .btn-seguir.siguiendo { background:#27272a; color:#a1a1aa; border:1.5px solid #3f3f46; }
+        .btn-seguir.no-siguiendo { background:#dc2626; color:#fff; border:1.5px solid transparent; }
+        .btn-seguir.no-siguiendo:hover { background:#b91c1c; }
+
+        .btn-match { padding:8px 20px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; background:linear-gradient(135deg,#7c3aed,#4c1d95); color:#fff; transition:all 0.2s; }
+        .btn-match:hover { opacity:0.85; }
+
+        .skeleton { background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        .fade-in { animation:fadeIn 0.35s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Modal match */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:100; display:flex; align-items:center; justify-content:center; padding:16px; }
+        .modal-box { background:#141414; border:1px solid #27272a; border-radius:20px; padding:24px; width:100%; max-width:420px; }
+    </style>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen pb-20">
+
+    <!-- HEADER -->
+    <header class="bg-[#0e0e0e]/80 backdrop-blur border-b border-zinc-800/50 sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="javascript:history.back()" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Volver
+            </a>
+            <span class="font-black text-sm" id="header-username">@...</span>
+            <div id="header-acciones" class="w-16"></div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto">
+
+        <!-- BANNER -->
+        <div class="banner" id="banner-perfil">
+            <img id="banner-img" src="" alt="" style="display:none">
+        </div>
+
+        <!-- INFO PERFIL -->
+        <div class="px-4 -mt-12 relative z-10">
+            <div class="flex items-end justify-between mb-3">
+                <div class="avatar-ring" id="avatar-container">
+                    <div class="avatar-placeholder" id="avatar-placeholder">?</div>
+                </div>
+                <div class="flex gap-2 pb-2" id="acciones-perfil">
+                    <!-- Botones se llenan con JS -->
+                </div>
+            </div>
+
+            <!-- Nombre y badge -->
+            <div class="flex items-center gap-2 mb-1">
+                <h1 class="text-xl font-black" id="nombre-display">Cargando...</h1>
+                <span id="badge-verificado" class="hidden">
+                    <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </span>
+            </div>
+
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-zinc-500 text-sm" id="username-display">@...</span>
+                <span class="badge-tipo" id="badge-tipo">Fan</span>
+            </div>
+
+            <p class="text-zinc-400 text-sm leading-relaxed mb-3" id="bio-display"></p>
+
+            <!-- Géneros -->
+            <div class="flex flex-wrap gap-1.5 mb-3" id="generos-display"></div>
+
+            <!-- Ciudad y stats -->
+            <div class="flex items-center gap-4 text-sm text-zinc-500 mb-4">
+                <span id="ciudad-display" class="hidden flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span id="ciudad-texto"></span>
+                </span>
+                <span><strong class="text-white" id="stat-seguidores">0</strong> seguidores</span>
+                <span><strong class="text-white" id="stat-siguiendo">0</strong> siguiendo</span>
+            </div>
+
+            <!-- Redes sociales -->
+            <div class="flex gap-2 mb-4" id="redes-sociales"></div>
+        </div>
+
+        <!-- TABS -->
+        <div class="border-b border-zinc-800 overflow-x-auto">
+            <div class="flex px-4 min-w-max">
+                <button class="tab activo" onclick="mostrarTab('posts')" id="tab-posts">Posts</button>
+                <button class="tab" onclick="mostrarTab('musica')" id="tab-musica">Música</button>
+                <button class="tab" onclick="mostrarTab('foro')" id="tab-foro">Foro</button>
+            </div>
+        </div>
+
+        <!-- CONTENIDO TABS -->
+        <div class="px-4 pt-4">
+            <!-- Posts -->
+            <div id="contenido-posts">
+                <div id="grid-posts" class="grid grid-cols-3 gap-1 mb-4"></div>
+            </div>
+
+            <!-- Música -->
+            <div id="contenido-musica" class="hidden">
+                <div id="lista-canciones" class="flex flex-col gap-3"></div>
+            </div>
+
+            <!-- Foro -->
+            <div id="contenido-foro" class="hidden">
+                <div id="lista-hilos-perfil" class="flex flex-col gap-3"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal solicitud de colaboración -->
+    <div id="modal-match" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 class="text-lg font-black mb-1">Solicitud de colaboración</h3>
+            <p class="text-zinc-500 text-sm mb-4">Envía un mensaje presentándote y contando qué tipo de colaboración buscas.</p>
+            <textarea id="msg-match" rows="4" maxlength="300" placeholder="Ej: Hola, soy compositor de trap, tengo beats disponibles y me gustaría trabajar contigo..."
+                class="w-full bg-zinc-900 border border-zinc-700 text-white text-sm rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-purple-500 placeholder-zinc-600 mb-3"></textarea>
+            <div class="flex gap-2">
+                <button onclick="enviarMatch()" class="flex-1 btn-match py-3 rounded-xl text-sm font-bold">Enviar solicitud</button>
+                <button onclick="cerrarModal()" class="px-5 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl text-sm transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Obtener username de la URL: profile.html?u=username
+        const params = new URLSearchParams(window.location.search);
+        const usernameURL = params.get('u');
+
+        let perfilData = null;
+        let usuarioActual = null;
+        let esSiguiendo = false;
+
+        async function init() {
+            const { data: { user } } = await client.auth.getUser();
+            usuarioActual = user;
+
+            if (!usernameURL) {
+                // Sin parámetro: mostrar perfil propio
+                if (!user) { window.location.href = 'login.html'; return; }
+                const { data: p } = await client.from('perfiles').select('*').eq('id', user.id).single();
+                if (p) cargarPerfil(p);
+            } else {
+                const { data: p } = await client.from('perfiles').select('*').eq('username', usernameURL).single();
+                if (!p) {
+                    document.body.innerHTML = '<div class="flex items-center justify-center h-screen text-zinc-500">Usuario no encontrado.</div>';
+                    return;
+                }
+                cargarPerfil(p);
+            }
+        }
+
+        async function cargarPerfil(p) {
+            perfilData = p;
+
+            // Header
+            document.getElementById('header-username').textContent = '@' + p.username;
+            document.title = p.nombre_display + ' | ArtsForo';
+
+            // Banner
+            if (p.banner_url) {
+                const img = document.getElementById('banner-img');
+                img.src = p.banner_url;
+                img.style.display = 'block';
+            }
+
+            // Avatar
+            const container = document.getElementById('avatar-container');
+            if (p.avatar_url) {
+                container.innerHTML = `<img src="${p.avatar_url}" alt="${p.nombre_display}">`;
+            } else {
+                document.getElementById('avatar-placeholder').textContent = p.nombre_display.charAt(0).toUpperCase();
+            }
+
+            // Info básica
+            document.getElementById('nombre-display').textContent = p.nombre_display;
+            document.getElementById('username-display').textContent = '@' + p.username;
+            if (p.verificado) document.getElementById('badge-verificado').classList.remove('hidden');
+
+            // Badge tipo
+            const badgeEl = document.getElementById('badge-tipo');
+            const badges = { fan: 'badge-fan', artista: 'badge-artista', compositor: 'badge-compositor' };
+            const labels = { fan: 'Fan', artista: 'Artista', compositor: 'Compositor' };
+            badgeEl.className = 'badge-tipo ' + (badges[p.tipo] || 'badge-fan');
+            badgeEl.textContent = labels[p.tipo] || p.tipo;
+
+            // Bio
+            if (p.bio) document.getElementById('bio-display').textContent = p.bio;
+
+            // Géneros
+            if (p.generos && p.generos.length > 0) {
+                document.getElementById('generos-display').innerHTML = p.generos.map(g =>
+                    `<span class="text-xs font-bold bg-zinc-800 text-zinc-400 px-2.5 py-1 rounded-full">${g}</span>`
+                ).join('');
+            }
+
+            // Ciudad
+            if (p.ciudad) {
+                document.getElementById('ciudad-display').classList.remove('hidden');
+                document.getElementById('ciudad-texto').textContent = p.ciudad;
+            }
+
+            // Redes
+            const redes = [];
+            if (p.instagram) redes.push(`<a href="https://instagram.com/${p.instagram}" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 text-xs font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1">📷 Instagram</a>`);
+            if (p.youtube) redes.push(`<a href="${p.youtube}" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 text-xs font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1">▶️ YouTube</a>`);
+            if (p.spotify) redes.push(`<a href="${p.spotify}" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 text-xs font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1">🎵 Spotify</a>`);
+            document.getElementById('redes-sociales').innerHTML = redes.join('');
+
+            // Stats seguidores
+            await cargarStats(p.id);
+
+            // Botones de acción
+            await renderAcciones(p);
+
+            // Contenido
+            await Promise.all([cargarPostsPerfil(p.id), cargarMusica(p.id), cargarHilosPerfil(p.id)]);
+        }
+
+        async function cargarStats(uid) {
+            const [{ count: seguidores }, { count: siguiendo }] = await Promise.all([
+                client.from('seguidores').select('*', { count: 'exact', head: true }).eq('seguido_id', uid),
+                client.from('seguidores').select('*', { count: 'exact', head: true }).eq('seguidor_id', uid)
+            ]);
+            document.getElementById('stat-seguidores').textContent = seguidores || 0;
+            document.getElementById('stat-siguiendo').textContent = siguiendo || 0;
+        }
+
+        async function renderAcciones(p) {
+            const accionesEl = document.getElementById('acciones-perfil');
+            if (!usuarioActual || usuarioActual.id === p.id) {
+                if (usuarioActual && usuarioActual.id === p.id) {
+                    accionesEl.innerHTML = `<a href="editar-perfil.html" class="btn-seguir no-siguiendo text-xs">Editar perfil</a>`;
+                }
+                return;
+            }
+
+            // Ver si ya sigue
+            const { data: sigData } = await client.from('seguidores')
+                .select('id').eq('seguidor_id', usuarioActual.id).eq('seguido_id', p.id).maybeSingle();
+            esSiguiendo = !!sigData;
+
+            let btns = `<button onclick="toggleSeguir()" id="btn-seguir" class="btn-seguir ${esSiguiendo ? 'siguiendo' : 'no-siguiendo'}">${esSiguiendo ? 'Siguiendo' : 'Seguir'}</button>`;
+
+            // Botón match solo entre artista/compositor
+            const userPerf = await client.from('perfiles').select('tipo').eq('id', usuarioActual.id).single();
+            if (userPerf.data && (p.tipo === 'artista' || p.tipo === 'compositor') && userPerf.data.tipo !== 'fan') {
+                btns += `<button onclick="abrirModal()" class="btn-match ml-1">🤝 Colaborar</button>`;
+            }
+
+            accionesEl.innerHTML = btns;
+        }
+
+        window.toggleSeguir = async function() {
+            if (!usuarioActual) { window.location.href = 'login.html'; return; }
+            const btn = document.getElementById('btn-seguir');
+            if (esSiguiendo) {
+                await client.from('seguidores').delete().eq('seguidor_id', usuarioActual.id).eq('seguido_id', perfilData.id);
+                esSiguiendo = false;
+                btn.className = 'btn-seguir no-siguiendo';
+                btn.textContent = 'Seguir';
+            } else {
+                await client.from('seguidores').insert([{ seguidor_id: usuarioActual.id, seguido_id: perfilData.id }]);
+                esSiguiendo = true;
+                btn.className = 'btn-seguir siguiendo';
+                btn.textContent = 'Siguiendo';
+            }
+            await cargarStats(perfilData.id);
+        };
+
+        // ── POSTS ──────────────────────────────────────────
+        async function cargarPostsPerfil(uid) {
+            const { data: posts } = await client.from('feed_posts').select('*').eq('autor_id', uid).order('created_at', { ascending: false });
+            const grid = document.getElementById('grid-posts');
+            if (!posts || posts.length === 0) {
+                grid.innerHTML = '<p class="text-zinc-600 text-sm col-span-3 py-8 text-center">Sin publicaciones aún.</p>';
+                return;
+            }
+            grid.innerHTML = posts.map(p => {
+                const esVideo = p.media_url && p.media_url.match(/\.(mp4|webm|mov)/i);
+                const thumb = p.media_url
+                    ? (esVideo
+                        ? `<div class="w-full aspect-square bg-zinc-900 flex items-center justify-center rounded"><span class="text-2xl">▶</span></div>`
+                        : `<img src="${p.media_url}" alt="" class="post-media rounded">`)
+                    : `<div class="w-full aspect-square bg-zinc-900 rounded flex items-center justify-center p-2"><p class="text-zinc-500 text-xs text-center line-clamp-4">${p.texto || ''}</p></div>`;
+                return `<a href="feed.html#post-${p.id}" class="block rounded overflow-hidden border border-zinc-800 hover:border-zinc-600 transition-colors fade-in">${thumb}</a>`;
+            }).join('');
+        }
+
+        // ── MÚSICA ─────────────────────────────────────────
+        async function cargarMusica(uid) {
+            const { data: canciones } = await client.from('canciones').select('*').eq('artista_id', uid).order('orden');
+            const lista = document.getElementById('lista-canciones');
+            if (!canciones || canciones.length === 0) {
+                lista.innerHTML = '<p class="text-zinc-600 text-sm py-8 text-center">Sin música publicada.</p>';
+                return;
+            }
+            lista.innerHTML = canciones.map((c, i) => `
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center gap-4 fade-in">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold text-sm flex-shrink-0">${i+1}</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-sm text-white truncate">${c.titulo}</p>
+                        ${c.enlace_embed ? `<div class="mt-2">${c.enlace_embed}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ── HILOS ──────────────────────────────────────────
+        async function cargarHilosPerfil(uid) {
+            const { data: hilos } = await client.from('foro_hilos').select('*').eq('autor_id', uid).order('created_at', { ascending: false });
+            const lista = document.getElementById('lista-hilos-perfil');
+            if (!hilos || hilos.length === 0) {
+                lista.innerHTML = '<p class="text-zinc-600 text-sm py-8 text-center">Sin hilos en el foro.</p>';
+                return;
+            }
+            lista.innerHTML = hilos.map(h => {
+                const fecha = new Date(h.created_at).toLocaleDateString('es-PE', { day:'numeric', month:'short' });
+                return `
+                <a href="foro.html#hilo-${h.id}" class="block bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded-xl p-4 fade-in transition-colors">
+                    <h3 class="font-bold text-sm text-white mb-1">${h.titulo}</h3>
+                    <p class="text-zinc-500 text-xs truncate mb-2">${h.contenido}</p>
+                    <span class="text-zinc-600 text-[10px]">${fecha}</span>
+                </a>`;
+            }).join('');
+        }
+
+        // ── TABS ───────────────────────────────────────────
+        window.mostrarTab = function(tab) {
+            ['posts','musica','foro'].forEach(t => {
+                document.getElementById('contenido-' + t).classList.toggle('hidden', t !== tab);
+                document.getElementById('tab-' + t).classList.toggle('activo', t === tab);
+            });
+        };
+
+        // ── MATCH MODAL ────────────────────────────────────
+        window.abrirModal = function() { document.getElementById('modal-match').classList.remove('hidden'); };
+        window.cerrarModal = function() { document.getElementById('modal-match').classList.add('hidden'); };
+
+        window.enviarMatch = async function() {
+            if (!usuarioActual) { window.location.href = 'login.html'; return; }
+            const msg = document.getElementById('msg-match').value.trim();
+            if (!msg) return;
+            await client.from('match_solicitudes').upsert([{ de_id: usuarioActual.id, para_id: perfilData.id, mensaje: msg }]);
+            cerrarModal();
+            alert('✅ Solicitud enviada. ' + perfilData.nombre_display + ' la recibirá pronto.');
+        };
+
+        init();
+    })();
+    </script>
+</body>
+</html>
