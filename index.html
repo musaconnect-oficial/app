@@ -6,30 +6,138 @@
     <title>Yuvng Miuze | Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* BARRA DE PROGRESO TOP */
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, #dc2626, #f97316, #a855f7);
+            z-index: 9999; transition: width 0.3s ease;
+            box-shadow: 0 0 8px rgba(220,38,38,0.8);
+        }
+
+        /* BANNER NUEVO LANZAMIENTO */
+        #banner-nuevo {
+            display: none;
+            animation: slideDown 0.5s ease forwards;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .banner-glow {
+            box-shadow: 0 0 20px rgba(220,38,38,0.4), 0 0 40px rgba(220,38,38,0.2);
+        }
+
+        /* FOTO PERFIL CON BORDE ANIMADO */
+        .foto-ring {
+            background: linear-gradient(135deg, #dc2626, #a855f7, #dc2626);
+            background-size: 200% 200%;
+            animation: gradientSpin 3s linear infinite;
+            padding: 3px;
+            border-radius: 50%;
+        }
+        @keyframes gradientSpin {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* BANNER PORTADA */
+        #banner-portada {
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            overflow: hidden;
+        }
+        #banner-portada::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(18,18,18,0.2) 0%, rgba(18,18,18,0.95) 100%);
+        }
+
+        /* CONTADOR VISITAS */
+        .visitas-badge {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        /* FADE IN */
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+        /* PULSE RED */
+        .pulse-red { animation: pulseR 2s infinite; }
+        @keyframes pulseR {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
+        }
+    </style>
 </head>
 <body class="bg-[#121212] text-white font-sans antialiased pb-20">
 
-    <!-- CABECERA -->
-    <header class="bg-gradient-to-b from-zinc-800 to-[#121212] p-10 pt-20 border-b border-zinc-800">
-        <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
-            <img id="foto-perfil" src="" alt="Yuvng Miuze" class="w-48 h-48 rounded-full shadow-2xl object-cover bg-zinc-700 hidden">
-            <div id="placeholder-foto" class="w-48 h-48 rounded-full bg-zinc-700 shadow-2xl flex-shrink-0"></div>
-            <div>
-                <span class="text-sm font-bold uppercase tracking-widest text-zinc-300">Artista Verificado</span>
-                <h1 id="nombre-artista" class="text-5xl md:text-7xl font-black mt-2 mb-4">Cargando...</h1>
-                <p id="bio-artista" class="text-zinc-400 text-sm max-w-lg mb-4">Conectando...</p>
-                <div class="flex gap-4 justify-center md:justify-start">
-                    <a href="#" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">Instagram</a>
-                    <a href="#" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">YouTube</a>
-                    <a href="feed.html" class="bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded-full text-sm font-bold transition-colors">📸 Feed</a>
-                    <a href="foro.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">💬 Foro</a>
+    <!-- BARRA DE PROGRESO -->
+    <div id="progress-bar"></div>
+
+    <!-- BANNER NUEVO LANZAMIENTO -->
+    <div id="banner-nuevo" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+        <div class="bg-zinc-900 border border-red-600 rounded-2xl px-5 py-4 banner-glow flex items-center gap-4">
+            <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 pulse-red">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-black uppercase tracking-widest text-red-400">🔥 Nuevo Lanzamiento</p>
+                <p id="banner-titulo" class="text-sm font-bold text-white truncate">...</p>
+            </div>
+            <button onclick="document.getElementById('banner-nuevo').style.display='none'" class="text-zinc-500 hover:text-white text-lg leading-none flex-shrink-0">×</button>
+        </div>
+    </div>
+
+    <!-- CABECERA CON BANNER -->
+    <header class="relative border-b border-zinc-800 overflow-hidden">
+        <!-- Fondo banner -->
+        <div id="banner-portada" class="h-72 md:h-80">
+            <img id="img-banner" src="" alt="" class="w-full h-full object-cover opacity-0 transition-opacity duration-700" style="position:relative;z-index:1;">
+        </div>
+
+        <!-- Contenido del perfil encima del banner -->
+        <div class="relative z-10 -mt-24 pb-8 px-6 md:px-10">
+            <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
+                <!-- FOTO CON ANILLO ANIMADO -->
+                <div class="foto-ring flex-shrink-0">
+                    <img id="foto-perfil" src="" alt="Yuvng Miuze"
+                        class="w-44 h-44 rounded-full object-cover bg-zinc-700 block opacity-0 transition-opacity duration-500">
+                    <div id="placeholder-foto" class="w-44 h-44 rounded-full bg-zinc-800 flex items-center justify-center text-4xl font-black text-zinc-600">YM</div>
+                </div>
+
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 justify-center md:justify-start mb-1">
+                        <span class="text-xs font-black uppercase tracking-widest text-zinc-400">Artista Verificado</span>
+                        <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <h1 id="nombre-artista" class="text-5xl md:text-7xl font-black mt-1 mb-3 drop-shadow-lg">Yuvng Miuze</h1>
+                    <p id="bio-artista" class="text-zinc-400 text-sm max-w-lg mb-4">Escucha los últimos lanzamientos oficiales.</p>
+
+                    <!-- VISITAS + LINKS -->
+                    <div class="flex flex-wrap gap-3 justify-center md:justify-start items-center">
+                        <div class="visitas-badge px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
+                            <span class="text-xs text-zinc-300 font-bold"><span id="contador-visitas">...</span> visitas</span>
+                        </div>
+                        <a href="#" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">Instagram</a>
+                        <a href="#" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">YouTube</a>
+                        <a href="feed.html" class="bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded-full text-sm font-bold transition-colors">📸 Feed</a>
+                        <a href="foro.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">💬 Foro</a>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <main class="max-w-4xl mx-auto p-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <main class="max-w-4xl mx-auto p-6 md:p-10 grid grid-cols-1 md:grid-cols-3 gap-10">
         
         <!-- COLUMNA IZQUIERDA -->
         <div class="md:col-span-2">
@@ -39,7 +147,6 @@
                 <p class="text-zinc-500 text-sm">Cargando música...</p>
             </div>
 
-            <!-- SECCIÓN: ADELANTOS EXCLUSIVOS -->
             <h2 class="text-2xl font-bold mb-6 border-b border-purple-800 pb-2 text-purple-400">Adelantos Exclusivos</h2>
             <div id="contenedor-previews" class="flex flex-col gap-4 mb-16">
                 <p class="text-zinc-500 text-sm">Buscando material inédito...</p>
@@ -72,190 +179,208 @@
         </div>
     </main>
 
-    <!-- PIE DE PÁGINA -->
     <footer class="mt-12 text-center pb-8">
         <hr class="border-zinc-800 mb-4">
         <p class="text-zinc-500 text-sm">© 2026 Yuvng Miuze. Todos los derechos reservados.</p>
-        <a href="login.html" class="text-zinc-700 text-xs mt-2 inline-block hover:text-zinc-400 transition-colors">
-            🔒 Acceso Artista
-        </a>
+        <a href="login.html" class="text-zinc-700 text-xs mt-2 inline-block hover:text-zinc-400 transition-colors">🔒 Acceso Artista</a>
     </footer>
 
-    <!-- LÓGICA MAESTRA BLINDADA -->
     <script>
-        (function() {
-            const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
-            const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
-            
-            window.miSupabase = window.miSupabase || window.supabase.createClient(supabaseUrl, supabaseKey);
-            const client = window.miSupabase;
+    (function() {
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        window.miSupabase = window.miSupabase || window.supabase.createClient(supabaseUrl, supabaseKey);
+        const client = window.miSupabase;
 
-            // EL DESFIBRILADOR DE INSTAGRAM
-            window.despertarInstagram = function() {
-                setTimeout(() => {
-                    if (typeof window.instgrm !== 'undefined') {
-                        window.instgrm.Embeds.process();
-                    } else {
-                        const script = document.createElement('script');
-                        script.src = "https://www.instagram.com/embed.js";
-                        script.async = true;
-                        script.onload = () => {
-                            if (window.instgrm) window.instgrm.Embeds.process();
+        // ── BARRA DE PROGRESO ─────────────────────────────────────────
+        const bar = document.getElementById('progress-bar');
+        let prog = 0;
+        const progInterval = setInterval(() => {
+            prog = Math.min(prog + Math.random() * 15, 85);
+            bar.style.width = prog + '%';
+        }, 200);
+        function finalizarBarra() {
+            clearInterval(progInterval);
+            bar.style.width = '100%';
+            setTimeout(() => { bar.style.opacity = '0'; }, 400);
+        }
+
+        // ── CONTADOR DE VISITAS ───────────────────────────────────────
+        async function registrarVisita() {
+            try {
+                const visitKey = 'visita_registrada_hoy';
+                const hoy = new Date().toDateString();
+                const { data } = await client.from('visitas').select('total').eq('id', 1).single();
+                const total = data ? data.total + 1 : 1;
+                if (localStorage.getItem(visitKey) !== hoy) {
+                    await client.from('visitas').upsert([{ id: 1, total }]);
+                    localStorage.setItem(visitKey, hoy);
+                }
+                document.getElementById('contador-visitas').textContent = total.toLocaleString('es-PE');
+            } catch(e) {
+                document.getElementById('contador-visitas').textContent = '—';
+            }
+        }
+
+        // ── INSTAGRAM EMBED ───────────────────────────────────────────
+        window.despertarInstagram = function() {
+            setTimeout(() => {
+                if (typeof window.instgrm !== 'undefined') {
+                    window.instgrm.Embeds.process();
+                } else {
+                    const s = document.createElement('script');
+                    s.src = "https://www.instagram.com/embed.js";
+                    s.async = true;
+                    s.onload = () => { if (window.instgrm) window.instgrm.Embeds.process(); };
+                    document.body.appendChild(s);
+                }
+            }, 100);
+        };
+
+        // ── BANNER NUEVO LANZAMIENTO ──────────────────────────────────
+        function verificarNuevoLanzamiento(canciones) {
+            if (!canciones || canciones.length === 0) return;
+            const ultima = canciones[0];
+            if (!ultima.created_at) return;
+            const diasDesde = (Date.now() - new Date(ultima.created_at)) / (1000 * 60 * 60 * 24);
+            if (diasDesde <= 7) {
+                document.getElementById('banner-titulo').textContent = ultima.titulo;
+                document.getElementById('banner-nuevo').style.display = 'block';
+            }
+        }
+
+        // ── CARGA PRINCIPAL ───────────────────────────────────────────
+        async function cargarTodo() {
+            try {
+                // Perfil
+                const { data: perfil } = await client.from('perfil_artista').select('*');
+                if (perfil && perfil[0]) {
+                    document.getElementById('nombre-artista').innerText = perfil[0].nombre || 'Yuvng Miuze';
+                    document.getElementById('bio-artista').innerText = perfil[0].biografia || 'Escucha los últimos lanzamientos oficiales.';
+                    if (perfil[0].foto_perfil_url) {
+                        const img = document.getElementById('foto-perfil');
+                        img.src = perfil[0].foto_perfil_url;
+                        img.onload = () => {
+                            img.style.opacity = '1';
+                            document.getElementById('placeholder-foto').style.display = 'none';
                         };
-                        document.body.appendChild(script);
                     }
-                }, 100);
-            };
-
-            async function cargarTodo() {
-                try {
-                    // Perfil
-                    const { data: perfil } = await client.from('perfil_artista').select('*');
-                    if (perfil && perfil[0]) {
-                        document.getElementById('nombre-artista').innerText = perfil[0].nombre || 'Yuvng Miuze';
-                        document.getElementById('bio-artista').innerText = perfil[0].biografia || 'Escucha los últimos lanzamientos oficiales.';
-                        if(perfil[0].foto_perfil_url) {
-                            const img = document.getElementById('foto-perfil');
-                            img.src = perfil[0].foto_perfil_url;
-                            img.classList.remove('hidden');
-                            document.getElementById('placeholder-foto').classList.add('hidden');
-                        }
-                    } else {
-                        document.getElementById('nombre-artista').innerText = 'Yuvng Miuze';
-                        document.getElementById('bio-artista').innerText = 'Escucha los últimos lanzamientos oficiales.';
+                    // Banner de portada (si existe campo banner_url en perfil)
+                    if (perfil[0].banner_url) {
+                        const imgBanner = document.getElementById('img-banner');
+                        imgBanner.src = perfil[0].banner_url;
+                        imgBanner.onload = () => { imgBanner.style.opacity = '0.5'; };
                     }
+                }
 
-                    // Canciones Oficiales
-                    const { data: canciones } = await client.from('canciones').select('*').order('orden', { ascending: true });
-                    const contCanciones = document.getElementById('contenedor-canciones');
-                    if (canciones && canciones.length > 0) {
-                        contCanciones.innerHTML = canciones.map(c => `<div class="mb-2">${c.enlace_embed}</div>`).join('');
-                    } else {
-                        contCanciones.innerHTML = '<p class="text-zinc-500 text-sm">No hay música oficial disponible aún.</p>';
-                    }
+                // Canciones
+                const { data: canciones } = await client.from('canciones').select('*').order('orden', { ascending: true });
+                const contCanciones = document.getElementById('contenedor-canciones');
+                if (canciones && canciones.length > 0) {
+                    contCanciones.innerHTML = canciones.map(c => `<div class="mb-2 fade-in">${c.enlace_embed}</div>`).join('');
+                    verificarNuevoLanzamiento(canciones);
+                } else {
+                    contCanciones.innerHTML = '<p class="text-zinc-500 text-sm">No hay música oficial disponible aún.</p>';
+                }
 
-                    // Eventos
-                    const { data: eventos } = await client.from('eventos').select('*');
-                    const contEventos = document.getElementById('contenedor-eventos');
-                    if (eventos && eventos.length > 0) {
-                        contEventos.innerHTML = eventos.map(e => `
-                            <div class="bg-zinc-800 p-4 rounded-lg flex flex-col gap-2">
-                                <div class="flex justify-between items-center border-b border-zinc-700 pb-2">
-                                    <span class="font-bold text-green-400 text-sm">${e.fecha}</span>
-                                    <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">${e.ciudad}</span>
-                                </div>
-                                <p class="text-zinc-200 text-sm font-semibold">${e.lugar}</p>
-                                ${e.link_tickets ? `<a href="${e.link_tickets}" target="_blank" class="mt-2 text-center bg-white text-black text-xs font-bold py-2 rounded-full hover:scale-105 transition-transform">Tickets</a>` : ''}
+                // Eventos
+                const { data: eventos } = await client.from('eventos').select('*');
+                const contEventos = document.getElementById('contenedor-eventos');
+                if (eventos && eventos.length > 0) {
+                    contEventos.innerHTML = eventos.map(e => `
+                        <div class="bg-zinc-800 p-4 rounded-lg flex flex-col gap-2 fade-in">
+                            <div class="flex justify-between items-center border-b border-zinc-700 pb-2">
+                                <span class="font-bold text-green-400 text-sm">${e.fecha}</span>
+                                <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">${e.ciudad}</span>
                             </div>
-                        `).join('');
-                    } else {
-                        contEventos.innerHTML = '<p class="text-zinc-500 text-sm">No hay fechas confirmadas por ahora.</p>';
-                    }
-
-                    // Cargar Previews y Noticias
-                    cargarPreviews(client);
-                    cargarNoticias(client);
-                } catch (e) { console.error("Error al cargar datos:", e); }
-            }
-
-            async function cargarPreviews(client) {
-                const { data: previews } = await client.from('previews').select('*').order('fecha', { ascending: false });
-                const contPreviews = document.getElementById('contenedor-previews');
-                
-                if(!previews || previews.length === 0) {
-                    contPreviews.innerHTML = '<p class="text-zinc-500 text-sm">Aún no hay material inédito publicado.</p>';
-                    return;
-                }
-
-                contPreviews.innerHTML = previews.map(p => {
-                    let mediaHTML = '';
-                    if (p.tipo === 'red_social') {
-                        mediaHTML = `<div class="w-full overflow-hidden flex justify-center rounded-lg mt-2 bg-white">${p.url_media}</div>`;
-                    } else {
-                        const esVideo = p.url_media.toLowerCase().includes('.mp4');
-                        if(esVideo) {
-                            mediaHTML = `
-                                <video controls class="w-full rounded-lg border border-zinc-700 mt-2 bg-black">
-                                    <source src="${p.url_media}" type="video/mp4">
-                                    Tu navegador no soporta el formato de video.
-                                </video>`;
-                        } else {
-                            mediaHTML = `
-                                <audio controls class="w-full mt-2">
-                                    <source src="${p.url_media}">
-                                    Tu navegador no soporta el formato de audio.
-                                </audio>`;
-                        }
-                    }
-
-                    return `
-                    <div class="bg-zinc-900 border border-purple-800 p-5 rounded-lg flex flex-col relative shadow-xl">
-                        <div class="absolute top-0 left-0 w-1 h-full bg-purple-600"></div>
-                        <div class="ml-2 w-full overflow-hidden">
-                            <span class="text-[10px] font-black bg-purple-600 text-white px-2 py-1 rounded uppercase tracking-widest">Adelanto Exclusivo</span>
-                            <h3 class="text-lg font-black text-white mt-3 mb-1">${p.titulo}</h3>
-                            ${mediaHTML}
-                        </div>
-                    </div>
-                    `;
-                }).join('');
-
-                window.despertarInstagram();
-            }
-
-            async function cargarNoticias(client) {
-                const { data: posts } = await client.from('posts').select('*').order('fecha', { ascending: false });
-                const { data: coms } = await client.from('comentariospost').select('*');
-                
-                const contNoticias = document.getElementById('contenedor-noticias');
-                if(!posts || posts.length === 0) { 
-                    contNoticias.innerHTML = '<p class="text-zinc-500 text-sm">No hay noticias publicadas.</p>'; 
-                    return; 
-                }
-                
-                contNoticias.innerHTML = posts.map(p => {
-                    const comentariosHTML = (coms || []).filter(c => c.post_id === p.id).map(c => `
-                        <div class="bg-zinc-800 p-3 rounded mt-2 border-l-2 border-green-500">
-                            <p class="font-bold text-green-400 text-xs mb-1">${c.autor}</p>
-                            <p class="text-zinc-300 text-sm">${c.mensaje}</p>
+                            <p class="text-zinc-200 text-sm font-semibold">${e.lugar}</p>
+                            ${e.link_tickets ? `<a href="${e.link_tickets}" target="_blank" class="mt-2 text-center bg-white text-black text-xs font-bold py-2 rounded-full hover:scale-105 transition-transform">Tickets</a>` : ''}
                         </div>
                     `).join('');
-
-                    return `
-                    <div class="bg-zinc-900 p-6 rounded-lg mb-8 border border-zinc-800 shadow-xl overflow-hidden">
-                        <h3 class="text-xl font-black text-white mb-2">${p.titulo}</h3>
-                        <div class="text-zinc-300 text-sm mb-6 leading-relaxed w-full flex flex-col items-start bg-white rounded">${p.contenido}</div>
-                        
-                        <h4 class="text-sm font-bold text-zinc-400 border-t border-zinc-800 pt-4 mb-3">Comentarios de Fans</h4>
-                        <div class="mb-4 space-y-2">
-                            ${comentariosHTML || '<p class="text-xs text-zinc-600 italic">Sé el primero en comentar esta noticia.</p>'}
-                        </div>
-
-                        <div class="flex flex-col gap-2 mt-4 bg-black p-4 rounded border border-zinc-800">
-                            <input type="text" id="autor-${p.id}" placeholder="Tu Nombre o Apodo" class="bg-zinc-900 text-white p-2 rounded outline-none focus:border-green-500 text-sm border border-zinc-700">
-                            <textarea id="mensaje-${p.id}" placeholder="Escribe tu comentario aquí..." rows="2" class="bg-zinc-900 text-white p-2 rounded outline-none focus:border-green-500 resize-none text-sm border border-zinc-700"></textarea>
-                            <button onclick="window.comentarGlobal(${p.id})" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded transition-colors text-sm">Comentar</button>
-                        </div>
-                    </div>
-                    `
-                }).join('');
-
-                window.despertarInstagram();
-            }
-
-            window.comentarGlobal = async function(pid) {
-                const autor = document.getElementById('autor-'+pid).value;
-                const mensaje = document.getElementById('mensaje-'+pid).value;
-                if (!autor || !mensaje) {
-                    alert("Debes escribir tu nombre y un mensaje.");
-                    return;
+                } else {
+                    contEventos.innerHTML = '<p class="text-zinc-500 text-sm">No hay fechas confirmadas por ahora.</p>';
                 }
-                await client.from('comentariospost').insert([{ post_id: pid, autor: autor, mensaje: mensaje }]);
-                cargarNoticias(client);
-            };
 
-            cargarTodo();
-        })();
+                cargarPreviews(client);
+                cargarNoticias(client);
+                registrarVisita();
+            } catch(e) {
+                console.error("Error al cargar datos:", e);
+            } finally {
+                finalizarBarra();
+            }
+        }
+
+        async function cargarPreviews(client) {
+            const { data: previews } = await client.from('previews').select('*').order('fecha', { ascending: false });
+            const cont = document.getElementById('contenedor-previews');
+            if (!previews || previews.length === 0) {
+                cont.innerHTML = '<p class="text-zinc-500 text-sm">Aún no hay material inédito publicado.</p>';
+                return;
+            }
+            cont.innerHTML = previews.map(p => {
+                let mediaHTML = '';
+                if (p.tipo === 'red_social') {
+                    mediaHTML = `<div class="w-full overflow-hidden flex justify-center rounded-lg mt-2 bg-white">${p.url_media}</div>`;
+                } else {
+                    const esVideo = p.url_media.toLowerCase().includes('.mp4');
+                    mediaHTML = esVideo
+                        ? `<video controls class="w-full rounded-lg border border-zinc-700 mt-2 bg-black"><source src="${p.url_media}" type="video/mp4"></video>`
+                        : `<audio controls class="w-full mt-2"><source src="${p.url_media}"></audio>`;
+                }
+                return `
+                <div class="bg-zinc-900 border border-purple-800 p-5 rounded-lg flex flex-col relative shadow-xl fade-in">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-purple-600"></div>
+                    <div class="ml-2 w-full overflow-hidden">
+                        <span class="text-[10px] font-black bg-purple-600 text-white px-2 py-1 rounded uppercase tracking-widest">Adelanto Exclusivo</span>
+                        <h3 class="text-lg font-black text-white mt-3 mb-1">${p.titulo}</h3>
+                        ${mediaHTML}
+                    </div>
+                </div>`;
+            }).join('');
+            window.despertarInstagram();
+        }
+
+        async function cargarNoticias(client) {
+            const { data: posts } = await client.from('posts').select('*').order('fecha', { ascending: false });
+            const { data: coms } = await client.from('comentariospost').select('*');
+            const cont = document.getElementById('contenedor-noticias');
+            if (!posts || posts.length === 0) {
+                cont.innerHTML = '<p class="text-zinc-500 text-sm">No hay noticias publicadas.</p>';
+                return;
+            }
+            cont.innerHTML = posts.map(p => {
+                const comentariosHTML = (coms || []).filter(c => c.post_id === p.id).map(c => `
+                    <div class="bg-zinc-800 p-3 rounded mt-2 border-l-2 border-green-500">
+                        <p class="font-bold text-green-400 text-xs mb-1">${c.autor}</p>
+                        <p class="text-zinc-300 text-sm">${c.mensaje}</p>
+                    </div>`).join('');
+                return `
+                <div class="bg-zinc-900 p-6 rounded-lg mb-8 border border-zinc-800 shadow-xl overflow-hidden fade-in">
+                    <h3 class="text-xl font-black text-white mb-2">${p.titulo}</h3>
+                    <div class="text-zinc-300 text-sm mb-6 leading-relaxed w-full flex flex-col items-start bg-white rounded">${p.contenido}</div>
+                    <h4 class="text-sm font-bold text-zinc-400 border-t border-zinc-800 pt-4 mb-3">Comentarios de Fans</h4>
+                    <div class="mb-4 space-y-2">${comentariosHTML || '<p class="text-xs text-zinc-600 italic">Sé el primero en comentar esta noticia.</p>'}</div>
+                    <div class="flex flex-col gap-2 mt-4 bg-black p-4 rounded border border-zinc-800">
+                        <input type="text" id="autor-${p.id}" placeholder="Tu Nombre o Apodo" class="bg-zinc-900 text-white p-2 rounded outline-none focus:border-green-500 text-sm border border-zinc-700">
+                        <textarea id="mensaje-${p.id}" placeholder="Escribe tu comentario aquí..." rows="2" class="bg-zinc-900 text-white p-2 rounded outline-none focus:border-green-500 resize-none text-sm border border-zinc-700"></textarea>
+                        <button onclick="window.comentarGlobal(${p.id})" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded transition-colors text-sm">Comentar</button>
+                    </div>
+                </div>`;
+            }).join('');
+            window.despertarInstagram();
+        }
+
+        window.comentarGlobal = async function(pid) {
+            const autor = document.getElementById('autor-'+pid).value;
+            const mensaje = document.getElementById('mensaje-'+pid).value;
+            if (!autor || !mensaje) { alert("Debes escribir tu nombre y un mensaje."); return; }
+            await client.from('comentariospost').insert([{ post_id: pid, autor, mensaje }]);
+            cargarNoticias(client);
+        };
+
+        cargarTodo();
+    })();
     </script>
 </body>
 </html>
