@@ -33,7 +33,7 @@
                         <label class="block text-zinc-400 text-xs font-bold mb-2">Formato del Adelanto</label>
                         <select id="tipoPreview" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-purple-600" onchange="window.cambiarModoPreview()">
                             <option value="archivo">Archivo Local (MP3/MP4 - Máx 60s)</option>
-                            <option value="red_social">Enlace Externo (TikTok/Shorts Embed)</option>
+                            <option value="red_social">Enlace Externo (Instagram/TikTok/Shorts Embed)</option>
                         </select>
                     </div>
 
@@ -43,9 +43,9 @@
                         <p class="text-xs text-zinc-500 mt-2 text-center">⏱️ El sistema verificará que dure menos de 1 minuto.</p>
                     </div>
 
-                    <!-- Caja para Red Social (Oculta por defecto) -->
+                    <!-- Caja para Red Social -->
                     <div id="cajaRedSocial" class="hidden bg-black p-3 rounded border border-zinc-800">
-                        <textarea id="embedPreview" rows="3" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-purple-600" placeholder="Pega el código <iframe...> aquí"></textarea>
+                        <textarea id="embedPreview" rows="3" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-purple-600" placeholder="Pega el código <iframe...> o el bloque de Instagram aquí"></textarea>
                     </div>
 
                     <button type="submit" id="btnSubirPreview" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition-colors mt-4">
@@ -122,7 +122,6 @@
                 window.location.href = 'login.html';
             });
 
-            // ===== LÓGICAS ESTÁNDAR =====
             document.getElementById('formPost').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const titulo = document.getElementById('tituloPost').value;
@@ -179,9 +178,6 @@
                 cargarListaCanciones();
             };
 
-            // ===== NUEVA LÓGICA DE PREVIEWS =====
-            
-            // Función para cambiar la vista entre Archivo y Red Social
             window.cambiarModoPreview = function() {
                 const tipo = document.getElementById('tipoPreview').value;
                 if(tipo === 'archivo') {
@@ -193,14 +189,13 @@
                 }
             };
 
-            // Función ultra avanzada para leer la duración del archivo en milisegundos
             const obtenerDuracionMedia = (archivo) => {
                 return new Promise((resolve) => {
                     const esVideo = archivo.type.startsWith('video');
                     const elemento = document.createElement(esVideo ? 'video' : 'audio');
                     elemento.preload = 'metadata';
                     elemento.onloadedmetadata = function() {
-                        window.URL.revokeObjectURL(elemento.src); // Limpiamos la memoria
+                        window.URL.revokeObjectURL(elemento.src);
                         resolve(elemento.duration);
                     }
                     elemento.src = window.URL.createObjectURL(archivo);
@@ -219,38 +214,29 @@
 
                 try {
                     if(tipo === 'red_social') {
-                        // Flujo 1: Embed (Fácil)
                         url_media = document.getElementById('embedPreview').value;
                         if(!url_media) throw new Error("Debes pegar el código iframe de la red social.");
                     } else {
-                        // Flujo 2: Archivo Físico (Disco Duro)
                         const archivoInput = document.getElementById('archivoPreview');
                         if(archivoInput.files.length === 0) throw new Error("Debes seleccionar un archivo de tu equipo.");
                         
                         const archivo = archivoInput.files[0];
-                        
-                        // EL POLICÍA DE LOS 60 SEGUNDOS 👮‍♂️
                         const duracionSegundos = await obtenerDuracionMedia(archivo);
                         if(duracionSegundos > 60) {
                             throw new Error(`¡El archivo dura ${Math.round(duracionSegundos)} segundos! El límite estricto es de 60 segundos.`);
                         }
 
                         btn.textContent = "Subiendo archivo a la nube...";
-                        
-                        // Generamos un nombre único usando la fecha para que no se sobreescriban
                         const extension = archivo.name.split('.').pop();
                         const nombreUnico = `preview_${Date.now()}.${extension}`;
                         
-                        // Subimos a Supabase Storage
                         const { error: uploadError } = await clienteDB.storage.from('previews').upload(nombreUnico, archivo);
                         if (uploadError) throw new Error("Error en el disco duro: " + uploadError.message);
 
-                        // Obtenemos el link público para guardarlo en la base de datos
                         const { data } = clienteDB.storage.from('previews').getPublicUrl(nombreUnico);
                         url_media = data.publicUrl;
                     }
 
-                    // Guardamos la información final en la tabla
                     btn.textContent = "Guardando datos...";
                     const { error: dbError } = await clienteDB.from('previews').insert([{ titulo, tipo, url_media }]);
                     if (dbError) throw dbError;
@@ -267,7 +253,6 @@
                 }
             });
 
-            // Arranque inicial
             cargarListaCanciones();
         })();
     </script>
