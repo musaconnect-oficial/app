@@ -19,8 +19,41 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
         
-        <!-- COLUMNA 1: PUBLICAR NOTICIAS Y SHOWS -->
+        <!-- COLUMNA 1: NOTICIAS, SHOWS Y PREVIEWS -->
         <div class="space-y-8">
+            
+            <!-- MÓDULO NUEVO: PREVIEWS (Híbrido) -->
+            <section class="bg-zinc-900 border border-purple-800 p-6 rounded-xl shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-purple-600"></div>
+                <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-purple-400">Subir Preview / Adelanto</h2>
+                <form id="formPreview" class="space-y-4">
+                    <input type="text" id="tituloPreview" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-purple-600" placeholder="Título (Ej: Intro Album Nuevo)" required>
+                    
+                    <div>
+                        <label class="block text-zinc-400 text-xs font-bold mb-2">Formato del Adelanto</label>
+                        <select id="tipoPreview" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-purple-600" onchange="window.cambiarModoPreview()">
+                            <option value="archivo">Archivo Local (MP3/MP4 - Máx 60s)</option>
+                            <option value="red_social">Enlace Externo (TikTok/Shorts Embed)</option>
+                        </select>
+                    </div>
+
+                    <!-- Caja para subir archivo -->
+                    <div id="cajaArchivo" class="bg-black p-3 rounded border border-zinc-800">
+                        <input type="file" id="archivoPreview" accept="audio/*, video/mp4" class="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700">
+                        <p class="text-xs text-zinc-500 mt-2 text-center">⏱️ El sistema verificará que dure menos de 1 minuto.</p>
+                    </div>
+
+                    <!-- Caja para Red Social (Oculta por defecto) -->
+                    <div id="cajaRedSocial" class="hidden bg-black p-3 rounded border border-zinc-800">
+                        <textarea id="embedPreview" rows="3" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-purple-600" placeholder="Pega el código <iframe...> aquí"></textarea>
+                    </div>
+
+                    <button type="submit" id="btnSubirPreview" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition-colors mt-4">
+                        Publicar Adelanto
+                    </button>
+                </form>
+            </section>
+
             <!-- MÓDULO: SUBIR POSTS -->
             <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-2xl">
                 <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2">Escribir Noticia</h2>
@@ -46,22 +79,23 @@
             </section>
         </div>
 
-        <!-- COLUMNA 2: GESTIÓN DE MÚSICA -->
+        <!-- COLUMNA 2: GESTIÓN DE MÚSICA OFICIAL -->
         <div class="space-y-8">
             <!-- MÓDULO: SUBIR CANCIÓN -->
-            <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-2xl">
-                <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2">Subir Nueva Canción</h2>
+            <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-green-600"></div>
+                <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-green-400">Subir Música Oficial</h2>
                 <form id="formCancion" class="space-y-4">
-                    <input type="text" id="titulo" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-red-600" placeholder="Título de la pista" required>
-                    <textarea id="enlace_embed" rows="3" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-red-600" placeholder="Pega el código <iframe...> de Spotify/YouTube aquí" required></textarea>
-                    <button type="submit" id="btnSubir" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded transition-colors">Publicar Canción</button>
+                    <input type="text" id="titulo" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-green-600" placeholder="Título de la pista oficial" required>
+                    <textarea id="enlace_embed" rows="3" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-green-600" placeholder="Pega el código <iframe...> de Spotify o YouTube aquí" required></textarea>
+                    <button type="submit" id="btnSubir" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded transition-colors">Publicar Lanzamiento</button>
                 </form>
             </section>
 
             <!-- MÓDULO: EDITAR ORDEN DE MÚSICA -->
             <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-2xl">
-                <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2">Editar Orden de Pistas</h2>
-                <div id="listaCanciones" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2">Editar Orden de Lanzamientos</h2>
+                <div id="listaCanciones" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
                     <p class="text-zinc-500 text-sm">Cargando catálogo...</p>
                 </div>
             </section>
@@ -77,20 +111,18 @@
             window.miSupabase = window.miSupabase || window.supabase.createClient(laUrl, laLlave);
             const clienteDB = window.miSupabase;
 
-            // El Guardia del Panel
             async function verificarSesion() {
                 const { data: { user } } = await clienteDB.auth.getUser();
                 if (!user) window.location.href = 'login.html';
             }
             verificarSesion();
 
-            // Botón Salir
             document.getElementById('btnCerrarSesion').addEventListener('click', async () => {
                 await clienteDB.auth.signOut();
                 window.location.href = 'login.html';
             });
 
-            // Lógica: Subir Noticia
+            // ===== LÓGICAS ESTÁNDAR =====
             document.getElementById('formPost').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const titulo = document.getElementById('tituloPost').value;
@@ -100,7 +132,6 @@
                 document.getElementById('formPost').reset();
             });
 
-            // Lógica: Subir Evento/Show
             document.getElementById('formEvento').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const fecha = document.getElementById('fechaShow').value;
@@ -112,7 +143,6 @@
                 document.getElementById('formEvento').reset();
             });
 
-            // Lógica: Subir Canción
             document.getElementById('formCancion').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const titulo = document.getElementById('titulo').value;
@@ -123,16 +153,13 @@
                 cargarListaCanciones();
             });
 
-            // Lógica: Cargar lista para cambiar el orden numérico
             async function cargarListaCanciones() {
                 const { data: canciones } = await clienteDB.from('canciones').select('*').order('orden', { ascending: true });
                 const contenedor = document.getElementById('listaCanciones');
-                
                 if(!canciones || canciones.length === 0) {
                     contenedor.innerHTML = '<p class="text-zinc-500 text-sm">No hay canciones en la base de datos.</p>';
                     return;
                 }
-                
                 contenedor.innerHTML = canciones.map(c => `
                     <div class="flex items-center justify-between bg-zinc-800 p-3 rounded border border-zinc-700">
                         <span class="text-sm font-bold truncate w-1/2 text-white">${c.titulo}</span>
@@ -145,7 +172,6 @@
                 `).join('');
             }
 
-            // Lógica: Guardar el nuevo orden en la Base de Datos
             window.actualizarOrden = async function(id) {
                 const nuevoOrden = document.getElementById('orden-'+id).value;
                 await clienteDB.from('canciones').update({ orden: nuevoOrden }).eq('id', id);
@@ -153,7 +179,95 @@
                 cargarListaCanciones();
             };
 
-            // Arrancar la lista al cargar el panel
+            // ===== NUEVA LÓGICA DE PREVIEWS =====
+            
+            // Función para cambiar la vista entre Archivo y Red Social
+            window.cambiarModoPreview = function() {
+                const tipo = document.getElementById('tipoPreview').value;
+                if(tipo === 'archivo') {
+                    document.getElementById('cajaArchivo').classList.remove('hidden');
+                    document.getElementById('cajaRedSocial').classList.add('hidden');
+                } else {
+                    document.getElementById('cajaArchivo').classList.add('hidden');
+                    document.getElementById('cajaRedSocial').classList.remove('hidden');
+                }
+            };
+
+            // Función ultra avanzada para leer la duración del archivo en milisegundos
+            const obtenerDuracionMedia = (archivo) => {
+                return new Promise((resolve) => {
+                    const esVideo = archivo.type.startsWith('video');
+                    const elemento = document.createElement(esVideo ? 'video' : 'audio');
+                    elemento.preload = 'metadata';
+                    elemento.onloadedmetadata = function() {
+                        window.URL.revokeObjectURL(elemento.src); // Limpiamos la memoria
+                        resolve(elemento.duration);
+                    }
+                    elemento.src = window.URL.createObjectURL(archivo);
+                });
+            };
+
+            document.getElementById('formPreview').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btnSubirPreview');
+                const titulo = document.getElementById('tituloPreview').value;
+                const tipo = document.getElementById('tipoPreview').value;
+                let url_media = '';
+
+                btn.textContent = "Procesando...";
+                btn.disabled = true;
+
+                try {
+                    if(tipo === 'red_social') {
+                        // Flujo 1: Embed (Fácil)
+                        url_media = document.getElementById('embedPreview').value;
+                        if(!url_media) throw new Error("Debes pegar el código iframe de la red social.");
+                    } else {
+                        // Flujo 2: Archivo Físico (Disco Duro)
+                        const archivoInput = document.getElementById('archivoPreview');
+                        if(archivoInput.files.length === 0) throw new Error("Debes seleccionar un archivo de tu equipo.");
+                        
+                        const archivo = archivoInput.files[0];
+                        
+                        // EL POLICÍA DE LOS 60 SEGUNDOS 👮‍♂️
+                        const duracionSegundos = await obtenerDuracionMedia(archivo);
+                        if(duracionSegundos > 60) {
+                            throw new Error(`¡El archivo dura ${Math.round(duracionSegundos)} segundos! El límite estricto es de 60 segundos.`);
+                        }
+
+                        btn.textContent = "Subiendo archivo a la nube...";
+                        
+                        // Generamos un nombre único usando la fecha para que no se sobreescriban
+                        const extension = archivo.name.split('.').pop();
+                        const nombreUnico = `preview_${Date.now()}.${extension}`;
+                        
+                        // Subimos a Supabase Storage
+                        const { error: uploadError } = await clienteDB.storage.from('previews').upload(nombreUnico, archivo);
+                        if (uploadError) throw new Error("Error en el disco duro: " + uploadError.message);
+
+                        // Obtenemos el link público para guardarlo en la base de datos
+                        const { data } = clienteDB.storage.from('previews').getPublicUrl(nombreUnico);
+                        url_media = data.publicUrl;
+                    }
+
+                    // Guardamos la información final en la tabla
+                    btn.textContent = "Guardando datos...";
+                    const { error: dbError } = await clienteDB.from('previews').insert([{ titulo, tipo, url_media }]);
+                    if (dbError) throw dbError;
+
+                    alert('¡Adelanto publicado mundialmente!');
+                    document.getElementById('formPreview').reset();
+                    window.cambiarModoPreview(); 
+
+                } catch (error) {
+                    alert("ALERTA: " + error.message);
+                } finally {
+                    btn.textContent = "Publicar Adelanto";
+                    btn.disabled = false;
+                }
+            });
+
+            // Arranque inicial
             cargarListaCanciones();
         })();
     </script>
