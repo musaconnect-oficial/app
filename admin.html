@@ -73,6 +73,25 @@
                 </form>
             </section>
 
+            <!-- FEED POST SECTION -->
+            <section class="bg-zinc-900 border border-orange-800 p-6 rounded-xl shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
+                <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-orange-400">Publicar en el Feed</h2>
+                <form id="formFeedPost" class="space-y-4">
+                    <textarea id="feedTexto" rows="3" class="w-full bg-zinc-800 border border-zinc-700 text-white rounded p-3 focus:outline-none focus:border-orange-500" placeholder="Texto del post..."></textarea>
+                    <div class="bg-black p-3 rounded border border-zinc-800">
+                        <input type="file" id="feedArchivo" accept="image/*, video/mp4, video/webm"
+                            class="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-700">
+                        <p class="text-xs text-zinc-600 mt-2">Foto o Video MP4 (máx 60s). Opcional.</p>
+                    </div>
+                    <button type="submit" id="btnFeedPost" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded transition-colors">Publicar en Feed</button>
+                </form>
+                <div class="mt-6 pt-4 border-t border-zinc-800">
+                    <h3 class="text-sm font-bold text-zinc-400 mb-2">Últimas publicaciones:</h3>
+                    <div id="listaFeedPosts" class="space-y-2"></div>
+                </div>
+            </section>
+
             <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-2xl">
                 <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2">Agregar Show / Tour</h2>
                 <form id="formEvento" class="space-y-4">
@@ -319,7 +338,75 @@
                 }
             });
 
-            cargarDatosIniciales(); // Arrancamos todo
+            // ─── FEED POSTS ──────────────────────────────────────────────
+            const obtenerDuracionVideo = (archivo) => new Promise((resolve) => {
+                if (!archivo.type.startsWith('video')) return resolve(0);
+                const vid = document.createElement('video');
+                vid.preload = 'metadata';
+                vid.onloadedmetadata = () => { window.URL.revokeObjectURL(vid.src); resolve(vid.duration); };
+                vid.src = window.URL.createObjectURL(archivo);
+            });
+
+            document.getElementById('formFeedPost').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btnFeedPost');
+                const texto = document.getElementById('feedTexto').value.trim();
+                const archivoInput = document.getElementById('feedArchivo');
+                const archivo = archivoInput.files[0];
+                if (!texto && !archivo) return alert('Escribe algo o adjunta un archivo.');
+                btn.textContent = 'Publicando...';
+                btn.disabled = true;
+                try {
+                    let media_url = null;
+                    if (archivo) {
+                        if (archivo.type.startsWith('video')) {
+                            const dur = await obtenerDuracionVideo(archivo);
+                            if (dur > 60) throw new Error(`El video dura ${Math.round(dur)}s. Máximo 60 segundos.`);
+                        }
+                        btn.textContent = 'Subiendo archivo...';
+                        const ext = archivo.name.split('.').pop();
+                        const nombre = `feed_${Date.now()}.${ext}`;
+                        const { error: upErr } = await clienteDB.storage.from('feed-media').upload(nombre, archivo);
+                        if (upErr) throw new Error(upErr.message);
+                        const { data } = clienteDB.storage.from('feed-media').getPublicUrl(nombre);
+                        media_url = data.publicUrl;
+                    }
+                    const { error } = await clienteDB.from('feed_posts').insert([{ texto, media_url, likes: 0 }]);
+                    if (error) throw new Error(error.message);
+                    alert('¡Publicado en el feed!');
+                    document.getElementById('formFeedPost').reset();
+                    cargarListaFeedPosts();
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                } finally {
+                    btn.textContent = 'Publicar en Feed';
+                    btn.disabled = false;
+                }
+            });
+
+            async function cargarListaFeedPosts() {
+                const { data: posts } = await clienteDB.from('feed_posts').select('id, texto, created_at').order('created_at', { ascending: false }).limit(5);
+                const cont = document.getElementById('listaFeedPosts');
+                if (!posts || posts.length === 0) { cont.innerHTML = '<p class="text-zinc-600 text-xs">No hay publicaciones aún.</p>'; return; }
+                cont.innerHTML = posts.map(p => `
+                    <div class="flex justify-between items-center bg-zinc-800 p-2 rounded text-xs">
+                        <span class="truncate w-3/4 text-zinc-300">${p.texto || '(solo media)'}</span>
+                        <button onclick="window.borrarFeedPost(${p.id})" class="text-red-500 font-bold hover:underline ml-2 flex-shrink-0">BORRAR</button>
+                    </div>
+                `).join('');
+            }
+
+            window.borrarFeedPost = async function(id) {
+                if (!confirm('¿Borrar esta publicación del feed?')) return;
+                await clienteDB.from('feed_posts').delete().eq('id', id);
+                await clienteDB.from('feed_comentarios').delete().eq('post_id', id);
+                cargarListaFeedPosts();
+            };
+            cargarListaFeedPosts();
+            // ─────────────────────────────────────────────────────────────
+
+            cargarEstadoLive(); // Arrancamos todo
+            cargarListaCanciones();
         })();
     </script>
 </body>
