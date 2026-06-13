@@ -1,5 +1,79 @@
-<script>
-        // Usamos una función autoejecutable para que las variables no choquen
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yuvng Miuze | Oficial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-[#121212] text-white font-sans antialiased pb-20">
+
+    <!-- CABECERA -->
+    <header class="bg-gradient-to-b from-zinc-800 to-[#121212] p-10 pt-20 border-b border-zinc-800">
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
+            <img id="foto-perfil" src="" alt="Yuvng Miuze" class="w-48 h-48 rounded-full shadow-2xl object-cover bg-zinc-700 hidden">
+            <div id="placeholder-foto" class="w-48 h-48 rounded-full bg-zinc-700 shadow-2xl flex-shrink-0"></div>
+            <div>
+                <span class="text-sm font-bold uppercase tracking-widest text-zinc-300">Artista Verificado</span>
+                <h1 id="nombre-artista" class="text-5xl md:text-7xl font-black mt-2 mb-4">Cargando...</h1>
+                <p id="bio-artista" class="text-zinc-400 text-sm max-w-lg mb-4">Conectando...</p>
+                <div class="flex gap-4 justify-center md:justify-start">
+                    <a href="#" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">Instagram</a>
+                    <a href="#" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm font-bold transition-colors">YouTube</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-4xl mx-auto p-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+        
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="md:col-span-2">
+            <h2 class="text-2xl font-bold mb-6 border-b border-zinc-800 pb-2">Populares</h2>
+            <div id="contenedor-canciones" class="flex flex-col gap-4 mb-16">
+                <p class="text-zinc-500 text-sm">Cargando música...</p>
+            </div>
+            
+            <h2 class="text-2xl font-bold mb-6 border-b border-zinc-800 pb-2">Noticias Oficiales</h2>
+            <div id="contenedor-noticias" class="flex flex-col gap-4 mb-16">
+                <p class="text-zinc-500 text-sm">Cargando noticias...</p>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="md:col-span-1">
+            <h2 class="text-2xl font-bold mb-6 border-b border-zinc-800 pb-2">Próximos Shows</h2>
+            <div id="contenedor-eventos" class="flex flex-col gap-4 mb-16">
+                <p class="text-zinc-500 text-sm">Cargando fechas...</p>
+            </div>
+            
+            <h2 class="text-2xl font-bold mb-6 border-b border-zinc-800 pb-2">En Vivo</h2>
+            <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800">
+                <div class="p-8 text-center flex flex-col items-center">
+                    <svg class="w-12 h-12 text-white mb-3" fill="currentColor" viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 185 188.31V278.2a74.62 74.62 0 1 0 52.23 71.18V0l88 0a121.18 121.18 0 0 0 1.86 22.17h0A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14Z"/></svg>
+                    <p class="text-lg font-bold text-white">TikTok Live</p>
+                    <p class="text-sm text-zinc-400 mt-2 mb-6">Acompaña a Yuvng Miuze en sus transmisiones en directo.</p>
+                    <a href="https://www.tiktok.com/@yuvngmiuze/live" target="_blank" class="bg-[#FE2C55] hover:bg-[#E62A4D] text-white font-bold py-3 px-6 rounded transition-colors w-full">
+                        Ir a la Transmisión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="mt-12 text-center pb-8">
+        <hr class="border-zinc-800 mb-4">
+        <p class="text-zinc-500 text-sm">© 2026 Yuvng Miuze. Todos los derechos reservados.</p>
+        <a href="login.html" class="text-zinc-700 text-xs mt-2 inline-block hover:text-zinc-400 transition-colors">
+            🔒 Acceso Artista
+        </a>
+    </footer>
+
+    <!-- LÓGICA MAESTRA BLINDADA -->
+    <script>
         (function() {
             const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
             const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
@@ -13,22 +87,45 @@
                     // Perfil
                     const { data: perfil } = await client.from('perfil_artista').select('*');
                     if (perfil && perfil[0]) {
-                        document.getElementById('nombre-artista').innerText = perfil[0].nombre;
-                        document.getElementById('bio-artista').innerText = perfil[0].biografia;
+                        document.getElementById('nombre-artista').innerText = perfil[0].nombre || 'Yuvng Miuze';
+                        document.getElementById('bio-artista').innerText = perfil[0].biografia || 'Escucha los últimos lanzamientos oficiales.';
+                        if(perfil[0].foto_perfil_url) {
+                            const img = document.getElementById('foto-perfil');
+                            img.src = perfil[0].foto_perfil_url;
+                            img.classList.remove('hidden');
+                            document.getElementById('placeholder-foto').classList.add('hidden');
+                        }
+                    } else {
+                        document.getElementById('nombre-artista').innerText = 'Yuvng Miuze';
+                        document.getElementById('bio-artista').innerText = 'Escucha los últimos lanzamientos oficiales.';
                     }
 
                     // Canciones
                     const { data: canciones } = await client.from('canciones').select('*');
-                    document.getElementById('contenedor-canciones').innerHTML = (canciones || []).map(c => `<div>${c.enlace_embed}</div>`).join('');
+                    const contCanciones = document.getElementById('contenedor-canciones');
+                    if (canciones && canciones.length > 0) {
+                        contCanciones.innerHTML = canciones.reverse().map(c => `<div>${c.enlace_embed}</div>`).join('');
+                    } else {
+                        contCanciones.innerHTML = '<p class="text-zinc-500 text-sm">No hay música disponible aún.</p>';
+                    }
 
                     // Eventos
                     const { data: eventos } = await client.from('eventos').select('*');
-                    document.getElementById('contenedor-eventos').innerHTML = (eventos || []).map(e => `
-                        <div class="bg-zinc-800 p-4 rounded-lg">
-                            <p class="font-bold text-green-400">${e.fecha}</p>
-                            <p class="text-sm">${e.lugar} - ${e.ciudad}</p>
-                        </div>
-                    `).join('');
+                    const contEventos = document.getElementById('contenedor-eventos');
+                    if (eventos && eventos.length > 0) {
+                        contEventos.innerHTML = eventos.map(e => `
+                            <div class="bg-zinc-800 p-4 rounded-lg flex flex-col gap-2">
+                                <div class="flex justify-between items-center border-b border-zinc-700 pb-2">
+                                    <span class="font-bold text-green-400 text-sm">${e.fecha}</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">${e.ciudad}</span>
+                                </div>
+                                <p class="text-zinc-200 text-sm font-semibold">${e.lugar}</p>
+                                ${e.link_tickets ? `<a href="${e.link_tickets}" target="_blank" class="mt-2 text-center bg-white text-black text-xs font-bold py-2 rounded-full hover:scale-105 transition-transform">Tickets</a>` : ''}
+                            </div>
+                        `).join('');
+                    } else {
+                        contEventos.innerHTML = '<p class="text-zinc-500 text-sm">No hay fechas confirmadas por ahora.</p>';
+                    }
 
                     // Noticias
                     cargarNoticias(client);
@@ -40,19 +137,52 @@
                 const { data: coms } = await client.from('comentariospost').select('*');
                 
                 const contNoticias = document.getElementById('contenedor-noticias');
-                if(!posts || posts.length === 0) { contNoticias.innerHTML = '<p class="text-zinc-500">No hay noticias.</p>'; return; }
+                if(!posts || posts.length === 0) { 
+                    contNoticias.innerHTML = '<p class="text-zinc-500 text-sm">No hay noticias publicadas.</p>'; 
+                    return; 
+                }
                 
-                contNoticias.innerHTML = posts.map(p => `
-                    <div class="bg-zinc-900 p-6 rounded-lg mb-8 border border-zinc-800">
-                        <h3 class="text-xl font-bold">${p.titulo}</h3>
-                        <p class="text-sm text-zinc-400 mb-4">${p.contenido}</p>
-                        <div class="space-y-2">
-                            ${(coms || []).filter(c => c.post_id === p.id).map(c => `<p class="text-xs bg-zinc-800 p-2 rounded"><b>${c.autor}:</b> ${c.mensaje}</p>`).join('')}
+                contNoticias.innerHTML = posts.map(p => {
+                    const comentariosHTML = (coms || []).filter(c => c.post_id === p.id).map(c => `
+                        <div class="bg-zinc-800 p-3 rounded mt-2 border-l-2 border-green-500">
+                            <p class="font-bold text-green-400 text-xs mb-1">${c.autor}</p>
+                            <p class="text-zinc-300 text-sm">${c.mensaje}</p>
+                        </div>
+                    `).join('');
+
+                    return `
+                    <div class="bg-zinc-900 p-6 rounded-lg mb-8 border border-zinc-800 shadow-xl">
+                        <h3 class="text-xl font-black text-white mb-2">${p.titulo}</h3>
+                        <p class="text-zinc-300 text-sm mb-6 leading-relaxed">${p.contenido}</p>
+                        
+                        <h4 class="text-sm font-bold text-zinc-400 border-t border-zinc-800 pt-4 mb-3">Comentarios de Fans</h4>
+                        <div class="mb-4 space-y-2">
+                            ${comentariosHTML || '<p class="text-xs text-zinc-600 italic">Sé el primero en comentar esta noticia.</p>'}
+                        </div>
+
+                        <div class="flex flex-col gap-2 mt-4 bg-black p-4 rounded border border-zinc-800">
+                            <input type="text" id="autor-${p.id}" placeholder="Tu Nombre o Apodo" class="bg-zinc-900 text-white p-2 rounded outline-none focus:border-green-500 text-sm border border-zinc-700">
+                            <textarea id="mensaje-${p.id}" placeholder="Escribe tu comentario aquí..." rows="2" class="bg-zinc-900 text-white p-2 rounded outline-none focus:border-green-500 resize-none text-sm border border-zinc-700"></textarea>
+                            <button onclick="window.comentarGlobal(${p.id})" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded transition-colors text-sm">Comentar</button>
                         </div>
                     </div>
-                `).join('');
+                    `
+                }).join('');
             }
+
+            window.comentarGlobal = async function(pid) {
+                const autor = document.getElementById('autor-'+pid).value;
+                const mensaje = document.getElementById('mensaje-'+pid).value;
+                if (!autor || !mensaje) {
+                    alert("Debes escribir tu nombre y un mensaje.");
+                    return;
+                }
+                await client.from('comentariospost').insert([{ post_id: pid, autor: autor, mensaje: mensaje }]);
+                cargarNoticias(client);
+            };
 
             cargarTodo();
         })();
     </script>
+</body>
+</html>
