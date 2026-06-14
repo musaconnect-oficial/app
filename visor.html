@@ -14,6 +14,14 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        
+        .waveform { display: flex; align-items: flex-end; height: 15px; gap: 2px; }
+        .waveform div { width: 3px; background: #06b6d4; animation: wave 1s infinite ease-in-out; border-radius: 2px;}
+        .waveform div:nth-child(1) { animation-delay: 0.1s; }
+        .waveform div:nth-child(2) { animation-delay: 0.3s; }
+        .waveform div:nth-child(3) { animation-delay: 0.0s; }
+        .waveform div:nth-child(4) { animation-delay: 0.2s; }
+        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 15px; } }
     </style>
 </head>
 <body class="bg-[#121212] text-white min-h-screen pb-20">
@@ -29,9 +37,8 @@
 
     <main class="max-w-6xl mx-auto pt-8 px-4">
         
-        <!-- TARJETA DEL PERFIL -->
         <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-12 relative">
-            <div class="h-32 md:h-48 bg-gradient-to-r from-purple-900/60 to-[#0e0e0e] relative"></div>
+            <div id="visor-banner" class="h-32 md:h-48 bg-gradient-to-r from-purple-900/60 to-[#0e0e0e] relative transition-all duration-700"></div>
             <div class="px-6 md:px-10 pb-8 relative">
                 <div id="visor-avatar" class="absolute -top-12 md:-top-16 w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-800 border-4 border-[#141414] overflow-hidden flex items-center justify-center text-4xl shadow-xl">
                     <span class="animate-pulse">⏳</span>
@@ -39,7 +46,7 @@
                 
                 <div class="pt-16 md:pt-20 flex flex-col md:flex-row md:justify-between md:items-start gap-6">
                     <div>
-                        <h1 id="visor-name" class="text-2xl md:text-4xl font-black tracking-tight">Cargando artista...</h1>
+                        <h1 id="visor-name" class="text-2xl md:text-4xl font-black tracking-tight">Cargando perfil...</h1>
                         <p id="visor-username" class="text-zinc-500 text-sm font-medium mt-1">@...</p>
                         <span id="visor-role" class="inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-900/20 px-2.5 py-1 rounded-md border border-purple-900/50">...</span>
                     </div>
@@ -55,37 +62,42 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- COLUMNA 1: MÚSICA Y PREVIEWS -->
             <div class="lg:col-span-2 space-y-10">
-                <!-- Lanzamientos -->
-                <div>
-                    <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-white flex items-center gap-2">🎵 Fragmentos Oficiales</h2>
-                    <div id="contenedor-canciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
-
-                <!-- ADELANTOS EXCLUSIVOS -->
-                <div>
-                    <h2 class="text-xl font-bold mb-6 border-b border-purple-800 pb-2 text-purple-400 flex items-center gap-2">🎬 Adelantos (1 Min)</h2>
-                    
-                    <!-- CAJA DE BLOQUEO (Se oculta al seguir) -->
-                    <div id="adelantos-box" class="bg-[#0a0a0a] border border-purple-900/30 rounded-2xl p-8 text-center flex flex-col items-center justify-center relative overflow-hidden group">
-                        <div class="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent opacity-50"></div>
-                        <span class="text-5xl mb-4 relative z-10 filter drop-shadow-[0_0_15px_rgba(147,51,234,0.5)]">🔒</span>
-                        <h3 class="text-lg font-black text-white relative z-10 mb-2">Contenido Exclusivo Oculto</h3>
-                        <p class="text-zinc-400 text-sm max-w-sm relative z-10 mb-6">Este artista tiene adelantos inéditos. Regístrate en MusaConnect y síguelo para desbloquear sus videos y comentarios.</p>
-                        <a href="register.html" class="relative z-10 bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-6 rounded-full text-xs uppercase tracking-widest transition-colors shadow-[0_0_20px_rgba(147,51,234,0.4)]">
-                            Crear cuenta para desbloquear
-                        </a>
+                
+                <div id="seccion-musica" class="hidden space-y-10">
+                    <div>
+                        <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-white flex items-center gap-2">🎵 Fragmentos Oficiales</h2>
+                        <div id="contenedor-canciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
-
-                    <!-- CONTENEDOR DE VIDEOS REALES (Se muestra al seguir) -->
-                    <div id="contenedor-previews" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    <div>
+                        <h2 class="text-xl font-bold mb-6 border-b border-purple-800 pb-2 text-purple-400 flex items-center gap-2">🎬 Adelantos (1 Min)</h2>
+                        <div id="adelantos-box" class="bg-[#0a0a0a] border border-purple-900/30 rounded-2xl p-8 text-center flex flex-col items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent opacity-50"></div>
+                            <span class="text-5xl mb-4 relative z-10">🔒</span>
+                            <h3 class="text-lg font-black text-white relative z-10 mb-2">Contenido Exclusivo</h3>
+                            <p class="text-zinc-400 text-sm relative z-10 mb-6">Sigue a este perfil para desbloquear videos inéditos.</p>
+                        </div>
+                        <div id="contenedor-previews" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
                 </div>
+
+                <div id="seccion-beats" class="hidden">
+                    <h2 class="text-xl font-black mb-6 border-b border-cyan-800/50 pb-2 text-cyan-400 flex items-center justify-between">
+                        <span class="flex items-center gap-2">🎹 Catálogo de Instrumentales</span>
+                        <div class="waveform"><div></div><div></div><div></div><div></div></div>
+                    </h2>
+                    <div id="contenedor-beats" class="flex flex-col gap-4"></div>
+                </div>
+
             </div>
 
-            <!-- COLUMNA 2: EVENTOS -->
             <div class="space-y-10">
-                <div>
+                <div id="seccion-integrantes" class="hidden">
+                    <h2 class="text-xl font-bold mb-6 border-b border-red-900/50 pb-2 text-red-500 flex items-center gap-2">🎸 Alineación Oficial</h2>
+                    <div id="contenedor-integrantes" class="flex flex-col gap-2"></div>
+                </div>
+
+                <div id="seccion-eventos" class="hidden">
                     <h2 class="text-xl font-bold mb-6 border-b border-orange-900/50 pb-2 text-orange-400 flex items-center gap-2">🎟️ Próximos Shows</h2>
                     <div id="contenedor-eventos" class="flex flex-col gap-3"></div>
                 </div>
@@ -103,54 +115,96 @@
         const targetId = urlParams.get('id');
         let miUsuarioId = null;
         let estoySiguiendo = false;
+        let perfilVisitadoTipo = null;
 
         async function cargarPerfilPublico() {
             if (!targetId) { window.location.href = 'index.html'; return; }
 
             const { data: perfil } = await client.from('perfiles').select('*').eq('id', targetId).single();
             if (perfil) {
+                perfilVisitadoTipo = perfil.tipo;
                 document.getElementById('visor-name').textContent = perfil.nombre_display || "Sin Nombre";
                 document.getElementById('visor-username').textContent = "@" + perfil.username;
                 document.getElementById('visor-role').textContent = perfil.tipo || "Usuario";
-                document.getElementById('visor-bio').textContent = perfil.bio || "Este artista aún no ha escrito su biografía.";
+                document.getElementById('visor-bio').textContent = perfil.bio || "Este perfil aún no tiene biografía.";
                 if (perfil.avatar_url) document.getElementById('visor-avatar').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
                 
                 let linksHtml = '';
-                if (perfil.link_instagram) linksHtml += `<a href="${perfil.link_instagram}" target="_blank" class="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase hover:scale-105 transition-transform">📸 IG</a>`;
-                if (perfil.link_spotify) linksHtml += `<a href="${perfil.link_spotify}" target="_blank" class="bg-[#1DB954] text-black px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase hover:scale-105 transition-transform">🎵 Spotify</a>`;
+                if (perfil.link_instagram) linksHtml += `<a href="${perfil.link_instagram}" target="_blank" class="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform">📸 IG</a>`;
+                if (perfil.link_spotify) linksHtml += `<a href="${perfil.link_spotify}" target="_blank" class="bg-[#1DB954] text-black px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform">🎵 Spotify</a>`;
                 document.getElementById('visor-links').innerHTML = linksHtml;
-            }
 
-            const { data: canciones } = await client.from('canciones').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
-            const contCanciones = document.getElementById('contenedor-canciones');
-            if (canciones && canciones.length > 0) {
-                contCanciones.innerHTML = canciones.map(c => `
-                    <div class="bg-[#0a0a0a] border border-green-500/20 p-3 rounded-2xl relative group">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-600 to-green-400 rounded-t-2xl opacity-80"></div>
-                        <div class="px-2 pb-2 pt-1 flex justify-between items-center">
-                            <h3 class="font-black text-white text-sm truncate pr-2">${c.titulo}</h3>
-                        </div>
-                        <div class="rounded-xl overflow-hidden opacity-90">${c.enlace_embed}</div>
-                    </div>
-                `).join('');
-            } else { contCanciones.innerHTML = '<p class="text-zinc-600 text-sm">Sin fragmentos públicos.</p>'; }
+                // --- TEMAS PÚBLICOS ---
+                const banner = document.getElementById('visor-banner');
+                const badge = document.getElementById('visor-role');
 
-            const { data: eventos } = await client.from('eventos').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
-            const contEventos = document.getElementById('contenedor-eventos');
-            if (eventos && eventos.length > 0) {
-                contEventos.innerHTML = eventos.map(e => `
-                    <div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl flex items-center justify-between group fade-in hover:border-orange-500/50 transition-colors shadow-lg">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-orange-400 font-black text-sm">${e.fecha}</span>
-                                <span class="text-[9px] text-zinc-500 uppercase tracking-widest border border-zinc-700 px-1.5 rounded">${e.ciudad}</span>
+                if (perfil.tipo === 'compositor') {
+                    banner.className = "h-32 md:h-48 bg-gradient-to-r from-cyan-900/60 to-[#0e0e0e] relative";
+                    badge.className = "inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-cyan-400 bg-cyan-900/20 px-2.5 py-1 rounded-md border border-cyan-900/50";
+                    document.getElementById('seccion-beats').classList.remove('hidden');
+                    cargarCatalogoBeats();
+
+                } else if (perfil.tipo === 'banda') {
+                    banner.className = "h-32 md:h-48 bg-gradient-to-r from-red-900/60 to-[#0e0e0e] relative";
+                    badge.className = "inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-red-500 bg-red-900/20 px-2.5 py-1 rounded-md border border-red-900/50";
+                    document.getElementById('seccion-musica').classList.remove('hidden');
+                    document.getElementById('seccion-integrantes').classList.remove('hidden');
+                    document.getElementById('seccion-eventos').classList.remove('hidden');
+                    
+                    const contInt = document.getElementById('contenedor-integrantes');
+                    const integrantes = perfil.integrantes_banda || [];
+                    if (integrantes.length > 0) {
+                        contInt.innerHTML = integrantes.map(int => `
+                            <div class="bg-[#1a1a1a] border-l-4 border-red-600 p-3 rounded-r-xl fade-in">
+                                <h4 class="font-black text-white text-sm">${int.nombre}</h4>
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest">${int.rol}</p>
                             </div>
-                            <p class="text-white font-bold text-sm">${e.lugar}</p>
-                            ${e.link_tickets ? `<a href="${e.link_tickets}" target="_blank" class="text-orange-500 hover:text-orange-400 text-[10px] uppercase font-black mt-2 inline-block">🎟️ Entradas</a>` : ''}
+                        `).join('');
+                    } else { contInt.innerHTML = '<p class="text-zinc-600 text-xs">Sin alineación pública.</p>'; }
+                    
+                    cargarCanciones(); cargarEventos();
+
+                } else {
+                    document.getElementById('seccion-musica').classList.remove('hidden');
+                    document.getElementById('seccion-eventos').classList.remove('hidden');
+                    cargarCanciones(); cargarEventos();
+                }
+            }
+        }
+
+        async function cargarCatalogoBeats() {
+            const { data: beats } = await client.from('beats').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
+            const cont = document.getElementById('contenedor-beats');
+            if (beats && beats.length > 0) {
+                cont.innerHTML = beats.map(b => `
+                    <div class="bg-[#0a0a0a] border border-cyan-900/30 p-5 rounded-2xl flex flex-col gap-3 fade-in shadow-lg">
+                        <div class="flex items-center gap-4 border-b border-zinc-800/60 pb-3">
+                            <div class="w-12 h-12 bg-cyan-900/20 rounded-full flex items-center justify-center text-cyan-400 text-xl shadow-[0_0_15px_rgba(6,182,212,0.2)]">🎹</div>
+                            <div>
+                                <h4 class="font-black text-white text-lg leading-tight">${b.titulo}</h4>
+                                <p class="text-[11px] text-zinc-500 uppercase tracking-widest mt-1">${b.bpm ? b.bpm + ' BPM • ' : ''}<span class="text-cyan-500 font-bold bg-cyan-900/20 px-2 py-0.5 rounded border border-cyan-900/50">${b.etiqueta || 'Catálogo'}</span></p>
+                            </div>
                         </div>
+                        <audio controls controlsList="nodownload" class="w-full h-10 custom-audio mt-1" src="${b.url_audio}"></audio>
                     </div>
                 `).join('');
-            } else { contEventos.innerHTML = '<p class="text-zinc-600 text-sm">No hay shows programados.</p>'; }
+            } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">El catálogo está vacío actualmente.</p>'; }
+        }
+
+        async function cargarCanciones() {
+            const { data: canciones } = await client.from('canciones').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
+            const cont = document.getElementById('contenedor-canciones');
+            if (canciones && canciones.length > 0) {
+                cont.innerHTML = canciones.map(c => `<div class="bg-[#0a0a0a] border border-green-500/20 p-3 rounded-2xl relative"><div class="px-2 pb-2 pt-1"><h3 class="font-black text-white text-sm truncate">${c.titulo}</h3></div><div class="rounded-xl overflow-hidden opacity-90">${c.enlace_embed}</div></div>`).join('');
+            } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">Sin fragmentos públicos.</p>'; }
+        }
+
+        async function cargarEventos() {
+            const { data: eventos } = await client.from('eventos').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
+            const cont = document.getElementById('contenedor-eventos');
+            if (eventos && eventos.length > 0) {
+                cont.innerHTML = eventos.map(e => `<div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl"><div><div class="flex items-center gap-2 mb-1"><span class="text-orange-400 font-black text-sm">${e.fecha}</span><span class="text-[9px] text-zinc-500 uppercase border border-zinc-700 px-1.5 rounded">${e.ciudad}</span></div><p class="text-white font-bold text-sm">${e.lugar}</p>${e.link_tickets ? `<a href="${e.link_tickets}" target="_blank" class="text-orange-500 text-[10px] uppercase font-black mt-2 inline-block">🎟️ Entradas</a>` : ''}</div></div>`).join('');
+            }
         }
 
         async function verificarSesion() {
@@ -160,82 +214,51 @@
 
             if (session) {
                 miUsuarioId = session.user.id;
-                navActions.innerHTML = `<a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors border border-zinc-700">Mi Perfil</a>`;
-
-                document.getElementById('adelantos-box').innerHTML = `
-                    <div class="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent opacity-50"></div>
-                    <span class="text-5xl mb-4 relative z-10 filter drop-shadow-[0_0_15px_rgba(147,51,234,0.5)]">🎬</span>
-                    <h3 class="text-lg font-black text-white relative z-10 mb-2">Contenido Exclusivo</h3>
-                    <p class="text-zinc-400 text-sm max-w-sm relative z-10 mb-6">Sigue a este artista para desbloquear sus adelantos y videos al instante.</p>
-                `;
+                navActions.innerHTML = `<a href="profile.html" class="bg-zinc-800 text-white text-xs font-bold px-5 py-2 rounded-full border border-zinc-700">Mi Perfil</a>`;
 
                 if (miUsuarioId !== targetId) {
                     btnSeguir.classList.remove('hidden');
-                    const { data: existente } = await client.from('seguidores')
-                        .select('id')
-                        .eq('seguidor_id', miUsuarioId)
-                        .eq('seguido_id', targetId)
-                        .maybeSingle();
-
+                    const { data: existente } = await client.from('seguidores').select('id').eq('seguidor_id', miUsuarioId).eq('seguido_id', targetId).maybeSingle();
                     estoySiguiendo = !!existente;
                     actualizarBotonSeguir();
-                } else {
-                    // Si estás viendo tu propio perfil en modo público, te muestra los videos sin seguirte a ti mismo
-                    estoySiguiendo = true;
-                }
+                } else { estoySiguiendo = true; }
 
-                if (estoySiguiendo) {
-                    mostrarVideosDesbloqueados();
-                }
-
+                if (estoySiguiendo) mostrarVideosDesbloqueados();
             } else {
-                navActions.innerHTML = `<a href="register.html" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(147,51,234,0.4)]">Crear mi perfil</a>`;
-                btnSeguir.classList.remove('hidden');
-                btnSeguir.textContent = "Seguir";
-                btnSeguir.onclick = () => window.location.href = 'register.html';
+                navActions.innerHTML = `<a href="register.html" class="bg-purple-600 text-white text-xs font-bold px-5 py-2 rounded-full shadow-lg">Crear perfil</a>`;
+                btnSeguir.classList.remove('hidden'); btnSeguir.textContent = "Seguir"; btnSeguir.onclick = () => window.location.href = 'register.html';
             }
         }
 
         function actualizarBotonSeguir() {
-            const btnSeguir = document.getElementById('btn-seguir');
+            const btn = document.getElementById('btn-seguir');
             if (estoySiguiendo) {
-                btnSeguir.textContent = "Siguiendo";
-                btnSeguir.className = "bg-zinc-800 border border-zinc-700 hover:border-red-500 hover:text-red-400 text-white font-black uppercase tracking-widest text-xs px-6 py-2.5 rounded-full transition-colors";
+                btn.textContent = "Siguiendo"; btn.className = "bg-zinc-800 border border-zinc-700 hover:border-red-500 hover:text-red-400 text-white font-black uppercase text-xs px-6 py-2.5 rounded-full transition-colors";
             } else {
-                btnSeguir.textContent = "Seguir";
-                btnSeguir.className = "bg-white hover:bg-zinc-200 text-black font-black uppercase tracking-widest text-xs px-6 py-2.5 rounded-full transition-colors";
+                btn.textContent = "Seguir"; btn.className = "bg-white hover:bg-zinc-200 text-black font-black uppercase text-xs px-6 py-2.5 rounded-full transition-colors";
             }
         }
 
         window.toggleSeguir = async function() {
-            const btnSeguir = document.getElementById('btn-seguir');
-            btnSeguir.disabled = true;
-
+            const btn = document.getElementById('btn-seguir'); btn.disabled = true;
             if (estoySiguiendo) {
                 const { error } = await client.from('seguidores').delete().eq('seguidor_id', miUsuarioId).eq('seguido_id', targetId);
-                if (!error) {
-                    estoySiguiendo = false;
-                    ocultarVideos();
-                }
+                if (!error) { estoySiguiendo = false; ocultarVideos(); }
             } else {
                 const { error } = await client.from('seguidores').insert([{ seguidor_id: miUsuarioId, seguido_id: targetId }]);
-                if (!error) {
-                    estoySiguiendo = true;
-                    mostrarVideosDesbloqueados();
-                }
+                if (!error) { estoySiguiendo = true; mostrarVideosDesbloqueados(); }
             }
-
-            btnSeguir.disabled = false;
-            actualizarBotonSeguir();
+            btn.disabled = false; actualizarBotonSeguir();
         }
 
         function ocultarVideos() {
             document.getElementById('adelantos-box').classList.remove('hidden');
             document.getElementById('contenedor-previews').classList.add('hidden');
-            document.getElementById('contenedor-previews').innerHTML = ''; // Limpiamos para seguridad
+            document.getElementById('contenedor-previews').innerHTML = ''; 
         }
 
         async function mostrarVideosDesbloqueados() {
+            if (perfilVisitadoTipo === 'compositor') return; // Compositores no usan esta caja de videos por defecto, usan Beats
             document.getElementById('adelantos-box').classList.add('hidden');
             document.getElementById('contenedor-previews').classList.remove('hidden');
 
@@ -245,59 +268,19 @@
             const cont = document.getElementById('contenedor-previews');
             if (previews && previews.length > 0) {
                 cont.innerHTML = previews.map(p => {
-                    const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `
-                        <div class="bg-[#141414] p-2.5 rounded-lg border border-zinc-800/50 mb-1.5">
-                            <p class="text-[10px] font-black text-purple-400 mb-0.5">${c.autor_nombre}</p>
-                            <p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p>
-                        </div>
-                    `).join('');
-
-                    return `
-                    <div class="bg-[#0a0a0a] border border-purple-800/50 p-4 rounded-2xl shadow-lg fade-in flex flex-col">
-                        <h3 class="font-black text-white text-sm truncate mb-3 pr-2"><span class="text-purple-500">🎬</span> ${p.titulo}</h3>
-                        <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" preload="metadata">
-                            <source src="${p.url_media}" type="video/mp4">
-                        </video>
-                        <div class="mt-auto border-t border-zinc-800/60 pt-3">
-                            <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-1.5">💬 Comentarios</h4>
-                            <div class="max-h-40 overflow-y-auto mb-3 pr-1">
-                                ${commentsHtml || '<p class="text-xs text-zinc-600 italic">Nadie ha comentado aún. Sé el primero.</p>'}
-                            </div>
-                            <div class="flex gap-2">
-                                <input type="text" id="input-comentario-${p.id}" placeholder="Tu comentario..." class="flex-1 bg-[#141414] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-purple-500 transition-colors">
-                                <button onclick="comentarPreviewVisor(${p.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shadow-[0_0_10px_rgba(147,51,234,0.3)]">Enviar</button>
-                            </div>
-                        </div>
-                    </div>
-                    `;
+                    const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `<div class="bg-[#141414] p-2.5 rounded-lg mb-1.5"><p class="text-[10px] font-black text-purple-400 mb-0.5">${c.autor_nombre}</p><p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p></div>`).join('');
+                    return `<div class="bg-[#0a0a0a] border border-purple-800/50 p-4 rounded-2xl shadow-lg fade-in flex flex-col"><h3 class="font-black text-white text-sm truncate mb-3"><span class="text-purple-500">🎬</span> ${p.titulo}</h3><video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" src="${p.url_media}"></video><div class="mt-auto border-t border-zinc-800/60 pt-3"><div class="max-h-40 overflow-y-auto mb-3">${commentsHtml}</div><div class="flex gap-2"><input type="text" id="input-comentario-${p.id}" placeholder="Tu comentario..." class="flex-1 bg-[#1c1c1c] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none"><button onclick="comentarPreviewVisor(${p.id})" class="bg-purple-600 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg">Enviar</button></div></div></div>`;
                 }).join('');
-            } else { 
-                cont.innerHTML = '<p class="text-zinc-600 text-sm">Este artista aún no ha subido adelantos exclusivos.</p>'; 
-            }
+            } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">Este artista aún no ha subido adelantos.</p>'; }
         }
 
         window.comentarPreviewVisor = async function(previewId) {
-            if (!miUsuarioId) return alert("Debes iniciar sesión para comentar.");
+            if (!miUsuarioId) return alert("Debes iniciar sesión.");
             const input = document.getElementById(`input-comentario-${previewId}`);
-            const mensaje = input.value.trim();
-            if (!mensaje) return;
-
-            // Obtener el nombre de quien comenta
+            if (!input.value.trim()) return;
             const { data: miPerfil } = await client.from('perfiles').select('nombre_display, username').eq('id', miUsuarioId).single();
-            const nombreAutor = miPerfil ? (miPerfil.nombre_display || miPerfil.username) : "Fan";
-
-            const { error } = await client.from('comentarios_previews').insert([{ 
-                preview_id: previewId, 
-                usuario_id: miUsuarioId, 
-                autor_nombre: nombreAutor, 
-                mensaje: mensaje 
-            }]);
-
-            if (error) alert("Error al comentar: " + error.message);
-            else { 
-                input.value = ''; 
-                mostrarVideosDesbloqueados(); // Recarga los comentarios de inmediato
-            }
+            await client.from('comentarios_previews').insert([{ preview_id: previewId, usuario_id: miUsuarioId, autor_nombre: miPerfil.nombre_display || miPerfil.username, mensaje: input.value.trim() }]);
+            input.value = ''; mostrarVideosDesbloqueados(); 
         }
 
         cargarPerfilPublico();
