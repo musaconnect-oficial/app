@@ -16,9 +16,11 @@
         .input-field:focus { outline: none; border-color: #7c3aed; }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        ::-webkit-scrollbar { display: none; }
+        /* Scrollbar delgada para los comentarios */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
         
-        /* Animación para el botón en vivo */
         .live-pulse { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); animation: pulseRed 2s infinite; }
         @keyframes pulseRed {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
@@ -116,7 +118,7 @@
                     <div id="contenedor-canciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
 
-                <!-- Adelantos -->
+                <!-- Adelantos con Comentarios -->
                 <div>
                     <h2 class="text-xl font-bold mb-6 border-b border-purple-800 pb-2 text-purple-400 flex items-center gap-2">🎬 Adelantos (1 Min)</h2>
                     <div id="contenedor-previews" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -125,7 +127,6 @@
 
             <!-- COLUMNA 2: EN VIVO Y EVENTOS -->
             <div class="space-y-10">
-                
                 <!-- MULTISTREAM EN VIVO -->
                 <div>
                     <div class="flex items-center gap-3 mb-6 border-b border-red-900/50 pb-2">
@@ -134,11 +135,9 @@
                     </div>
                     
                     <div class="bg-[#0a0a0a] border border-zinc-800 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(220,38,38,0.1)] relative group">
-                        <!-- Placeholder del stream -->
                         <div class="aspect-video bg-zinc-900 flex flex-col items-center justify-center border-b border-zinc-800 relative">
                             <span class="text-4xl mb-2 opacity-50">📡</span>
                             <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest">Stream Offline</p>
-                            <!-- Aquí en el futuro irá el iframe de Twitch o YouTube -->
                         </div>
                         <div class="p-4 flex justify-between items-center bg-gradient-to-b from-[#141414] to-[#0a0a0a]">
                             <div>
@@ -157,7 +156,6 @@
                     <h2 class="text-xl font-bold mb-6 border-b border-orange-900/50 pb-2 text-orange-400 flex items-center gap-2">🎟️ Próximos Shows</h2>
                     <div id="contenedor-eventos" class="flex flex-col gap-3"></div>
                 </div>
-
             </div>
         </div>
 
@@ -233,23 +231,73 @@
             }
         }
 
-        // --- SISTEMA DE PREVIEWS ---
+        // --- SISTEMA DE PREVIEWS CON COMENTARIOS ---
         async function cargarPreviews() {
+            // Cargar videos
             const { data: previews } = await client.from('previews').select('*').eq('usuario_id', miUsuarioId).order('fecha', { ascending: false });
+            // Cargar comentarios
+            const { data: comentarios } = await client.from('comentarios_previews').select('*').order('fecha', { ascending: true });
+            
             const cont = document.getElementById('contenedor-previews');
             if (previews && previews.length > 0) {
-                cont.innerHTML = previews.map(p => `
-                    <div class="bg-[#0a0a0a] border border-purple-800/50 p-3 rounded-2xl shadow-lg fade-in group transition-all">
-                        <div class="px-2 pb-2 pt-1 flex justify-between items-center">
-                            <h3 class="font-black text-white text-sm truncate pr-2"><span class="text-purple-500">🎬</span> ${p.titulo}</h3>
-                            <button onclick="borrarPreview(${p.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/20 p-1.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Borrar">🗑️</button>
+                cont.innerHTML = previews.map(p => {
+                    // Filtrar comentarios solo de este video
+                    const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `
+                        <div class="bg-[#141414] p-2.5 rounded-lg border border-zinc-800/50 mb-1.5">
+                            <p class="text-[10px] font-black text-purple-400 mb-0.5">${c.autor_nombre}</p>
+                            <p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p>
                         </div>
-                        <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800" preload="metadata">
+                    `).join('');
+
+                    return `
+                    <div class="bg-[#0a0a0a] border border-purple-800/50 p-4 rounded-2xl shadow-lg fade-in group transition-all flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-black text-white text-sm truncate pr-2"><span class="text-purple-500">🎬</span> ${p.titulo}</h3>
+                            <button onclick="borrarPreview(${p.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/20 p-1.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100 shrink-0" title="Borrar video">🗑️</button>
+                        </div>
+                        <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" preload="metadata">
                             <source src="${p.url_media}" type="video/mp4">
                         </video>
+                        
+                        <!-- CHAT DE COMENTARIOS -->
+                        <div class="mt-auto border-t border-zinc-800/60 pt-3">
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-1.5">
+                                💬 Comentarios de Fans
+                            </h4>
+                            <div class="max-h-40 overflow-y-auto mb-3 pr-1">
+                                ${commentsHtml || '<p class="text-xs text-zinc-600 italic">Nadie ha comentado aún. Sé el primero.</p>'}
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" id="input-comentario-${p.id}" placeholder="Escribe un comentario..." class="flex-1 bg-[#141414] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 outline-none transition-colors">
+                                <button onclick="comentarPreview(${p.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shadow-[0_0_10px_rgba(147,51,234,0.3)]">Enviar</button>
+                            </div>
+                        </div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
             } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">Sin adelantos exclusivos.</p>'; }
+        }
+
+        window.comentarPreview = async function(previewId) {
+            const input = document.getElementById(`input-comentario-${previewId}`);
+            const mensaje = input.value.trim();
+            if (!mensaje) return;
+
+            // Tomamos tu nombre del HTML para no hacer una consulta pesada a la base de datos
+            const nombreAutor = document.getElementById('profile-name').textContent;
+
+            const { error } = await client.from('comentarios_previews').insert([{
+                preview_id: previewId,
+                usuario_id: miUsuarioId,
+                autor_nombre: nombreAutor,
+                mensaje: mensaje
+            }]);
+
+            if (error) alert("Error al comentar: " + error.message);
+            else {
+                input.value = '';
+                cargarPreviews(); // Recarga y muestra el comentario nuevo al instante
+            }
         }
 
         window.publicarPreview = async function() {
@@ -267,7 +315,7 @@
         }
 
         window.borrarPreview = async function(id) {
-            if(confirm("¿Seguro que deseas borrar este video?")) {
+            if(confirm("¿Seguro que deseas borrar este video? Se borrarán también los comentarios.")) {
                 await client.from('previews').delete().eq('id', id);
                 cargarPreviews();
             }
@@ -279,7 +327,7 @@
             const cont = document.getElementById('contenedor-eventos');
             if (eventos && eventos.length > 0) {
                 cont.innerHTML = eventos.map(e => `
-                    <div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl flex items-center justify-between group fade-in hover:border-orange-500/50 transition-colors">
+                    <div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl flex items-center justify-between group fade-in hover:border-orange-500/50 transition-colors shadow-lg">
                         <div>
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-orange-400 font-black text-sm">${e.fecha}</span>
