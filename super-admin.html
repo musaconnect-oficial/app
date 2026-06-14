@@ -227,9 +227,8 @@
             const email = document.getElementById('reset-email').value.trim();
             if(!email) return alert("Por favor, ingresa el correo del usuario.");
 
-            // Redirigir mágicamente al archivo actualizar-clave.html
-            const currentUrl = window.location.href;
-            const redirectUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/')) + '/actualizar-clave.html';
+            // Forzar el link oficial a la nueva organización
+            const redirectUrl = 'https://musaconnect-oficial.github.io/app/actualizar-clave.html';
 
             const { data, error } = await client.auth.resetPasswordForEmail(email, {
                 redirectTo: redirectUrl,
