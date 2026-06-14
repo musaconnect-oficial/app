@@ -61,9 +61,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
             <div class="lg:col-span-2 space-y-10">
-                
                 <div id="seccion-musica" class="hidden space-y-10">
                     <div>
                         <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-white flex items-center gap-2">🎵 Fragmentos Oficiales</h2>
@@ -88,7 +86,6 @@
                     </h2>
                     <div id="contenedor-beats" class="flex flex-col gap-4"></div>
                 </div>
-
             </div>
 
             <div class="space-y-10">
@@ -134,7 +131,6 @@
                 if (perfil.link_spotify) linksHtml += `<a href="${perfil.link_spotify}" target="_blank" class="bg-[#1DB954] text-black px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform">🎵 Spotify</a>`;
                 document.getElementById('visor-links').innerHTML = linksHtml;
 
-                // --- TEMAS PÚBLICOS ---
                 const banner = document.getElementById('visor-banner');
                 const badge = document.getElementById('visor-role');
 
@@ -214,7 +210,10 @@
 
             if (session) {
                 miUsuarioId = session.user.id;
-                navActions.innerHTML = `<a href="profile.html" class="bg-zinc-800 text-white text-xs font-bold px-5 py-2 rounded-full border border-zinc-700">Mi Perfil</a>`;
+                navActions.innerHTML = `
+                    <a href="radar.html" class="text-pink-500 hover:text-pink-400 text-xs font-bold transition-colors hidden sm:inline-flex items-center gap-1 mr-4 drop-shadow-[0_0_5px_rgba(236,72,153,0.4)]">📡 Radar</a>
+                    <a href="profile.html" class="bg-zinc-800 text-white text-xs font-bold px-5 py-2 rounded-full border border-zinc-700">Mi Perfil</a>
+                `;
 
                 if (miUsuarioId !== targetId) {
                     btnSeguir.classList.remove('hidden');
@@ -258,7 +257,7 @@
         }
 
         async function mostrarVideosDesbloqueados() {
-            if (perfilVisitadoTipo === 'compositor') return; // Compositores no usan esta caja de videos por defecto, usan Beats
+            if (perfilVisitadoTipo === 'compositor') return; 
             document.getElementById('adelantos-box').classList.add('hidden');
             document.getElementById('contenedor-previews').classList.remove('hidden');
 
