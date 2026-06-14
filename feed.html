@@ -11,7 +11,11 @@
         body { font-family: 'Inter', sans-serif; background-color: #0e0e0e; }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        ::-webkit-scrollbar { display: none; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        .like-anim { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col pb-20">
@@ -70,6 +74,7 @@
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         let miUsuarioId = null;
+        let miNombreDeUsuario = "Fan";
         let perfilesCache = {}; 
         let archivoComprimido = null;
 
@@ -78,54 +83,47 @@
             const { data: { user } } = await client.auth.getUser();
             if (user) {
                 miUsuarioId = user.id;
-                const { data: perfil } = await client.from('perfiles').select('avatar_url').eq('id', user.id).single();
-                if (perfil && perfil.avatar_url) {
-                    document.getElementById('mi-avatar-creador').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
+                const { data: perfil } = await client.from('perfiles').select('nombre_display, username, avatar_url').eq('id', user.id).single();
+                if (perfil) {
+                    miNombreDeUsuario = perfil.nombre_display || perfil.username;
+                    if (perfil.avatar_url) {
+                        document.getElementById('mi-avatar-creador').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
+                    }
                 }
             } else {
-                // Si no está logueado, ocultamos la caja de publicar
                 document.querySelector('.bg-\\[\\#141414\\]').innerHTML = `
                     <div class="text-center p-4">
-                        <p class="text-zinc-400 text-sm mb-3">Únete para compartir tu música con el mundo.</p>
+                        <p class="text-zinc-400 text-sm mb-3">Únete para compartir tu música, debatir y dar likes.</p>
                         <a href="register.html" class="inline-block bg-purple-600 text-white text-xs font-bold px-6 py-2 rounded-full shadow-[0_0_15px_rgba(147,51,234,0.3)]">Crear Cuenta</a>
                     </div>
                 `;
             }
-
             cargarPosts();
         }
 
-        // --- EL MOTOR DE COMPRESIÓN DE IMÁGENES ---
+        // --- MOTOR DE IMÁGENES ---
         function previsualizarImagen(input) {
             const file = input.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
                 document.getElementById('img-preview').src = event.target.result;
                 document.getElementById('preview-container').classList.remove('hidden');
                 
-                // Comprimir la imagen mágicamente
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1080; // Calidad HD pero optimizada
+                    const MAX_WIDTH = 1080;
                     const MAX_HEIGHT = 1080;
                     let width = img.width;
                     let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                    } else {
-                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                    }
+                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
+                    else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Comprimir a JPEG calidad 70% (Baja el peso brutalmente)
                     canvas.toBlob((blob) => {
                         archivoComprimido = new File([blob], file.name.split('.')[0] + ".jpg", { type: 'image/jpeg' });
                     }, 'image/jpeg', 0.7);
@@ -139,55 +137,43 @@
             archivoComprimido = null;
         }
 
-        // --- EL DETECTOR MÁGICO DE LINKS DEFINITIVO ---
+        // --- CONVERTIR LINKS EN REPRODUCTORES ---
         function procesarTextoConEmbeds(texto) {
             if (!texto) return '';
-
-            // 1. Escapar HTML para evitar hackeos
             let html = texto.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            
-            // 2. Reemplazar saltos de línea
             html = html.replace(/\n/g, '<br>');
 
-            // 3. Escáner para Spotify (Ignora basura extra al final del link)
             const spotifyRegex = /https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist)\/([a-zA-Z0-9]+)(?:\S*)?/g;
             html = html.replace(spotifyRegex, (match, tipo, id) => {
                 return `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(29,185,84,0.1)]"><iframe src="https://open.spotify.com/embed/${tipo}/${id}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>`;
             });
 
-            // 4. Escáner para SoundCloud
             const soundcloudRegex = /(https:\/\/soundcloud\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(?:\S*)?/g;
             html = html.replace(soundcloudRegex, (match, url) => {
                 return `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.15)]"><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%237c3aed&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe></div>`;
             });
 
-            // 5. Escáner para YouTube
             const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?/gi;
             html = html.replace(youtubeRegex, '<div class="aspect-video w-full rounded-xl overflow-hidden mt-3 border border-red-900/30 shadow-[0_0_15px_rgba(220,38,38,0.1)]"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>');
 
             return html;
         }
 
-        function tiempoTranscurrido(fechaStr) {
-            const segundos = Math.floor((new Date() - new Date(fechaStr)) / 1000);
-            if (segundos < 60) return "Hace un momento";
-            if (segundos < 3600) return `Hace ${Math.floor(segundos / 60)} min`;
-            if (segundos < 86400) return `Hace ${Math.floor(segundos / 3600)} horas`;
-            return `Hace ${Math.floor(segundos / 86400)} días`;
+        // --- NUEVO FORMATO DE FECHA ---
+        function formatearFechaExacta(fechaStr) {
+            const fecha = new Date(fechaStr);
+            const opciones = { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
+            return fecha.toLocaleDateString('es-ES', opciones).replace(',', ' a las');
         }
 
         // --- SUBIR PUBLICACIÓN ---
         window.publicarPost = async function() {
             const btn = document.getElementById('btn-publicar');
             const textoRaw = document.getElementById('input-post-texto').value.trim();
-            
             if (!textoRaw && !archivoComprimido) return alert("Escribe algo o sube una foto.");
-
             btn.disabled = true; btn.textContent = "Subiendo...";
 
             let imageUrlSubida = null;
-
-            // 1. Subir imagen si hay
             if (archivoComprimido) {
                 const filePath = `${miUsuarioId}-${Date.now()}.jpg`;
                 const { error: uploadError } = await client.storage.from('feed_images').upload(filePath, archivoComprimido);
@@ -197,30 +183,25 @@
                 }
             }
 
-            // 2. Insertar en la tabla posts
-            const { error } = await client.from('posts').insert([{
-                usuario_id: miUsuarioId,
-                contenido: textoRaw,
-                imagen_url: imageUrlSubida
-            }]);
-
+            const { error } = await client.from('posts').insert([{ usuario_id: miUsuarioId, contenido: textoRaw, imagen_url: imageUrlSubida }]);
             btn.disabled = false; btn.textContent = "Publicar";
 
             if (error) alert("Error: " + error.message);
             else {
                 document.getElementById('input-post-texto').value = '';
                 quitarImagen();
-                cargarPosts(); // Recargar el muro
+                cargarPosts(); 
             }
         }
 
-        // --- CARGAR EL MURO ---
+        // --- CARGAR EL MURO COMPLETO (CON LIKES Y COMENTARIOS) ---
         async function cargarPosts() {
-            // 1. Traer posts
+            // Traer todos los datos necesarios
             const { data: posts } = await client.from('posts').select('*').order('fecha', { ascending: false }).limit(50);
-            
-            // 2. Traer perfiles (Diccionario para saber quién es quién)
             const { data: perfiles } = await client.from('perfiles').select('id, nombre_display, username, avatar_url, tipo');
+            const { data: likesDB } = await client.from('likes_posts').select('*');
+            const { data: comentariosDB } = await client.from('comentarios_posts').select('*').order('fecha', { ascending: true });
+
             perfiles.forEach(p => { perfilesCache[p.id] = p; });
 
             const cont = document.getElementById('contenedor-posts');
@@ -229,20 +210,31 @@
                 return;
             }
 
-            // 3. Armar las tarjetas
             cont.innerHTML = posts.map(post => {
                 const autor = perfilesCache[post.usuario_id] || { nombre_display: 'Usuario', username: 'desconocido', avatar_url: '', tipo: 'usuario' };
                 const contenidoMagico = procesarTextoConEmbeds(post.contenido);
-                
-                // Si hay foto, la ponemos hermosa
-                const imagenHtml = post.imagen_url 
-                    ? `<div class="mt-3 rounded-2xl overflow-hidden border border-zinc-800"><img src="${post.imagen_url}" class="w-full h-auto max-h-[600px] object-cover hover:scale-105 transition-transform duration-500"></div>` 
-                    : '';
+                const imagenHtml = post.imagen_url ? `<div class="mt-3 rounded-2xl overflow-hidden border border-zinc-800"><img src="${post.imagen_url}" class="w-full h-auto max-h-[600px] object-cover"></div>` : '';
+                const botonBorrar = (post.usuario_id === miUsuarioId) ? `<button onclick="borrarPost(${post.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/10 hover:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">🗑️</button>` : '';
 
-                // Botón de basura (Solo visible si el post es tuyo)
-                const botonBorrar = (post.usuario_id === miUsuarioId)
-                    ? `<button onclick="borrarPost(${post.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/10 hover:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">🗑️</button>`
-                    : '';
+                // Calcular Likes de este post
+                const likesDelPost = likesDB.filter(l => l.post_id === post.id);
+                const totalLikes = likesDelPost.length;
+                const yoLeDiLike = miUsuarioId ? likesDelPost.some(l => l.usuario_id === miUsuarioId) : false;
+                const corazon = yoLeDiLike ? '❤️' : '🤍';
+                const colorLike = yoLeDiLike ? 'text-red-500' : 'text-zinc-400';
+
+                // Calcular Comentarios de este post
+                const comentariosDelPost = comentariosDB.filter(c => c.post_id === post.id);
+                const totalComentarios = comentariosDelPost.length;
+                const comentariosHtml = comentariosDelPost.map(c => `
+                    <div class="bg-[#1a1a1a] p-3 rounded-lg border border-zinc-800/50 mb-2">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-[10px] font-black text-purple-400">${c.autor_nombre}</span>
+                            <span class="text-[9px] text-zinc-600">${formatearFechaExacta(c.fecha)}</span>
+                        </div>
+                        <p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p>
+                    </div>
+                `).join('');
 
                 return `
                 <div class="bg-[#141414] border border-zinc-800/80 rounded-2xl p-4 md:p-5 fade-in group hover:border-zinc-700 transition-colors shadow-lg">
@@ -256,8 +248,8 @@
                                     ${autor.nombre_display}
                                     <span class="text-[8px] bg-zinc-800 border border-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded uppercase tracking-widest">${autor.tipo}</span>
                                 </h4>
-                                <p class="text-zinc-500 text-xs flex gap-2">
-                                    @${autor.username} • ${tiempoTranscurrido(post.fecha)}
+                                <p class="text-zinc-500 text-[11px] font-medium">
+                                    @${autor.username} • 📅 ${formatearFechaExacta(post.fecha)}
                                 </p>
                             </div>
                         </a>
@@ -265,17 +257,94 @@
                     </div>
                     
                     <div class="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap ml-0 md:ml-13">${contenidoMagico}</div>
-                    
-                    <div class="ml-0 md:ml-13">
-                        ${imagenHtml}
+                    <div class="ml-0 md:ml-13">${imagenHtml}</div>
+
+                    <!-- BARRA DE INTERACCIONES (LIKES Y COMENTARIOS) -->
+                    <div class="flex items-center gap-6 mt-4 ml-0 md:ml-13 border-t border-zinc-800/60 pt-3">
+                        <button onclick="darLike(${post.id}, this)" class="flex items-center gap-1.5 hover:text-red-500 transition-colors text-xs font-bold ${colorLike} focus:outline-none">
+                            <span class="icon-corazon">${corazon}</span> <span class="contador-likes">${totalLikes}</span>
+                        </button>
+                        <button onclick="toggleComentarios(${post.id})" class="flex items-center gap-1.5 text-zinc-400 hover:text-purple-400 transition-colors text-xs font-bold focus:outline-none">
+                            <span>💬</span> <span>${totalComentarios}</span> Responder
+                        </button>
                     </div>
+
+                    <!-- CAJÓN DE HILOS/COMENTARIOS (Oculto por defecto) -->
+                    <div id="caja-comentarios-${post.id}" class="hidden ml-0 md:ml-13 mt-4 bg-[#0a0a0a] rounded-xl p-3 md:p-4 border border-zinc-800/50 shadow-inner">
+                        <div id="lista-comentarios-${post.id}" class="max-h-48 overflow-y-auto mb-3 pr-2">
+                            ${comentariosHtml || '<p class="text-xs text-zinc-600 italic mb-2">Sé el primero en responder a este hilo.</p>'}
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="input-comentario-${post.id}" placeholder="Escribe una respuesta..." class="flex-1 bg-[#1c1c1c] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-purple-500 transition-colors">
+                            <button onclick="enviarComentario(${post.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shadow-[0_0_10px_rgba(147,51,234,0.3)]">Enviar</button>
+                        </div>
+                    </div>
+
                 </div>
                 `;
             }).join('');
         }
 
+        // --- SISTEMA DE LIKES ---
+        window.darLike = async function(postId, btnElement) {
+            if (!miUsuarioId) return alert("Debes iniciar sesión para dar me gusta.");
+            
+            const iconSpan = btnElement.querySelector('.icon-corazon');
+            const countSpan = btnElement.querySelector('.contador-likes');
+            let likesActuales = parseInt(countSpan.innerText);
+            
+            // Verificamos si ya le dimos like en la BD
+            const { data: existente } = await client.from('likes_posts').select('id').eq('post_id', postId).eq('usuario_id', miUsuarioId).maybeSingle();
+
+            if (existente) {
+                // Quitar Like
+                await client.from('likes_posts').delete().eq('id', existente.id);
+                iconSpan.innerText = '🤍';
+                countSpan.innerText = likesActuales - 1;
+                btnElement.classList.remove('text-red-500');
+                btnElement.classList.add('text-zinc-400');
+                iconSpan.classList.remove('like-anim');
+            } else {
+                // Dar Like
+                await client.from('likes_posts').insert([{ post_id: postId, usuario_id: miUsuarioId }]);
+                iconSpan.innerText = '❤️';
+                countSpan.innerText = likesActuales + 1;
+                btnElement.classList.remove('text-zinc-400');
+                btnElement.classList.add('text-red-500');
+                iconSpan.classList.remove('like-anim'); // Reseteamos animación
+                void iconSpan.offsetWidth; // Forzar reflow para reiniciar animación CSS
+                iconSpan.classList.add('like-anim');
+            }
+        }
+
+        // --- SISTEMA DE COMENTARIOS ---
+        window.toggleComentarios = function(postId) {
+            const caja = document.getElementById(`caja-comentarios-${postId}`);
+            caja.classList.toggle('hidden');
+        }
+
+        window.enviarComentario = async function(postId) {
+            if (!miUsuarioId) return alert("Debes iniciar sesión para comentar.");
+            const input = document.getElementById(`input-comentario-${postId}`);
+            const mensaje = input.value.trim();
+            if (!mensaje) return;
+
+            const { error } = await client.from('comentarios_posts').insert([{ 
+                post_id: postId, 
+                usuario_id: miUsuarioId, 
+                autor_nombre: miNombreDeUsuario, 
+                mensaje: mensaje 
+            }]);
+
+            if (error) alert("Error: " + error.message);
+            else {
+                input.value = '';
+                cargarPosts(); // Recarga el muro para mostrar el nuevo comentario
+            }
+        }
+
         window.borrarPost = async function(id) {
-            if (confirm("¿Borrar esta publicación?")) {
+            if (confirm("¿Borrar esta publicación? Se eliminarán también los likes y comentarios.")) {
                 await client.from('posts').delete().eq('id', id);
                 cargarPosts();
             }
