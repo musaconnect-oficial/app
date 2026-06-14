@@ -11,7 +11,9 @@
         body { font-family: 'Inter', sans-serif; }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        ::-webkit-scrollbar { display: none; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-[#121212] text-white min-h-screen pb-20">
@@ -53,7 +55,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- COLUMNA 1: MÚSICA Y PREVIEWS (BLOQUEADOS) -->
+            <!-- COLUMNA 1: MÚSICA Y PREVIEWS -->
             <div class="lg:col-span-2 space-y-10">
                 <!-- Lanzamientos -->
                 <div>
@@ -61,10 +63,11 @@
                     <div id="contenedor-canciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
 
-                <!-- ADELANTOS (CANDADO ACTIVADO) -->
+                <!-- ADELANTOS EXCLUSIVOS -->
                 <div>
                     <h2 class="text-xl font-bold mb-6 border-b border-purple-800 pb-2 text-purple-400 flex items-center gap-2">🎬 Adelantos (1 Min)</h2>
                     
+                    <!-- CAJA DE BLOQUEO (Se oculta al seguir) -->
                     <div id="adelantos-box" class="bg-[#0a0a0a] border border-purple-900/30 rounded-2xl p-8 text-center flex flex-col items-center justify-center relative overflow-hidden group">
                         <div class="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent opacity-50"></div>
                         <span class="text-5xl mb-4 relative z-10 filter drop-shadow-[0_0_15px_rgba(147,51,234,0.5)]">🔒</span>
@@ -74,6 +77,9 @@
                             Crear cuenta para desbloquear
                         </a>
                     </div>
+
+                    <!-- CONTENEDOR DE VIDEOS REALES (Se muestra al seguir) -->
+                    <div id="contenedor-previews" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
             </div>
 
@@ -93,7 +99,6 @@
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        // Magia: Obtener la ID del usuario desde la URL (ej: visor.html?id=1234)
         const urlParams = new URLSearchParams(window.location.search);
         const targetId = urlParams.get('id');
         let miUsuarioId = null;
@@ -102,7 +107,6 @@
         async function cargarPerfilPublico() {
             if (!targetId) { window.location.href = 'index.html'; return; }
 
-            // 1. Cargar Perfil
             const { data: perfil } = await client.from('perfiles').select('*').eq('id', targetId).single();
             if (perfil) {
                 document.getElementById('visor-name').textContent = perfil.nombre_display || "Sin Nombre";
@@ -117,7 +121,6 @@
                 document.getElementById('visor-links').innerHTML = linksHtml;
             }
 
-            // 2. Cargar SÓLO la música (Spotify)
             const { data: canciones } = await client.from('canciones').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
             const contCanciones = document.getElementById('contenedor-canciones');
             if (canciones && canciones.length > 0) {
@@ -132,7 +135,6 @@
                 `).join('');
             } else { contCanciones.innerHTML = '<p class="text-zinc-600 text-sm">Sin fragmentos públicos.</p>'; }
 
-            // 3. Cargar Eventos
             const { data: eventos } = await client.from('eventos').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
             const contEventos = document.getElementById('contenedor-eventos');
             if (eventos && eventos.length > 0) {
@@ -154,24 +156,21 @@
         async function verificarSesion() {
             const { data: { session } } = await client.auth.getSession();
             const navActions = document.getElementById('visor-nav-actions');
-            const adelantosBox = document.getElementById('adelantos-box');
             const btnSeguir = document.getElementById('btn-seguir');
 
             if (session) {
                 miUsuarioId = session.user.id;
                 navActions.innerHTML = `<a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors border border-zinc-700">Mi Perfil</a>`;
 
-                adelantosBox.innerHTML = `
+                document.getElementById('adelantos-box').innerHTML = `
                     <div class="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent opacity-50"></div>
                     <span class="text-5xl mb-4 relative z-10 filter drop-shadow-[0_0_15px_rgba(147,51,234,0.5)]">🎬</span>
                     <h3 class="text-lg font-black text-white relative z-10 mb-2">Contenido Exclusivo</h3>
-                    <p class="text-zinc-400 text-sm max-w-sm relative z-10 mb-6">Sigue a este artista para desbloquear sus adelantos y videos próximamente.</p>
+                    <p class="text-zinc-400 text-sm max-w-sm relative z-10 mb-6">Sigue a este artista para desbloquear sus adelantos y videos al instante.</p>
                 `;
 
-                // Mostrar botón Seguir solo si no es mi propio perfil
                 if (miUsuarioId !== targetId) {
                     btnSeguir.classList.remove('hidden');
-
                     const { data: existente } = await client.from('seguidores')
                         .select('id')
                         .eq('seguidor_id', miUsuarioId)
@@ -180,10 +179,17 @@
 
                     estoySiguiendo = !!existente;
                     actualizarBotonSeguir();
+                } else {
+                    // Si estás viendo tu propio perfil en modo público, te muestra los videos sin seguirte a ti mismo
+                    estoySiguiendo = true;
                 }
+
+                if (estoySiguiendo) {
+                    mostrarVideosDesbloqueados();
+                }
+
             } else {
                 navActions.innerHTML = `<a href="register.html" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(147,51,234,0.4)]">Crear mi perfil</a>`;
-                // Visitante sin sesión: mostrar botón que invita a registrarse
                 btnSeguir.classList.remove('hidden');
                 btnSeguir.textContent = "Seguir";
                 btnSeguir.onclick = () => window.location.href = 'register.html';
@@ -206,19 +212,92 @@
             btnSeguir.disabled = true;
 
             if (estoySiguiendo) {
-                const { error } = await client.from('seguidores')
-                    .delete()
-                    .eq('seguidor_id', miUsuarioId)
-                    .eq('seguido_id', targetId);
-                if (!error) estoySiguiendo = false;
+                const { error } = await client.from('seguidores').delete().eq('seguidor_id', miUsuarioId).eq('seguido_id', targetId);
+                if (!error) {
+                    estoySiguiendo = false;
+                    ocultarVideos();
+                }
             } else {
-                const { error } = await client.from('seguidores')
-                    .insert([{ seguidor_id: miUsuarioId, seguido_id: targetId }]);
-                if (!error) estoySiguiendo = true;
+                const { error } = await client.from('seguidores').insert([{ seguidor_id: miUsuarioId, seguido_id: targetId }]);
+                if (!error) {
+                    estoySiguiendo = true;
+                    mostrarVideosDesbloqueados();
+                }
             }
 
             btnSeguir.disabled = false;
             actualizarBotonSeguir();
+        }
+
+        function ocultarVideos() {
+            document.getElementById('adelantos-box').classList.remove('hidden');
+            document.getElementById('contenedor-previews').classList.add('hidden');
+            document.getElementById('contenedor-previews').innerHTML = ''; // Limpiamos para seguridad
+        }
+
+        async function mostrarVideosDesbloqueados() {
+            document.getElementById('adelantos-box').classList.add('hidden');
+            document.getElementById('contenedor-previews').classList.remove('hidden');
+
+            const { data: previews } = await client.from('previews').select('*').eq('usuario_id', targetId).order('fecha', { ascending: false });
+            const { data: comentarios } = await client.from('comentarios_previews').select('*').order('fecha', { ascending: true });
+            
+            const cont = document.getElementById('contenedor-previews');
+            if (previews && previews.length > 0) {
+                cont.innerHTML = previews.map(p => {
+                    const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `
+                        <div class="bg-[#141414] p-2.5 rounded-lg border border-zinc-800/50 mb-1.5">
+                            <p class="text-[10px] font-black text-purple-400 mb-0.5">${c.autor_nombre}</p>
+                            <p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p>
+                        </div>
+                    `).join('');
+
+                    return `
+                    <div class="bg-[#0a0a0a] border border-purple-800/50 p-4 rounded-2xl shadow-lg fade-in flex flex-col">
+                        <h3 class="font-black text-white text-sm truncate mb-3 pr-2"><span class="text-purple-500">🎬</span> ${p.titulo}</h3>
+                        <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" preload="metadata">
+                            <source src="${p.url_media}" type="video/mp4">
+                        </video>
+                        <div class="mt-auto border-t border-zinc-800/60 pt-3">
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-1.5">💬 Comentarios</h4>
+                            <div class="max-h-40 overflow-y-auto mb-3 pr-1">
+                                ${commentsHtml || '<p class="text-xs text-zinc-600 italic">Nadie ha comentado aún. Sé el primero.</p>'}
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" id="input-comentario-${p.id}" placeholder="Tu comentario..." class="flex-1 bg-[#141414] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-purple-500 transition-colors">
+                                <button onclick="comentarPreviewVisor(${p.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shadow-[0_0_10px_rgba(147,51,234,0.3)]">Enviar</button>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } else { 
+                cont.innerHTML = '<p class="text-zinc-600 text-sm">Este artista aún no ha subido adelantos exclusivos.</p>'; 
+            }
+        }
+
+        window.comentarPreviewVisor = async function(previewId) {
+            if (!miUsuarioId) return alert("Debes iniciar sesión para comentar.");
+            const input = document.getElementById(`input-comentario-${previewId}`);
+            const mensaje = input.value.trim();
+            if (!mensaje) return;
+
+            // Obtener el nombre de quien comenta
+            const { data: miPerfil } = await client.from('perfiles').select('nombre_display, username').eq('id', miUsuarioId).single();
+            const nombreAutor = miPerfil ? (miPerfil.nombre_display || miPerfil.username) : "Fan";
+
+            const { error } = await client.from('comentarios_previews').insert([{ 
+                preview_id: previewId, 
+                usuario_id: miUsuarioId, 
+                autor_nombre: nombreAutor, 
+                mensaje: mensaje 
+            }]);
+
+            if (error) alert("Error al comentar: " + error.message);
+            else { 
+                input.value = ''; 
+                mostrarVideosDesbloqueados(); // Recarga los comentarios de inmediato
+            }
         }
 
         cargarPerfilPublico();
