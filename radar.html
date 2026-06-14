@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar de Colaboraciones | MusaConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; overflow-x: hidden; }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        ::-webkit-scrollbar { display: none; }
+        
+        .input-field {
+            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
+            color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 13px; outline: none;
+        }
+        .input-field:focus { border-color: #ec4899; box-shadow: 0 0 10px rgba(236,72,153,0.2); }
+
+        /* Animación del Radar Estilo "Sonar" */
+        .radar-container { position: relative; width: 150px; height: 150px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+        .radar-icon { position: relative; z-index: 10; font-size: 3rem; filter: drop-shadow(0 0 15px rgba(236,72,153,0.8)); }
+        .radar-ring {
+            position: absolute; border-radius: 50%; border: 2px solid rgba(236,72,153,0.5);
+            animation: radarPulse 3s infinite linear; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .radar-ring:nth-child(2) { animation-delay: 1s; }
+        .radar-ring:nth-child(3) { animation-delay: 2s; }
+        @keyframes radarPulse {
+            0% { width: 0px; height: 0px; opacity: 1; }
+            100% { width: 250px; height: 250px; opacity: 0; }
+        }
+
+        .card-match { border: 1px solid #27272a; transition: all 0.3s ease; }
+        .card-match:hover { border-color: #ec4899; box-shadow: 0 0 20px rgba(236,72,153,0.15); transform: translateY(-3px); }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col pb-20">
+
+    <!-- HEADER -->
+    <header class="border-b border-zinc-800/80 bg-[#0a0a0a]/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 text-white hover:text-pink-400 transition-colors font-bold text-sm">
+                ← Portada
+            </a>
+            <h1 class="font-black tracking-widest uppercase text-sm">Radar <span class="text-pink-500">Musa</span></h1>
+            <div class="flex gap-2">
+                <a href="feed.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700 hidden sm:block">Muro</a>
+                <a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Mi Perfil</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 pt-8">
+        
+        <!-- HERO DEL RADAR -->
+        <div class="text-center mb-12 relative overflow-hidden bg-[#141414] rounded-3xl border border-pink-900/30 p-8 shadow-2xl">
+            <div class="radar-container mb-6">
+                <div class="radar-ring"></div>
+                <div class="radar-ring"></div>
+                <div class="radar-ring"></div>
+                <div class="radar-icon">📡</div>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-black tracking-tight mb-3">Encuentra tu próximo <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">Match Musical</span></h2>
+            <p class="text-zinc-400 text-sm max-w-lg mx-auto mb-8">¿Buscas un beatmaker para tu próximo tema? ¿Necesitas un vocalista para tu banda? Publica tu anuncio y conecta con el talento del ecosistema.</p>
+            
+            <button onclick="document.getElementById('modal-crear').classList.remove('hidden')" class="bg-pink-600 hover:bg-pink-500 text-white font-black uppercase tracking-widest text-xs px-8 py-3.5 rounded-full transition-all shadow-[0_0_20px_rgba(236,72,153,0.4)] hover:scale-105">
+                + Crear Anuncio
+            </button>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-zinc-800 pb-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">👀 Anuncios Activos</h3>
+            <select id="filtro-tipo" onchange="cargarRadar()" class="bg-[#1c1c1c] border border-zinc-700 text-white text-xs font-bold rounded-lg px-4 py-2 outline-none focus:border-pink-500 transition-colors">
+                <option value="todos">Todos los talentos</option>
+                <option value="Productor">Buscando Productores</option>
+                <option value="Vocalista">Buscando Vocalistas</option>
+                <option value="Musico">Buscando Músicos/Bandas</option>
+                <option value="Colaboracion">Buscando Feats (Colab)</option>
+            </select>
+        </div>
+
+        <!-- GRID DE ANUNCIOS -->
+        <div id="contenedor-anuncios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center text-zinc-500 text-sm py-10 animate-pulse">Escaneando frecuencias...</div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: CREAR ANUNCIO -->
+    <div id="modal-crear" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-[#141414] border border-zinc-800 rounded-2xl max-w-md w-full shadow-2xl fade-in overflow-hidden">
+            <div class="bg-gradient-to-r from-pink-900/40 to-[#141414] px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
+                <h3 class="text-lg font-black text-white">📡 Nuevo Anuncio</h3>
+                <button onclick="document.getElementById('modal-crear').classList.add('hidden')" class="text-zinc-500 hover:text-white text-xl leading-none transition-colors">✕</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">¿Qué buscas?</label>
+                    <select id="input-tipo" class="input-field font-bold">
+                        <option value="Productor">Buscando un Productor / Beatmaker</option>
+                        <option value="Vocalista">Buscando un Cantante / Vocalista</option>
+                        <option value="Musico">Buscando Músico para Banda</option>
+                        <option value="Colaboracion">Buscando un Feat / Colaboración</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Título corto y llamativo</label>
+                    <input type="text" id="input-titulo" class="input-field font-bold" placeholder="Ej: Busco beat de Drill oscuro">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Género Musical</label>
+                        <input type="text" id="input-genero" class="input-field" placeholder="Ej: Trap, Reggaeton, Rock">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Detalles de lo que necesitas</label>
+                    <textarea id="input-desc" rows="3" class="input-field resize-none" placeholder="Explica tu proyecto, referencias, o requisitos..."></textarea>
+                </div>
+                <button id="btn-publicar-anuncio" onclick="publicarAnuncio()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded-lg transition-colors mt-2 shadow-[0_0_15px_rgba(236,72,153,0.3)]">Lanzar al Radar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ME INTERESA (ENVIAR MENSAJE) -->
+    <div id="modal-interes" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-[#141414] border border-pink-900/50 rounded-2xl max-w-md w-full shadow-2xl fade-in overflow-hidden">
+            <div class="px-6 py-4 border-b border-zinc-800 flex justify-between items-center bg-[#0a0a0a]">
+                <h3 class="text-lg font-black text-white flex items-center gap-2">🤝 Conectar</h3>
+                <button onclick="document.getElementById('modal-interes').classList.add('hidden')" class="text-zinc-500 hover:text-white text-xl leading-none transition-colors">✕</button>
+            </div>
+            <div class="p-6">
+                <p class="text-zinc-400 text-sm mb-4">Mándale un mensaje corto a <strong id="interes-autor" class="text-pink-400">@usuario</strong> para que sepa que estás interesado en su anuncio.</p>
+                <input type="hidden" id="interes-anuncio-id">
+                <textarea id="interes-mensaje" rows="3" class="input-field resize-none mb-4" placeholder="Ej: Hermano, me encanta la idea. Chequea mi perfil, tengo unos beats que te pueden servir..."></textarea>
+                <button id="btn-enviar-interes" onclick="enviarInteres()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded-lg transition-colors shadow-[0_0_15px_rgba(236,72,153,0.3)]">Enviar Mensaje de Contacto</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let miUsuarioId = null;
+        let perfilesCache = {}; 
+
+        async function initRadar() {
+            const { data: { user } } = await client.auth.getUser();
+            if (user) miUsuarioId = user.id;
+            cargarRadar();
+        }
+
+        function tiempoTranscurrido(fechaStr) {
+            const segundos = Math.floor((new Date() - new Date(fechaStr)) / 1000);
+            if (segundos < 60) return "Hace un momento";
+            if (segundos < 3600) return `Hace ${Math.floor(segundos / 60)} min`;
+            if (segundos < 86400) return `Hace ${Math.floor(segundos / 3600)} horas`;
+            return `Hace ${Math.floor(segundos / 86400)} días`;
+        }
+
+        async function cargarRadar() {
+            const filtro = document.getElementById('filtro-tipo').value;
+            const cont = document.getElementById('contenedor-anuncios');
+
+            let query = client.from('radar_anuncios').select('*').eq('activa', true).order('fecha', { ascending: false });
+            if (filtro !== 'todos') query = query.eq('tipo_busqueda', filtro);
+
+            const { data: anunciosData } = await query;
+            const anuncios = anunciosData || [];
+
+            const { data: perfilesData } = await client.from('perfiles').select('id, nombre_display, username, avatar_url');
+            const perfiles = perfilesData || [];
+            perfiles.forEach(p => { perfilesCache[p.id] = p; });
+
+            if (anuncios.length === 0) {
+                cont.innerHTML = '<div class="col-span-full text-center text-zinc-500 text-sm py-10">No hay señales en el radar en este momento. ¡Sé el primero en publicar!</div>';
+                return;
+            }
+
+            const iconos = { 'Productor': '🎹', 'Vocalista': '🎤', 'Musico': '🎸', 'Colaboracion': '🤝' };
+
+            cont.innerHTML = anuncios.map(a => {
+                const autor = perfilesCache[a.usuario_id] || { nombre_display: 'Usuario', username: 'desconocido', avatar_url: '' };
+                const esMio = (a.usuario_id === miUsuarioId);
+
+                // Si es mío, botón de borrar. Si no, botón de "Me interesa"
+                const botonAccion = esMio 
+                    ? `<button onclick="borrarAnuncio(${a.id})" class="w-full bg-red-900/20 text-red-500 hover:bg-red-900/40 text-xs font-bold py-2.5 rounded-lg transition-colors border border-red-900/50 mt-4">🗑️ Eliminar mi anuncio</button>`
+                    : `<button onclick="abrirInteres(${a.id}, '${autor.username}')" class="w-full bg-zinc-800 hover:bg-pink-600 text-white hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] text-xs font-bold py-2.5 rounded-lg transition-all border border-zinc-700 hover:border-pink-500 mt-4">👉 Me Interesa</button>`;
+
+                return `
+                <div class="bg-[#141414] rounded-2xl p-5 card-match flex flex-col h-full fade-in relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-pink-600/10 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    
+                    <div class="flex items-center gap-3 mb-4">
+                        <a href="visor.html?id=${a.usuario_id}" class="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-1 ring-zinc-700 group-hover:ring-pink-500 transition-colors">
+                            ${autor.avatar_url ? `<img src="${autor.avatar_url}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center w-full h-full text-sm">👤</span>`}
+                        </a>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-white text-sm truncate flex items-center gap-1">
+                                <a href="visor.html?id=${a.usuario_id}" class="hover:underline hover:text-pink-400">${autor.nombre_display}</a>
+                            </h4>
+                            <p class="text-zinc-500 text-[10px] uppercase tracking-widest">${tiempoTranscurrido(a.fecha)}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="inline-flex items-center gap-1.5 bg-[#1a1a1a] border border-zinc-800 text-zinc-300 px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest mb-2">
+                            ${iconos[a.tipo_busqueda] || '📡'} Buscando: ${a.tipo_busqueda}
+                        </span>
+                        <h3 class="text-lg font-black text-white leading-tight mb-1 group-hover:text-pink-400 transition-colors">${a.titulo}</h3>
+                        <p class="text-xs text-pink-500 font-bold bg-pink-900/10 inline-block px-2 py-0.5 rounded border border-pink-900/30">🎵 ${a.genero}</p>
+                    </div>
+
+                    <p class="text-zinc-400 text-sm leading-relaxed mb-4 flex-1">${a.descripcion}</p>
+
+                    <div class="mt-auto pt-4 border-t border-zinc-800/60">
+                        ${botonAccion}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        window.publicarAnuncio = async function() {
+            if (!miUsuarioId) return alert("Debes iniciar sesión para publicar.");
+            const btn = document.getElementById('btn-publicar-anuncio');
+            const tipo = document.getElementById('input-tipo').value;
+            const titulo = document.getElementById('input-titulo').value.trim();
+            const genero = document.getElementById('input-genero').value.trim();
+            const desc = document.getElementById('input-desc').value.trim();
+
+            if (!titulo || !genero || !desc) return alert("Completa todos los campos para que tu anuncio sea claro.");
+
+            btn.disabled = true; btn.textContent = "Publicando...";
+            const { error } = await client.from('radar_anuncios').insert([{ usuario_id: miUsuarioId, tipo_busqueda: tipo, titulo: titulo, genero: genero, descripcion: desc }]);
+            
+            btn.disabled = false; btn.textContent = "Lanzar al Radar";
+            if (error) { alert("Error: " + error.message); } 
+            else {
+                ['input-titulo', 'input-genero', 'input-desc'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('modal-crear').classList.add('hidden');
+                cargarRadar();
+            }
+        }
+
+        window.borrarAnuncio = async function(id) {
+            if (confirm("¿Retirar tu anuncio del radar?")) {
+                await client.from('radar_anuncios').delete().eq('id', id);
+                cargarRadar();
+            }
+        }
+
+        window.abrirInteres = function(anuncioId, username) {
+            if (!miUsuarioId) return alert("Crea una cuenta para contactar a otros talentos.");
+            document.getElementById('interes-anuncio-id').value = anuncioId;
+            document.getElementById('interes-autor').textContent = "@" + username;
+            document.getElementById('interes-mensaje').value = '';
+            document.getElementById('modal-interes').classList.remove('hidden');
+        }
+
+        window.enviarInteres = async function() {
+            const btn = document.getElementById('btn-enviar-interes');
+            const anuncioId = document.getElementById('interes-anuncio-id').value;
+            const mensaje = document.getElementById('interes-mensaje').value.trim();
+
+            if (!mensaje) return alert("Escribe un mensaje corto de presentación.");
+
+            btn.disabled = true; btn.textContent = "Enviando señal...";
+            
+            const { error } = await client.from('radar_aplicaciones').insert([{ anuncio_id: anuncioId, postulante_id: miUsuarioId, mensaje: mensaje }]);
+            
+            btn.disabled = false; btn.textContent = "Enviar Mensaje de Contacto";
+            
+            if (error) {
+                if (error.code === '23505') alert("Ya aplicaste a este anuncio. Espera a que te respondan.");
+                else alert("Error: " + error.message);
+            } else {
+                document.getElementById('modal-interes').classList.add('hidden');
+                alert("¡Señal enviada con éxito! Revisa tu bandeja de mensajes más tarde.");
+            }
+        }
+
+        initRadar();
+    </script>
+</body>
+</html>
