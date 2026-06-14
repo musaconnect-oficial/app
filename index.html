@@ -49,6 +49,7 @@
             
             <nav class="hidden md:flex gap-6 text-sm font-bold text-zinc-400">
                 <a href="feed.html" class="hover:text-white transition-colors flex items-center gap-1">🌍 Muro Global</a>
+                <a href="radar.html" class="text-pink-500/80 hover:text-pink-400 transition-colors flex items-center gap-1 drop-shadow-[0_0_8px_rgba(236,72,153,0.3)]">📡 Radar Match</a>
             </nav>
 
             <div id="nav-actions" class="flex items-center gap-3">
@@ -71,17 +72,13 @@
                 El ecosistema definitivo para la música independiente. Explora los perfiles y conecta con el underground.
             </p>
             
-            <!-- BLOQUE DE BOTONES (GIGANTES EN MÓVIL) -->
             <div class="fade-in-up delay-3 flex flex-col items-center justify-center gap-4 mb-20 w-full max-w-sm mx-auto">
-                
                 <a id="cta-principal" href="register.html" class="btn-primary w-full px-8 py-4 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(124,58,237,0.3)] flex justify-center items-center gap-2">
                     Únete a la comunidad →
                 </a>
-
                 <a href="feed.html" class="btn-secondary w-full px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2">
                     🌍 Explorar Muro Global
                 </a>
-
                 <div id="cta-login-box" class="mt-2 w-full text-center">
                     <p class="text-sm text-zinc-400">¿Ya tienes una cuenta?</p>
                     <a href="login.html" class="text-white font-bold hover:text-purple-400 transition-colors border-b border-purple-500/30 pb-0.5 inline-block mt-1">Ingresar aquí</a>
@@ -112,7 +109,6 @@
             <div id="grid-compositores" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
-        <!-- NUEVA SECCIÓN: FANS DE LA COMUNIDAD -->
         <div class="mb-12">
             <h3 class="text-xl font-bold mb-6 text-white border-b border-emerald-900/50 pb-2 flex items-center gap-2">
                 <span class="text-emerald-500">🎧</span> Fans Destacados
@@ -161,13 +157,11 @@
             const ctaLoginBox = document.getElementById('cta-login-box');
 
             if (session) {
-                // Modo Logueado
                 navActions.innerHTML = `<a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors border border-zinc-700">Mi Perfil</a>`;
                 ctaPrincipal.textContent = "Ir a mi panel de artista";
                 ctaPrincipal.href = "profile.html";
-                ctaLoginBox.style.display = 'none'; // Escondemos el "Ingresar" porque ya está dentro
+                ctaLoginBox.style.display = 'none';
             } else {
-                // Modo Visitante (Botones arriba a la derecha, útiles solo en PC)
                 navActions.innerHTML = `
                     <a href="login.html" class="text-zinc-400 hover:text-white text-xs font-bold transition-colors hidden sm:block">Ingresar</a>
                     <a href="register.html" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_10px_rgba(147,51,234,0.4)] hidden sm:block">Unirse gratis</a>
@@ -193,7 +187,7 @@
                         </div>
                         <div class="overflow-hidden text-left flex-1">
                             <h4 class="font-bold text-white truncate group-hover:text-purple-400 transition-colors">${u.nombre_display || '@' + u.username}</h4>
-                            <p class="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">${u.bio || 'Fanático de la música local...'}</p>
+                            <p class="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">${u.bio || 'Músico en la plataforma...'}</p>
                         </div>
                     </a>
                 `).join('');
@@ -202,7 +196,6 @@
             renderCards(perfiles.filter(u => u.tipo === 'artista'), 'grid-artistas');
             renderCards(perfiles.filter(u => u.tipo === 'banda'), 'grid-bandas');
             renderCards(perfiles.filter(u => u.tipo === 'compositor'), 'grid-compositores');
-            // Cargar a los fans con un efecto verde/esmeralda para distinguirlos
             renderCards(perfiles.filter(u => u.tipo === 'fan'), 'grid-fans', 'hover:border-emerald-500/50');
         }
 
