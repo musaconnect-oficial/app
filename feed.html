@@ -27,7 +27,13 @@
                 ← Portada
             </a>
             <h1 class="font-black tracking-widest uppercase text-sm">Muro <span class="text-purple-500">Global</span></h1>
-            <a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Mi Perfil</a>
+            
+            <div class="flex items-center gap-2">
+                <a href="radar.html" class="bg-pink-900/20 hover:bg-pink-600 text-pink-400 hover:text-white text-xs font-bold px-3 py-2 rounded-lg transition-all border border-pink-900/50 hover:border-pink-500 flex items-center gap-1 shadow-[0_0_10px_rgba(236,72,153,0.1)]">
+                    📡 <span class="hidden sm:inline">Radar</span>
+                </a>
+                <a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Mi Perfil</a>
+            </div>
         </div>
     </header>
 
@@ -42,7 +48,6 @@
                 <div class="flex-1">
                     <textarea id="input-post-texto" rows="3" placeholder="¿Qué está sonando en tu cabeza? (Pega un link de YouTube o Spotify aquí)" class="w-full bg-transparent text-white placeholder-zinc-500 text-sm outline-none resize-none mb-2"></textarea>
                     
-                    <!-- Previsualización de Imagen -->
                     <div id="preview-container" class="hidden mb-3 relative inline-block">
                         <img id="img-preview" src="" class="max-h-40 rounded-xl border border-zinc-700 object-cover">
                         <button onclick="quitarImagen()" class="absolute top-2 right-2 bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-500 transition-colors">✕</button>
@@ -61,7 +66,6 @@
             </div>
         </div>
 
-        <!-- FEED DE PUBLICACIONES -->
         <div id="contenedor-posts" class="flex flex-col gap-5">
             <div class="text-center text-zinc-500 text-sm py-10 animate-pulse">Cargando el ecosistema...</div>
         </div>
@@ -78,7 +82,6 @@
         let perfilesCache = {}; 
         let archivoComprimido = null;
 
-        // --- INICIALIZACIÓN ---
         async function initFeed() {
             const { data: { user } } = await client.auth.getUser();
             if (user) {
@@ -86,9 +89,7 @@
                 const { data: perfil } = await client.from('perfiles').select('nombre_display, username, avatar_url').eq('id', user.id).single();
                 if (perfil) {
                     miNombreDeUsuario = perfil.nombre_display || perfil.username;
-                    if (perfil.avatar_url) {
-                        document.getElementById('mi-avatar-creador').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
-                    }
+                    if (perfil.avatar_url) document.getElementById('mi-avatar-creador').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
                 }
             } else {
                 document.querySelector('.bg-\\[\\#141414\\]').innerHTML = `
@@ -101,7 +102,6 @@
             cargarPosts();
         }
 
-        // --- MOTOR DE IMÁGENES ---
         function previsualizarImagen(input) {
             const file = input.files[0];
             if (!file) return;
@@ -115,10 +115,8 @@
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1080;
-                    const MAX_HEIGHT = 1080;
-                    let width = img.width;
-                    let height = img.height;
+                    const MAX_WIDTH = 1080; const MAX_HEIGHT = 1080;
+                    let width = img.width; let height = img.height;
                     if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
                     else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
                     canvas.width = width; canvas.height = height;
@@ -137,21 +135,16 @@
             archivoComprimido = null;
         }
 
-        // --- CONVERTIR LINKS EN REPRODUCTORES ---
         function procesarTextoConEmbeds(texto) {
             if (!texto) return '';
             let html = texto.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             html = html.replace(/\n/g, '<br>');
 
             const spotifyRegex = /https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist)\/([a-zA-Z0-9]+)(?:\S*)?/g;
-            html = html.replace(spotifyRegex, (match, tipo, id) => {
-                return `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(29,185,84,0.1)]"><iframe src="https://open.spotify.com/embed/${tipo}/${id}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>`;
-            });
+            html = html.replace(spotifyRegex, (match, tipo, id) => `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(29,185,84,0.1)]"><iframe src="https://open.spotify.com/embed/${tipo}/${id}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>`);
 
             const soundcloudRegex = /(https:\/\/soundcloud\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(?:\S*)?/g;
-            html = html.replace(soundcloudRegex, (match, url) => {
-                return `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.15)]"><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%237c3aed&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe></div>`;
-            });
+            html = html.replace(soundcloudRegex, (match, url) => `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.15)]"><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%237c3aed&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe></div>`);
 
             const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?/gi;
             html = html.replace(youtubeRegex, '<div class="aspect-video w-full rounded-xl overflow-hidden mt-3 border border-red-900/30 shadow-[0_0_15px_rgba(220,38,38,0.1)]"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>');
@@ -159,14 +152,12 @@
             return html;
         }
 
-        // --- NUEVO FORMATO DE FECHA ---
         function formatearFechaExacta(fechaStr) {
             const fecha = new Date(fechaStr);
             const opciones = { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
             return fecha.toLocaleDateString('es-ES', opciones).replace(',', ' a las');
         }
 
-        // --- SUBIR PUBLICACIÓN ---
         window.publicarPost = async function() {
             const btn = document.getElementById('btn-publicar');
             const textoRaw = document.getElementById('input-post-texto').value.trim();
@@ -194,19 +185,22 @@
             }
         }
 
-        // --- CARGAR EL MURO COMPLETO (CON LIKES Y COMENTARIOS) ---
         async function cargarPosts() {
-            // Traer todos los datos necesarios
-            const { data: posts } = await client.from('posts').select('*').order('fecha', { ascending: false }).limit(50);
-            const { data: perfiles } = await client.from('perfiles').select('id, nombre_display, username, avatar_url, tipo');
-            const { data: likesDB } = await client.from('likes_posts').select('*');
-            const { data: comentariosDB } = await client.from('comentarios_posts').select('*').order('fecha', { ascending: true });
+            const { data: postsData } = await client.from('posts').select('*').order('fecha', { ascending: false }).limit(50);
+            const { data: perfilesData } = await client.from('perfiles').select('id, nombre_display, username, avatar_url, tipo');
+            const { data: likesDBData } = await client.from('likes_posts').select('*');
+            const { data: comentariosDBData } = await client.from('comentarios_posts').select('*').order('fecha', { ascending: true });
+
+            const posts = postsData || [];
+            const perfiles = perfilesData || [];
+            const likesDB = likesDBData || [];
+            const comentariosDB = comentariosDBData || [];
 
             perfiles.forEach(p => { perfilesCache[p.id] = p; });
 
             const cont = document.getElementById('contenedor-posts');
-            if (!posts || posts.length === 0) {
-                cont.innerHTML = '<div class="text-center text-zinc-500 text-sm py-10">El muro está vacío. ¡Sé el primero en publicar!</div>';
+            if (posts.length === 0) {
+                cont.innerHTML = '<div class="text-center text-zinc-500 text-sm py-10">El muro está vacío o hubo un error. ¡Sé el primero en publicar!</div>';
                 return;
             }
 
@@ -216,14 +210,12 @@
                 const imagenHtml = post.imagen_url ? `<div class="mt-3 rounded-2xl overflow-hidden border border-zinc-800"><img src="${post.imagen_url}" class="w-full h-auto max-h-[600px] object-cover"></div>` : '';
                 const botonBorrar = (post.usuario_id === miUsuarioId) ? `<button onclick="borrarPost(${post.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/10 hover:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">🗑️</button>` : '';
 
-                // Calcular Likes de este post
                 const likesDelPost = likesDB.filter(l => l.post_id === post.id);
                 const totalLikes = likesDelPost.length;
                 const yoLeDiLike = miUsuarioId ? likesDelPost.some(l => l.usuario_id === miUsuarioId) : false;
                 const corazon = yoLeDiLike ? '❤️' : '🤍';
                 const colorLike = yoLeDiLike ? 'text-red-500' : 'text-zinc-400';
 
-                // Calcular Comentarios de este post
                 const comentariosDelPost = comentariosDB.filter(c => c.post_id === post.id);
                 const totalComentarios = comentariosDelPost.length;
                 const comentariosHtml = comentariosDelPost.map(c => `
@@ -259,7 +251,6 @@
                     <div class="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap ml-0 md:ml-13">${contenidoMagico}</div>
                     <div class="ml-0 md:ml-13">${imagenHtml}</div>
 
-                    <!-- BARRA DE INTERACCIONES (LIKES Y COMENTARIOS) -->
                     <div class="flex items-center gap-6 mt-4 ml-0 md:ml-13 border-t border-zinc-800/60 pt-3">
                         <button onclick="darLike(${post.id}, this)" class="flex items-center gap-1.5 hover:text-red-500 transition-colors text-xs font-bold ${colorLike} focus:outline-none">
                             <span class="icon-corazon">${corazon}</span> <span class="contador-likes">${totalLikes}</span>
@@ -269,7 +260,6 @@
                         </button>
                     </div>
 
-                    <!-- CAJÓN DE HILOS/COMENTARIOS (Oculto por defecto) -->
                     <div id="caja-comentarios-${post.id}" class="hidden ml-0 md:ml-13 mt-4 bg-[#0a0a0a] rounded-xl p-3 md:p-4 border border-zinc-800/50 shadow-inner">
                         <div id="lista-comentarios-${post.id}" class="max-h-48 overflow-y-auto mb-3 pr-2">
                             ${comentariosHtml || '<p class="text-xs text-zinc-600 italic mb-2">Sé el primero en responder a este hilo.</p>'}
@@ -285,39 +275,27 @@
             }).join('');
         }
 
-        // --- SISTEMA DE LIKES ---
         window.darLike = async function(postId, btnElement) {
             if (!miUsuarioId) return alert("Debes iniciar sesión para dar me gusta.");
-            
             const iconSpan = btnElement.querySelector('.icon-corazon');
             const countSpan = btnElement.querySelector('.contador-likes');
             let likesActuales = parseInt(countSpan.innerText);
             
-            // Verificamos si ya le dimos like en la BD
             const { data: existente } = await client.from('likes_posts').select('id').eq('post_id', postId).eq('usuario_id', miUsuarioId).maybeSingle();
 
             if (existente) {
-                // Quitar Like
                 await client.from('likes_posts').delete().eq('id', existente.id);
-                iconSpan.innerText = '🤍';
-                countSpan.innerText = likesActuales - 1;
-                btnElement.classList.remove('text-red-500');
-                btnElement.classList.add('text-zinc-400');
+                iconSpan.innerText = '🤍'; countSpan.innerText = likesActuales - 1;
+                btnElement.classList.remove('text-red-500'); btnElement.classList.add('text-zinc-400');
                 iconSpan.classList.remove('like-anim');
             } else {
-                // Dar Like
                 await client.from('likes_posts').insert([{ post_id: postId, usuario_id: miUsuarioId }]);
-                iconSpan.innerText = '❤️';
-                countSpan.innerText = likesActuales + 1;
-                btnElement.classList.remove('text-zinc-400');
-                btnElement.classList.add('text-red-500');
-                iconSpan.classList.remove('like-anim'); // Reseteamos animación
-                void iconSpan.offsetWidth; // Forzar reflow para reiniciar animación CSS
-                iconSpan.classList.add('like-anim');
+                iconSpan.innerText = '❤️'; countSpan.innerText = likesActuales + 1;
+                btnElement.classList.remove('text-zinc-400'); btnElement.classList.add('text-red-500');
+                iconSpan.classList.remove('like-anim'); void iconSpan.offsetWidth; iconSpan.classList.add('like-anim');
             }
         }
 
-        // --- SISTEMA DE COMENTARIOS ---
         window.toggleComentarios = function(postId) {
             const caja = document.getElementById(`caja-comentarios-${postId}`);
             caja.classList.toggle('hidden');
@@ -329,24 +307,13 @@
             const mensaje = input.value.trim();
             if (!mensaje) return;
 
-            const { error } = await client.from('comentarios_posts').insert([{ 
-                post_id: postId, 
-                usuario_id: miUsuarioId, 
-                autor_nombre: miNombreDeUsuario, 
-                mensaje: mensaje 
-            }]);
-
-            if (error) alert("Error: " + error.message);
-            else {
-                input.value = '';
-                cargarPosts(); // Recarga el muro para mostrar el nuevo comentario
-            }
+            await client.from('comentarios_posts').insert([{ post_id: postId, usuario_id: miUsuarioId, autor_nombre: miNombreDeUsuario, mensaje: mensaje }]);
+            input.value = ''; cargarPosts(); 
         }
 
         window.borrarPost = async function(id) {
             if (confirm("¿Borrar esta publicación? Se eliminarán también los likes y comentarios.")) {
-                await client.from('posts').delete().eq('id', id);
-                cargarPosts();
+                await client.from('posts').delete().eq('id', id); cargarPosts();
             }
         }
 
