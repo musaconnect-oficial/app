@@ -71,13 +71,27 @@
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">🔴 URL de tu Stream en Vivo (Twitch / YouTube / TikTok)</label>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">🔴 URL de tu Stream en Vivo</label>
                     <input type="text" id="link-stream" class="input-field text-xs" placeholder="https://twitch.tv/tu_canal">
                     <p class="text-[10px] text-zinc-500 mt-1">Esta es la URL que se mostrará en tu perfil cuando hagas clic en "Conectar" del panel En Vivo.</p>
                 </div>
 
+                <!-- NUEVA SECCIÓN: ENLACES PERSONALIZADOS (LINKTREE INTERNO) -->
+                <div class="pt-4 border-t border-zinc-800/60 mt-6">
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">🔗 Enlaces Adicionales (Estilo Linktree)</label>
+                    <p class="text-[10px] text-zinc-500 mb-3">Agrega tu canal de YouTube, tienda de merch, TikTok, etc.</p>
+                    
+                    <div id="contenedor-links-dinamicos" class="space-y-3 mb-3">
+                        <!-- Aquí aparecerán los inputs dinámicos -->
+                    </div>
+                    
+                    <button type="button" onclick="agregarInputLink('', '')" class="text-xs font-bold text-purple-400 hover:text-purple-300 bg-purple-900/20 border border-purple-800/50 px-4 py-2 rounded-lg w-full transition-colors flex items-center justify-center gap-2">
+                        <span>+</span> Añadir un nuevo enlace
+                    </button>
+                </div>
+
                 <!-- Elemento msg-box posicionado correctamente -->
-                <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4"></div>
+                <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4"></div>
 
                 <button id="btn-guardar" onclick="guardarTodo()" class="btn-primary w-full mt-2">Guardar cambios del perfil</button>
             </div>
@@ -111,7 +125,31 @@
                 if(urlFotoFinal) {
                     document.getElementById('avatar-preview').innerHTML = `<img src="${urlFotoFinal}" class="w-full h-full object-cover">`;
                 }
+
+                // Cargar links dinámicos si existen
+                if (perfil.links_custom && Array.isArray(perfil.links_custom)) {
+                    perfil.links_custom.forEach(link => {
+                        agregarInputLink(link.titulo, link.url);
+                    });
+                }
             }
+        }
+
+        // Función para agregar los cajones de Título y URL
+        window.agregarInputLink = function(tituloValor = '', urlValor = '') {
+            const container = document.getElementById('contenedor-links-dinamicos');
+            const div = document.createElement('div');
+            div.className = 'flex gap-2 items-start link-item fade-in';
+            div.innerHTML = `
+                <div class="flex-1 space-y-2">
+                    <input type="text" placeholder="Título (Ej: Mi Nuevo Videoclip)" value="${tituloValor}" class="input-field text-xs link-titulo">
+                    <input type="url" placeholder="URL (Ej: https://youtube.com/...)" value="${urlValor}" class="input-field text-xs link-url">
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="bg-red-900/20 text-red-500 hover:text-red-400 border border-red-900/50 p-2.5 rounded-lg transition-colors h-full flex items-center mt-1">
+                    ✕
+                </button>
+            `;
+            container.appendChild(div);
         }
 
         // Mostrar la foto en la pantalla apenas el usuario la elija de su galería
@@ -119,10 +157,9 @@
             if (input.files && input.files[0]) {
                 const file = input.files[0];
 
-                // Validación de seguridad cliente (4MB)
                 if (file.size > 4 * 1024 * 1024) {
                     alert("¡Archivo demasiado pesado! Elige una imagen más liviana (menor a 4 MB).");
-                    input.value = ''; // Limpiar selección
+                    input.value = ''; 
                     return;
                 }
 
@@ -147,14 +184,22 @@
 
             if (!nombre) return mostrarMensaje("El nombre en pantalla es obligatorio.", false);
 
+            // Capturar links personalizados
+            const linkItems = document.querySelectorAll('.link-item');
+            const linksPersonalizados = [];
+            linkItems.forEach(item => {
+                const titulo = item.querySelector('.link-titulo').value.trim();
+                const url = item.querySelector('.link-url').value.trim();
+                if(titulo && url) linksPersonalizados.push({ titulo, url });
+            });
+
             btn.disabled = true;
             btn.textContent = "Procesando datos...";
 
-            // 1. ¿El usuario seleccionó una foto nueva? Subirla a Storage
+            // 1. Subir foto si hay una nueva
             if (fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 const fileExt = file.name.split('.').pop();
-                // Nombre único usando la ID del usuario para evitar colisiones
                 const filePath = `${usuarioActual.id}-${Date.now()}.${fileExt}`;
 
                 const { data: uploadData, error: uploadError } = await client.storage
@@ -167,19 +212,19 @@
                     return mostrarMensaje("Error al subir archivo: " + uploadError.message, false);
                 }
 
-                // Obtener la URL real de internet que generó Supabase
                 const { data: { publicUrl } } = client.storage.from('avatares').getPublicUrl(filePath);
                 urlFotoFinal = publicUrl;
             }
 
-            // 2. Guardar la URL de la foto y el resto de textos en la tabla de perfiles
+            // 2. Guardar datos y array de links en Supabase
             const { error: updateError } = await client.from('perfiles').update({
                 nombre_display: nombre,
                 bio: bio,
                 avatar_url: urlFotoFinal,
                 link_instagram: insta,
                 link_spotify: spoty,
-                link_stream: stream
+                link_stream: stream,
+                links_custom: linksPersonalizados
             }).eq('id', usuarioActual.id);
 
             btn.disabled = false;
