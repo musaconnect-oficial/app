@@ -139,21 +139,31 @@
             archivoComprimido = null;
         }
 
-        // --- EL DETECTOR MAGICO DE LINKS (YOUTUBE / SPOTIFY) ---
+        // --- EL DETECTOR MÁGICO DE LINKS DEFINITIVO ---
         function procesarTextoConEmbeds(texto) {
-            // Escapar HTML para evitar hackeos
+            if (!texto) return '';
+
+            // 1. Escapar HTML para evitar hackeos
             let html = texto.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             
-            // Reemplazar saltos de línea
+            // 2. Reemplazar saltos de línea
             html = html.replace(/\n/g, '<br>');
 
-            // Regex de YouTube
-            const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/gi;
-            html = html.replace(ytRegex, '<div class="aspect-video w-full rounded-xl overflow-hidden mt-3 border border-red-900/30 shadow-[0_0_15px_rgba(220,38,38,0.1)]"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>');
+            // 3. Escáner para Spotify (Ignora basura extra al final del link)
+            const spotifyRegex = /https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist)\/([a-zA-Z0-9]+)(?:\S*)?/g;
+            html = html.replace(spotifyRegex, (match, tipo, id) => {
+                return `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(29,185,84,0.1)]"><iframe src="https://open.spotify.com/embed/${tipo}/${id}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>`;
+            });
 
-            // Regex de Spotify
-            const spRegex = /(?:https?:\/\/)?(?:open\.spotify\.com\/(track|album|playlist)\/)([a-zA-Z0-9]+)/gi;
-            html = html.replace(spRegex, '<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(29,185,84,0.1)]"><iframe src="https://open.spotify.com/embed/$1/$2" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>');
+            // 4. Escáner para SoundCloud
+            const soundcloudRegex = /(https:\/\/soundcloud\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(?:\S*)?/g;
+            html = html.replace(soundcloudRegex, (match, url) => {
+                return `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.15)]"><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%237c3aed&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe></div>`;
+            });
+
+            // 5. Escáner para YouTube
+            const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?/gi;
+            html = html.replace(youtubeRegex, '<div class="aspect-video w-full rounded-xl overflow-hidden mt-3 border border-red-900/30 shadow-[0_0_15px_rgba(220,38,38,0.1)]"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>');
 
             return html;
         }
