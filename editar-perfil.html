@@ -7,120 +7,133 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
+        
         body { font-family: 'Inter', sans-serif; }
         .input-field {
             width: 100%; background: #1c1c1c; border: 1.5px solid #27272a;
             color: #fff; border-radius: 10px; padding: 10px 14px; font-size: 14px;
         }
-        .input-field:focus { outline: none; border-color: #7c3aed; }
-        .btn-primary { background: #7c3aed; color: #fff; font-weight: 700; padding: 12px; border-radius: 10px; transition: all 0.2s; }
-        .btn-primary:hover { background: #6d28d9; }
-        .btn-primary:disabled { background: #3f3f46; cursor: not-allowed; }
+        .input-field:focus { outline: none; border-color: var(--acento, #7c3aed); }
+        .btn-primary { background: var(--acento, #7c3aed); color: #fff; font-weight: 700; padding: 12px; border-radius: 10px; transition: all 0.2s; }
+        .btn-primary:hover { filter: brightness(1.2); }
+        .btn-primary:disabled { background: #3f3f46; cursor: not-allowed; filter: none; }
+        
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen">
 
-    <!-- HEADER DE NAVEGACIÓN -->
     <header class="border-b border-zinc-800/50 bg-[#0e0e0e]/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a href="profile.html" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">
-                ← Cancelar
-            </a>
+        <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="profile.html" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">← Cancelar</a>
             <span class="font-black text-sm text-purple-500 uppercase tracking-widest">Ajustes de Cuenta</span>
             <div class="w-16"></div>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto pt-6 px-4">
-        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6 space-y-6">
+    <main class="max-w-2xl mx-auto pt-6 px-4 pb-20">
+        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6 space-y-8">
             
-            <!-- SUBIDA DE FOTO REAL -->
-            <div class="flex flex-col items-center text-center border-b border-zinc-800/60 pb-6">
-                <div id="avatar-preview" class="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center text-3xl font-black mb-4 overflow-hidden ring-4 ring-purple-600/20">
-                    📸
+            <div class="relative mb-12">
+                <div id="banner-preview" class="h-32 md:h-40 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden relative group">
+                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <label class="cursor-pointer bg-black/80 text-white text-xs font-bold px-4 py-2 rounded-lg border border-zinc-600">
+                            Cambiar Portada (Banner)
+                            <input type="file" id="banner-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'banner-preview')">
+                        </label>
+                    </div>
                 </div>
-                <label class="cursor-pointer bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-bold px-4 py-2 rounded-lg transition-colors">
-                    Cambiar foto de perfil
-                    <input type="file" id="avatar-file" accept="image/jpeg, image/png, image/webp" class="hidden" onchange="previsualizarImagen(this)">
-                </label>
-                <p class="text-[10px] text-zinc-500 mt-2">Formatos aceptados: JPG, PNG, WEBP. Tamaño máximo: 4 MB.</p>
+
+                <div class="absolute -bottom-10 left-6 flex items-end gap-4">
+                    <div id="avatar-preview" class="w-24 h-24 rounded-full bg-zinc-800 border-4 border-[#141414] flex items-center justify-center text-3xl font-black overflow-hidden relative group">
+                        📸
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <label class="cursor-pointer text-[10px] text-white font-bold text-center w-full h-full flex items-center justify-center">
+                                Cambiar
+                                <input type="file" id="avatar-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'avatar-preview')">
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- FORMULARIO DE TEXTO -->
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-800/60">
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Color de Acento</label>
+                    <div class="flex items-center gap-3 bg-[#1c1c1c] border border-zinc-800 rounded-lg p-2">
+                        <input type="color" id="perfil-color" value="#7c3aed" class="w-8 h-8 rounded cursor-pointer border-none bg-transparent" onchange="actualizarAcento(this.value)">
+                        <span class="text-xs text-zinc-400" id="color-hex">#7c3aed</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Fuente del Nombre</label>
+                    <select id="perfil-fuente" class="input-field">
+                        <option value="Inter" style="font-family: 'Inter'">Inter (Moderna)</option>
+                        <option value="'Bebas Neue'" style="font-family: 'Bebas Neue'">Bebas Neue (Impacto)</option>
+                        <option value="'Space Mono'" style="font-family: 'Space Mono'">Space Mono (Tech)</option>
+                        <option value="'Permanent Marker'" style="font-family: 'Permanent Marker'">Permanent Marker (Urbano)</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="space-y-4">
                 <div>
                     <label class="text-xs font-bold text-zinc-400 block mb-1">Nombre en pantalla</label>
-                    <input type="text" id="perfil-nombre" class="input-field" placeholder="Tu nombre artístico">
+                    <input type="text" id="perfil-nombre" class="input-field font-bold text-lg" placeholder="Tu nombre artístico">
                 </div>
-
                 <div>
                     <label class="text-xs font-bold text-zinc-400 block mb-1">Biografía</label>
                     <textarea id="perfil-bio" class="input-field resize-none" rows="3" placeholder="Cuéntale al mundo quién eres..." maxlength="160"></textarea>
                 </div>
-
-                <!-- PLATAFORMAS PRINCIPALES (NUEVO DISEÑO EN GRILLA) -->
-                <div class="pt-4 border-t border-zinc-800/60 mt-4">
-                    <label class="text-xs font-bold text-zinc-400 block mb-3">🎧 Redes y Plataformas Musicales</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">Instagram</label>
-                            <input type="url" id="link-instagram" class="input-field text-xs" placeholder="URL de Instagram">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">Spotify</label>
-                            <input type="url" id="link-spotify" class="input-field text-xs" placeholder="URL de Spotify">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">Apple Music</label>
-                            <input type="url" id="link-apple" class="input-field text-xs" placeholder="URL de Apple Music">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">YouTube</label>
-                            <input type="url" id="link-youtube" class="input-field text-xs" placeholder="URL de YouTube">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">TikTok</label>
-                            <input type="url" id="link-tiktok" class="input-field text-xs" placeholder="URL de TikTok">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">SoundCloud</label>
-                            <input type="url" id="link-soundcloud" class="input-field text-xs" placeholder="URL de SoundCloud">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">Amazon Music</label>
-                            <input type="url" id="link-amazon" class="input-field text-xs" placeholder="URL de Amazon Music">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 block mb-1">Claro Música</label>
-                            <input type="url" id="link-claro" class="input-field text-xs" placeholder="URL de Claro Música">
-                        </div>
-                    </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">⭐ Track Destacado (Fijado)</label>
+                    <input type="text" id="track-destacado" class="input-field" placeholder="Pega el código iframe de tu mejor tema (Spotify/YouTube)">
                 </div>
-
-                <div class="pt-4 border-t border-zinc-800/60 mt-4">
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">🔴 URL de tu Stream en Vivo</label>
-                    <input type="url" id="link-stream" class="input-field text-xs" placeholder="https://twitch.tv/tu_canal">
-                    <p class="text-[10px] text-zinc-500 mt-1">Esta es la URL que se mostrará en tu perfil cuando hagas clic en "Conectar" del panel En Vivo.</p>
-                </div>
-
-                <!-- ENLACES ADICIONALES (LINKTREE) -->
-                <div class="pt-4 border-t border-zinc-800/60 mt-6">
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">🔗 Otros Enlaces (Estilo Linktree)</label>
-                    <p class="text-[10px] text-zinc-500 mb-3">Úsalo para tu página web, tienda de merch, entradas especiales, etc.</p>
-                    
-                    <div id="contenedor-links-dinamicos" class="space-y-3 mb-3"></div>
-                    
-                    <button type="button" onclick="agregarInputLink('', '')" class="text-xs font-bold text-purple-400 hover:text-purple-300 bg-purple-900/20 border border-purple-800/50 px-4 py-2 rounded-lg w-full transition-colors flex items-center justify-center gap-2">
-                        <span>+</span> Añadir un nuevo enlace
-                    </button>
-                </div>
-
-                <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4"></div>
-
-                <button id="btn-guardar" onclick="guardarTodo()" class="btn-primary w-full mt-2">Guardar cambios del perfil</button>
             </div>
 
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎓 Formación y Estudios</label>
+                <p class="text-[10px] text-zinc-500 mb-3">Academias, conservatorios, cursos online o formación técnica.</p>
+                
+                <div id="contenedor-estudios" class="space-y-3 mb-3"></div>
+                
+                <button type="button" onclick="agregarInputEstudio('', '', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">
+                    + Añadir Estudio
+                </button>
+            </div>
+
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎛️ Equipamiento / Setup</label>
+                <p class="text-[10px] text-zinc-500 mb-3">Presume tus instrumentos, monitores, software o hardware favorito.</p>
+                
+                <div id="contenedor-equipos" class="space-y-3 mb-3"></div>
+                
+                <button type="button" onclick="agregarInputEquipo('', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">
+                    + Añadir Equipo
+                </button>
+            </div>
+
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-3">🎧 Plataformas Musicales</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-[10px] text-zinc-500">Instagram</label><input type="url" id="link-instagram" class="input-field text-xs"></div>
+                    <div><label class="text-[10px] text-zinc-500">Spotify</label><input type="url" id="link-spotify" class="input-field text-xs"></div>
+                    <div><label class="text-[10px] text-zinc-500">YouTube</label><input type="url" id="link-youtube" class="input-field text-xs"></div>
+                    <div><label class="text-[10px] text-zinc-500">Twitch/Stream</label><input type="url" id="link-stream" class="input-field text-xs"></div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-2">🔗 Otros Enlaces (Linktree)</label>
+                <div id="contenedor-links-dinamicos" class="space-y-3 mb-3"></div>
+                <button type="button" onclick="agregarInputLink('', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Enlace</button>
+            </div>
+
+            <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4 font-bold text-center"></div>
+
+            <button id="btn-guardar" onclick="guardarTodo()" class="btn-primary w-full shadow-lg">Guardar y Actualizar Perfil</button>
         </div>
     </main>
 
@@ -131,6 +144,12 @@
 
         let usuarioActual = null;
         let urlFotoFinal = null;
+        let urlBannerFinal = null;
+
+        function actualizarAcento(color) {
+            document.documentElement.style.setProperty('--acento', color);
+            document.getElementById('color-hex').textContent = color;
+        }
 
         async function init() {
             const { data: { user } } = await client.auth.getUser();
@@ -139,130 +158,162 @@
 
             const { data: perfil } = await client.from('perfiles').select('*').eq('id', user.id).single();
             if (perfil) {
+                // Básicos
                 document.getElementById('perfil-nombre').value = perfil.nombre_display || '';
                 document.getElementById('perfil-bio').value = perfil.bio || '';
+                document.getElementById('track-destacado').value = perfil.track_destacado || '';
                 
-                // Cargar todas las plataformas
+                // Estilos
+                if(perfil.color_acento) {
+                    document.getElementById('perfil-color').value = perfil.color_acento;
+                    actualizarAcento(perfil.color_acento);
+                }
+                if(perfil.fuente_nombre) document.getElementById('perfil-fuente').value = perfil.fuente_nombre;
+                
+                // Imágenes
+                urlFotoFinal = perfil.avatar_url;
+                if(urlFotoFinal) document.getElementById('avatar-preview').innerHTML = `<img src="${urlFotoFinal}" class="w-full h-full object-cover">`;
+                
+                urlBannerFinal = perfil.banner_url;
+                if(urlBannerFinal) document.getElementById('banner-preview').innerHTML += `<img src="${urlBannerFinal}" class="absolute inset-0 w-full h-full object-cover -z-10">`;
+
+                // Redes
                 document.getElementById('link-instagram').value = perfil.link_instagram || '';
                 document.getElementById('link-spotify').value = perfil.link_spotify || '';
-                document.getElementById('link-apple').value = perfil.link_apple || '';
                 document.getElementById('link-youtube').value = perfil.link_youtube || '';
-                document.getElementById('link-tiktok').value = perfil.link_tiktok || '';
-                document.getElementById('link-soundcloud').value = perfil.link_soundcloud || '';
-                document.getElementById('link-amazon').value = perfil.link_amazon || '';
-                document.getElementById('link-claro').value = perfil.link_claro || '';
-                
                 document.getElementById('link-stream').value = perfil.link_stream || '';
-                
-                urlFotoFinal = perfil.avatar_url;
-                if(urlFotoFinal) {
-                    document.getElementById('avatar-preview').innerHTML = `<img src="${urlFotoFinal}" class="w-full h-full object-cover">`;
-                }
 
-                if (perfil.links_custom && Array.isArray(perfil.links_custom)) {
-                    perfil.links_custom.forEach(link => {
-                        agregarInputLink(link.titulo, link.url);
-                    });
-                }
+                // Arrays Dinámicos
+                if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano));
+                if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
+                if (perfil.links_custom) perfil.links_custom.forEach(l => agregarInputLink(l.titulo, l.url));
             }
         }
 
-        window.agregarInputLink = function(tituloValor = '', urlValor = '') {
-            const container = document.getElementById('contenedor-links-dinamicos');
-            const div = document.createElement('div');
-            div.className = 'flex gap-2 items-start link-item fade-in';
+        // Funciones para inyectar HTML de los arrays
+        window.agregarInputEstudio = function(tit = '', inst = '', ano = '') {
+            const div = document.createElement('div'); div.className = 'flex gap-2 items-start estudio-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800';
             div.innerHTML = `
-                <div class="flex-1 space-y-2">
-                    <input type="text" placeholder="Título (Ej: Mi Merch)" value="${tituloValor}" class="input-field text-xs link-titulo">
-                    <input type="url" placeholder="URL (Ej: https://...)" value="${urlValor}" class="input-field text-xs link-url">
+                <div class="flex-1 grid grid-cols-2 gap-2">
+                    <input type="text" placeholder="Título (Ej: Producción Musical)" value="${tit}" class="input-field col-span-2 text-xs estudio-titulo">
+                    <input type="text" placeholder="Institución" value="${inst}" class="input-field text-xs estudio-inst">
+                    <input type="text" placeholder="Año (Ej: 2024)" value="${ano}" class="input-field text-xs estudio-ano">
                 </div>
-                <button type="button" onclick="this.parentElement.remove()" class="bg-red-900/20 text-red-500 hover:text-red-400 border border-red-900/50 p-2.5 rounded-lg transition-colors h-full flex items-center mt-1">✕</button>
-            `;
-            container.appendChild(div);
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
+            document.getElementById('contenedor-estudios').appendChild(div);
         }
 
-        window.previsualizarImagen = function(input) {
+        window.agregarInputEquipo = function(cat = '', det = '') {
+            const div = document.createElement('div'); div.className = 'flex gap-2 items-center equipo-item fade-in';
+            div.innerHTML = `
+                <input type="text" placeholder="Tipo (Ej: Teclado)" value="${cat}" class="input-field text-xs w-1/3 equipo-cat">
+                <input type="text" placeholder="Modelo (Ej: Redragon Kumara)" value="${det}" class="input-field text-xs flex-1 equipo-det">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
+            document.getElementById('contenedor-equipos').appendChild(div);
+        }
+
+        window.agregarInputLink = function(tit = '', url = '') {
+            const div = document.createElement('div'); div.className = 'flex gap-2 items-center link-item fade-in';
+            div.innerHTML = `
+                <input type="text" placeholder="Título" value="${tit}" class="input-field text-xs w-1/3 link-titulo">
+                <input type="url" placeholder="URL" value="${url}" class="input-field text-xs flex-1 link-url">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
+            document.getElementById('contenedor-links-dinamicos').appendChild(div);
+        }
+
+        window.previsualizar = function(input, previewId) {
             if (input.files && input.files[0]) {
-                const file = input.files[0];
-                if (file.size > 4 * 1024 * 1024) {
-                    alert("¡Archivo demasiado pesado! Elige una imagen más liviana (menor a 4 MB).");
-                    input.value = ''; return;
-                }
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('avatar-preview').innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                reader.onload = e => {
+                    const preview = document.getElementById(previewId);
+                    // Limpiamos imgs previas
+                    const oldImg = preview.querySelector('img.object-cover');
+                    if(oldImg) oldImg.remove();
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = previewId === 'avatar-preview' ? 'w-full h-full object-cover' : 'absolute inset-0 w-full h-full object-cover -z-10';
+                    preview.appendChild(img);
                 }
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(input.files[0]);
             }
+        }
+
+        async function subirImagen(file, bucket) {
+            const fileExt = file.name.split('.').pop();
+            const filePath = `${usuarioActual.id}-${Date.now()}.${fileExt}`;
+            const { error } = await client.storage.from(bucket).upload(filePath, file, { upsert: true });
+            if (error) throw error;
+            const { data } = client.storage.from(bucket).getPublicUrl(filePath);
+            return data.publicUrl;
         }
 
         window.guardarTodo = async function() {
             const btn = document.getElementById('btn-guardar');
-            const fileInput = document.getElementById('avatar-file');
-            
             const nombre = document.getElementById('perfil-nombre').value.trim();
-            const bio = document.getElementById('perfil-bio').value.trim();
-            const stream = document.getElementById('link-stream').value.trim();
-
             if (!nombre) return mostrarMensaje("El nombre en pantalla es obligatorio.", false);
 
-            const linkItems = document.querySelectorAll('.link-item');
-            const linksPersonalizados = [];
-            linkItems.forEach(item => {
-                const titulo = item.querySelector('.link-titulo').value.trim();
-                const url = item.querySelector('.link-url').value.trim();
-                if(titulo && url) linksPersonalizados.push({ titulo, url });
-            });
+            btn.disabled = true; btn.textContent = "Guardando en la base de datos...";
 
-            btn.disabled = true;
-            btn.textContent = "Procesando datos...";
+            try {
+                // Subir Avatar si hay nuevo
+                const avatarFile = document.getElementById('avatar-file').files[0];
+                if (avatarFile) urlFotoFinal = await subirImagen(avatarFile, 'avatares');
 
-            if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const fileExt = file.name.split('.').pop();
-                const filePath = `${usuarioActual.id}-${Date.now()}.${fileExt}`;
-                const { data: uploadData, error: uploadError } = await client.storage
-                    .from('avatares').upload(filePath, file, { cacheControl: '3600', upsert: true });
+                // Subir Banner si hay nuevo
+                const bannerFile = document.getElementById('banner-file').files[0];
+                if (bannerFile) urlBannerFinal = await subirImagen(bannerFile, 'banners');
 
-                if (uploadError) {
-                    btn.disabled = false; btn.textContent = "Guardar cambios del perfil";
-                    return mostrarMensaje("Error al subir archivo: " + uploadError.message, false);
-                }
-                const { data: { publicUrl } } = client.storage.from('avatares').getPublicUrl(filePath);
-                urlFotoFinal = publicUrl;
-            }
+                // Recopilar Arrays
+                const estudios = Array.from(document.querySelectorAll('.estudio-item')).map(item => ({
+                    titulo: item.querySelector('.estudio-titulo').value.trim(),
+                    institucion: item.querySelector('.estudio-inst').value.trim(),
+                    ano: item.querySelector('.estudio-ano').value.trim()
+                })).filter(e => e.titulo); // Solo guarda si tiene título
 
-            const { error: updateError } = await client.from('perfiles').update({
-                nombre_display: nombre,
-                bio: bio,
-                avatar_url: urlFotoFinal,
-                link_instagram: document.getElementById('link-instagram').value.trim(),
-                link_spotify: document.getElementById('link-spotify').value.trim(),
-                link_apple: document.getElementById('link-apple').value.trim(),
-                link_youtube: document.getElementById('link-youtube').value.trim(),
-                link_tiktok: document.getElementById('link-tiktok').value.trim(),
-                link_soundcloud: document.getElementById('link-soundcloud').value.trim(),
-                link_amazon: document.getElementById('link-amazon').value.trim(),
-                link_claro: document.getElementById('link-claro').value.trim(),
-                link_stream: stream,
-                links_custom: linksPersonalizados
-            }).eq('id', usuarioActual.id);
+                const equipamiento = Array.from(document.querySelectorAll('.equipo-item')).map(item => ({
+                    categoria: item.querySelector('.equipo-cat').value.trim(),
+                    detalle: item.querySelector('.equipo-det').value.trim()
+                })).filter(eq => eq.detalle);
 
-            btn.disabled = false;
-            btn.textContent = "Guardar cambios del perfil";
+                const links_custom = Array.from(document.querySelectorAll('.link-item')).map(item => ({
+                    titulo: item.querySelector('.link-titulo').value.trim(),
+                    url: item.querySelector('.link-url').value.trim()
+                })).filter(l => l.url);
 
-            if (updateError) {
-                mostrarMensaje("Error al guardar: " + updateError.message, false);
-            } else {
+                // Update Supabase
+                const { error } = await client.from('perfiles').update({
+                    nombre_display: nombre,
+                    bio: document.getElementById('perfil-bio').value.trim(),
+                    track_destacado: document.getElementById('track-destacado').value.trim(),
+                    color_acento: document.getElementById('perfil-color').value,
+                    fuente_nombre: document.getElementById('perfil-fuente').value,
+                    avatar_url: urlFotoFinal,
+                    banner_url: urlBannerFinal,
+                    link_instagram: document.getElementById('link-instagram').value.trim(),
+                    link_spotify: document.getElementById('link-spotify').value.trim(),
+                    link_youtube: document.getElementById('link-youtube').value.trim(),
+                    link_stream: document.getElementById('link-stream').value.trim(),
+                    estudios,
+                    equipamiento,
+                    links_custom
+                }).eq('id', usuarioActual.id);
+
+                if (error) throw error;
+
                 mostrarMensaje("¡Perfil actualizado con éxito! Redirigiendo...", true);
-                setTimeout(() => window.location.href = 'profile.html', 2000);
+                setTimeout(() => window.location.href = 'profile.html', 1500);
+
+            } catch (error) {
+                mostrarMensaje("Error al guardar: " + error.message, false);
+                btn.disabled = false; btn.textContent = "Reintentar";
             }
         }
 
         function mostrarMensaje(texto, exito) {
             const msgBox = document.getElementById('msg-box');
             msgBox.textContent = texto;
-            msgBox.className = `text-xs px-3 py-2 rounded-lg ${exito ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`;
+            msgBox.className = `text-xs px-3 py-3 rounded-lg mb-4 mt-4 font-bold text-center ${exito ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`;
             msgBox.classList.remove('hidden');
         }
 
