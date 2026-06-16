@@ -1,3 +1,4 @@
+<!-- Archivo: editar-perfil.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -128,10 +129,10 @@
 
             <!-- ESTUDIO / COLECTIVO -->
             <div class="pt-4 border-t border-zinc-800/60">
-                <label class="text-xs font-bold text-zinc-400 block mb-1">🎙️ Estudio / Colectivo</label>
-                <p class="text-[10px] text-zinc-500 mb-3">Agrega los integrantes de tu estudio o colectivo musical.</p>
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎙️ Roster de Artistas (Estudios / Bandas)</label>
+                <p class="text-[10px] text-zinc-500 mb-3">Agrega a los artistas de tu estudio y exhibe sus últimos lanzamientos y redes.</p>
                 <div id="contenedor-integrantes" class="space-y-3 mb-3"></div>
-                <button type="button" onclick="agregarIntegrante()" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Integrante</button>
+                <button type="button" onclick="agregarIntegrante()" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Artista</button>
             </div>
 
             <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4 font-bold text-center"></div>
@@ -190,7 +191,10 @@
                 if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
                 if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano, e.musa_username || ''));
                 if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
-                if (perfil.integrantes) perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || ''));
+                
+                if (perfil.integrantes) {
+                    perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || '', i.ig || '', i.sp || '', i.embed || ''));
+                }
             }
         }
 
@@ -214,32 +218,37 @@
                     <input type="text" placeholder="Título (Ej: Producción Musical)" value="${tit}" class="input-field col-span-2 text-xs estudio-titulo">
                     <input type="text" placeholder="Institución" value="${inst}" class="input-field text-xs estudio-inst">
                     <input type="text" placeholder="Año (Ej: 2024)" value="${ano}" class="input-field text-xs estudio-ano">
-                    <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
-                        <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil de MusaConnect</p>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 Usuario</span>
-                            <input type="text" placeholder="@usuario o link de su perfil" value="${musa}" class="input-field text-xs estudio-musa" onblur="this.value = limpiarUsername(this.value)">
-                        </div>
-                    </div>
                 </div>
                 <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
             document.getElementById('contenedor-estudios').appendChild(div);
         }
 
-        window.agregarIntegrante = function(nombre = '', rol = '', musa = '') {
+        window.agregarIntegrante = function(nombre = '', rol = '', musa = '', ig = '', sp = '', embed = '') {
             const div = document.createElement('div');
             div.className = 'integrante-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 space-y-2';
             div.innerHTML = `
                 <div class="flex gap-2 items-start">
-                    <div class="flex-1 grid grid-cols-2 gap-2">
-                        <input type="text" placeholder="Nombre del integrante" value="${nombre}" class="input-field col-span-2 text-xs integrante-nombre">
-                        <input type="text" placeholder="Rol (Ej: Productor)" value="${rol}" class="input-field col-span-2 text-xs integrante-rol">
-                        <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
-                            <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil de MusaConnect</p>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 Usuario</span>
-                                <input type="text" placeholder="@usuario o link de su perfil" value="${musa}" class="input-field text-xs integrante-musa" onblur="this.value = limpiarUsername(this.value)">
+                    <div class="flex-1 space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" placeholder="Nombre del artista" value="${nombre}" class="input-field col-span-2 text-xs integrante-nombre">
+                            <input type="text" placeholder="Rol (Ej: Cantante, Productor)" value="${rol}" class="input-field col-span-2 text-xs integrante-rol">
+                        </div>
+                        <div class="border-t border-zinc-700/50 pt-2">
+                            <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil & Redes</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 MusaConnect</span>
+                                    <input type="text" placeholder="@usuario o link" value="${musa}" class="input-field text-xs integrante-musa" onblur="this.value = limpiarUsername(this.value)">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="url" placeholder="Instagram URL" value="${ig}" class="input-field text-xs integrante-ig">
+                                    <input type="url" placeholder="Spotify URL" value="${sp}" class="input-field text-xs integrante-sp">
+                                </div>
                             </div>
+                        </div>
+                        <div class="border-t border-zinc-700/50 pt-2">
+                            <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Fragmento Musical</p>
+                            <input type="text" placeholder="Código Embed (Spotify/YouTube)" value="${embed}" class="input-field text-xs integrante-embed">
                         </div>
                     </div>
                     <button type="button" onclick="this.closest('.integrante-item').remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>
@@ -300,8 +309,7 @@
                 const estudios = Array.from(document.querySelectorAll('.estudio-item')).map(item => ({
                     titulo: item.querySelector('.estudio-titulo').value.trim(),
                     institucion: item.querySelector('.estudio-inst').value.trim(),
-                    ano: item.querySelector('.estudio-ano').value.trim(),
-                    musa_username: limpiarUsername(item.querySelector('.estudio-musa').value)
+                    ano: item.querySelector('.estudio-ano').value.trim()
                 })).filter(e => e.titulo);
 
                 const equipamiento = Array.from(document.querySelectorAll('.equipo-item')).map(item => ({
@@ -312,7 +320,10 @@
                 const integrantes = Array.from(document.querySelectorAll('.integrante-item')).map(item => ({
                     nombre: item.querySelector('.integrante-nombre').value.trim(),
                     rol: item.querySelector('.integrante-rol').value.trim(),
-                    musa_username: limpiarUsername(item.querySelector('.integrante-musa').value)
+                    musa_username: limpiarUsername(item.querySelector('.integrante-musa').value),
+                    ig: item.querySelector('.integrante-ig').value.trim(),
+                    sp: item.querySelector('.integrante-sp').value.trim(),
+                    embed: item.querySelector('.integrante-embed').value.trim()
                 })).filter(i => i.nombre);
 
                 const { error } = await client.from('perfiles').update({
@@ -349,18 +360,17 @@
             msgBox.classList.remove('hidden');
         }
 
-        // Extrae el @usuario de MusaConnect ya sea que pegues el link completo o solo el username
         function limpiarUsername(valor) {
             if (!valor) return '';
             let v = valor.trim();
             if (v.includes('http') || v.includes('musaconnect')) {
                 try {
                     const url = new URL(v.startsWith('http') ? v : 'https://' + v);
-                    const porParametro = url.searchParams.get('u');
+                    const porParametro = url.searchParams.get('u') || url.searchParams.get('id');
                     if (porParametro) return porParametro.replace('@', '').toLowerCase();
                     const partes = url.pathname.split('/').filter(Boolean);
                     if (partes.length) return partes[partes.length - 1].replace('@', '').toLowerCase();
-                } catch (e) { /* no era un link válido, seguimos con el texto tal cual */ }
+                } catch (e) { }
             }
             return v.replace('@', '').toLowerCase();
         }
