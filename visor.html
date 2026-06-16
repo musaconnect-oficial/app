@@ -110,6 +110,7 @@
                 </div>
             </div>
 
+            <!-- COLUMNA DERECHA -->
             <div class="space-y-10">
                 
                 <div id="seccion-estudios" class="hidden">
@@ -130,6 +131,12 @@
                 <div id="seccion-integrantes" class="hidden">
                     <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-red-500 flex items-center gap-2">🎸 Alineación Oficial</h2>
                     <div id="contenedor-integrantes" class="flex flex-col gap-2"></div>
+                </div>
+
+                <!-- NUEVO: SECCIÓN DE INSTAGRAM -->
+                <div id="seccion-instagram" class="hidden">
+                    <h2 class="text-xl font-bold mb-6 border-b border-pink-900/50 pb-2 text-pink-500 flex items-center gap-2">📸 En Instagram</h2>
+                    <div id="contenedor-instagram" class="w-full flex justify-center bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-zinc-800"></div>
                 </div>
 
                 <div id="seccion-eventos" class="hidden">
@@ -202,6 +209,12 @@
                     document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
                 }
 
+                // MOSTRAR POST DE INSTAGRAM GLOBAL
+                if (perfil.post_instagram) {
+                    document.getElementById('seccion-instagram').classList.remove('hidden');
+                    document.getElementById('contenedor-instagram').innerHTML = perfil.post_instagram;
+                }
+
                 if (perfil.estudios && perfil.estudios.length > 0) {
                     document.getElementById('seccion-estudios').classList.remove('hidden');
                     document.getElementById('contenedor-estudios').innerHTML = perfil.estudios.map(est => `
@@ -242,7 +255,6 @@
                     `).join('');
                 }
 
-                // LÓGICA DE ROLES PARA VISOR
                 if (perfil.tipo === 'compositor') {
                     document.getElementById('seccion-beats').classList.remove('hidden');
                     cargarCatalogoBeats();
