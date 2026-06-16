@@ -147,6 +147,7 @@
                 </div>
             </div>
 
+            <!-- COLUMNA DERECHA -->
             <div class="space-y-10">
                 <div id="seccion-estudios" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎓 Formación</h2>
@@ -165,6 +166,12 @@
                 <div id="seccion-integrantes" class="hidden">
                     <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-red-500 flex items-center gap-2">🎸 Alineación Oficial</h2>
                     <div id="contenedor-integrantes" class="flex flex-col gap-4"></div>
+                </div>
+
+                <!-- NUEVO: SECCIÓN DE INSTAGRAM (Para todos los perfiles) -->
+                <div id="seccion-instagram" class="hidden">
+                    <h2 class="text-xl font-bold mb-6 border-b border-pink-900/50 pb-2 text-pink-500 flex items-center gap-2">📸 En Instagram</h2>
+                    <div id="contenedor-instagram" class="w-full flex justify-center bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-zinc-800"></div>
                 </div>
 
                 <div id="seccion-eventos" class="hidden">
@@ -239,6 +246,12 @@
                 if (perfil.track_destacado) {
                     document.getElementById('destacado-vacio').style.display = 'none';
                     document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
+                }
+
+                // MOSTRAR POST DE INSTAGRAM GLOBAL
+                if (perfil.post_instagram) {
+                    document.getElementById('seccion-instagram').classList.remove('hidden');
+                    document.getElementById('contenedor-instagram').innerHTML = perfil.post_instagram;
                 }
 
                 if (perfil.estudios && perfil.estudios.length > 0) {
