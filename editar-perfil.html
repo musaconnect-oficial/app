@@ -100,13 +100,6 @@
                     <label class="text-xs font-bold text-zinc-400 block mb-1">⭐ Track Destacado (Fijado)</label>
                     <input type="text" id="track-destacado" class="input-field" placeholder="Pega el código iframe de tu mejor tema">
                 </div>
-                
-                <!-- NUEVO: POST DE INSTAGRAM -->
-                <div class="bg-gradient-to-r from-pink-900/20 to-purple-900/20 p-4 rounded-xl border border-pink-900/30 mt-2">
-                    <label class="text-xs font-bold text-pink-400 block mb-1">📸 Post de Instagram (Opcional)</label>
-                    <p class="text-[10px] text-zinc-400 mb-2">Pega el link de un Reel/Foto o el código Embed.</p>
-                    <input type="text" id="perfil-instagram-post" class="input-field border-pink-900/50" placeholder="Ej: https://www.instagram.com/p/...">
-                </div>
             </div>
 
             <!-- INFLUENCIAS MUSICALES -->
@@ -177,7 +170,6 @@
                 document.getElementById('perfil-bio').value = perfil.bio || '';
                 document.getElementById('perfil-estado').value = perfil.estado_vibe || '';
                 document.getElementById('track-destacado').value = perfil.track_destacado || '';
-                document.getElementById('perfil-instagram-post').value = perfil.post_instagram || '';
                 
                 if(perfil.color_acento) {
                     document.getElementById('perfil-color').value = perfil.color_acento;
@@ -198,7 +190,9 @@
                 if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
                 if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano));
                 if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
-                if (perfil.integrantes) perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || '', i.embed || ''));
+                if (perfil.integrantes) {
+                    perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || '', i.embed || ''));
+                }
             }
         }
 
@@ -323,22 +317,11 @@
                     embed: item.querySelector('.integrante-embed').value.trim()
                 })).filter(i => i.nombre);
 
-                // Lógica mágica para procesar el post de Instagram (Link directo o Embed)
-                let igPost = document.getElementById('perfil-instagram-post').value.trim();
-                if (igPost && !igPost.includes('<iframe') && !igPost.includes('<blockquote')) {
-                    if (igPost.includes('instagram.com')) {
-                        let cleanUrl = igPost.split('?')[0]; // Limpiamos parámetros raros
-                        if (!cleanUrl.endsWith('/')) cleanUrl += '/';
-                        igPost = `<iframe src="${cleanUrl}embed" class="w-full h-[450px] rounded-xl border border-zinc-800" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
-                    }
-                }
-
                 const { error } = await client.from('perfiles').update({
                     nombre_display: nombre,
                     bio: document.getElementById('perfil-bio').value.trim(),
                     estado_vibe: document.getElementById('perfil-estado').value.trim(),
                     track_destacado: document.getElementById('track-destacado').value.trim(),
-                    post_instagram: igPost,
                     color_acento: document.getElementById('perfil-color').value,
                     fuente_nombre: document.getElementById('perfil-fuente').value,
                     forma_avatar: document.getElementById('perfil-forma-avatar').value,
