@@ -126,6 +126,14 @@
                 <button type="button" onclick="agregarInputEquipo('', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Equipo</button>
             </div>
 
+            <!-- ESTUDIO / COLECTIVO -->
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎙️ Estudio / Colectivo</label>
+                <p class="text-[10px] text-zinc-500 mb-3">Agrega los integrantes de tu estudio o colectivo musical.</p>
+                <div id="contenedor-integrantes" class="space-y-3 mb-3"></div>
+                <button type="button" onclick="agregarIntegrante()" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Integrante</button>
+            </div>
+
             <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4 font-bold text-center"></div>
             <button id="btn-guardar" onclick="guardarTodo()" class="btn-primary w-full shadow-lg">Guardar y Actualizar Perfil</button>
         </div>
@@ -182,6 +190,7 @@
                 if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
                 if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano, e.spotify || '', e.ig || '', e.youtube || ''));
                 if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
+                if (perfil.integrantes) perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.spotify || '', i.ig || '', i.youtube || ''));
             }
         }
 
@@ -225,6 +234,37 @@
                 </div>
                 <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
             document.getElementById('contenedor-estudios').appendChild(div);
+        }
+
+        window.agregarIntegrante = function(nombre = '', rol = '', spotify = '', ig = '', youtube = '') {
+            const div = document.createElement('div');
+            div.className = 'integrante-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 space-y-2';
+            div.innerHTML = `
+                <div class="flex gap-2 items-start">
+                    <div class="flex-1 grid grid-cols-2 gap-2">
+                        <input type="text" placeholder="Nombre del integrante" value="${nombre}" class="input-field col-span-2 text-xs integrante-nombre">
+                        <input type="text" placeholder="Rol (Ej: Productor)" value="${rol}" class="input-field col-span-2 text-xs integrante-rol">
+                        <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
+                            <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Redes sociales</p>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-[#1DB954] w-16 shrink-0 font-bold">🎵 Spotify</span>
+                                    <input type="url" placeholder="https://open.spotify.com/artist/..." value="${spotify}" class="input-field text-xs integrante-spotify">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-pink-400 w-16 shrink-0 font-bold">📸 Instagram</span>
+                                    <input type="url" placeholder="https://instagram.com/usuario" value="${ig}" class="input-field text-xs integrante-ig">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-red-500 w-16 shrink-0 font-bold">▶ YouTube</span>
+                                    <input type="url" placeholder="https://youtube.com/@canal" value="${youtube}" class="input-field text-xs integrante-youtube">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="this.closest('.integrante-item').remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>
+                </div>`;
+            document.getElementById('contenedor-integrantes').appendChild(div);
         }
 
         window.agregarInputEquipo = function(cat = '', det = '') {
@@ -291,6 +331,14 @@
                     detalle: item.querySelector('.equipo-det').value.trim()
                 })).filter(eq => eq.detalle);
 
+                const integrantes = Array.from(document.querySelectorAll('.integrante-item')).map(item => ({
+                    nombre: item.querySelector('.integrante-nombre').value.trim(),
+                    rol: item.querySelector('.integrante-rol').value.trim(),
+                    spotify: item.querySelector('.integrante-spotify').value.trim(),
+                    ig: item.querySelector('.integrante-ig').value.trim(),
+                    youtube: item.querySelector('.integrante-youtube').value.trim()
+                })).filter(i => i.nombre);
+
                 const { error } = await client.from('perfiles').update({
                     nombre_display: nombre,
                     bio: document.getElementById('perfil-bio').value.trim(),
@@ -303,7 +351,8 @@
                     banner_url: urlBannerFinal,
                     influencias,
                     estudios,
-                    equipamiento
+                    equipamiento,
+                    integrantes
                 }).eq('id', usuarioActual.id);
 
                 if (error) throw error;
