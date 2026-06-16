@@ -3,304 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Únete | MusaConnect</title>
+    <title>Editar Perfil | MusaConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-
-        .tipo-card { cursor: pointer; transition: all 0.3s ease; border: 1px solid #27272a; background: #141414; }
-        .tipo-card:hover { border-color: #7c3aed; transform: translateY(-2px); }
-        .tipo-card.seleccionado { border-color: #7c3aed; background: rgba(124,58,237,0.1); }
-        .tipo-card.seleccionado .tipo-icon { background: #7c3aed; }
-
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
-            color: #fff; border-radius: 12px; padding: 14px 16px;
-            font-size: 14px; transition: all 0.2s;
-        }
-        .input-field:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
         
-        .btn-primary {
-            width: 100%; background: #7c3aed; color: #fff; font-weight: 700;
-            padding: 14px; border-radius: 12px; font-size: 15px;
-            transition: all 0.2s; border: none; cursor: pointer;
-            box-shadow: 0 0 15px rgba(124,58,237,0.3);
-        }
-        .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 0 20px rgba(124,58,237,0.5); }
-        .btn-primary:disabled { background: #3f3f46; box-shadow: none; cursor: not-allowed; }
-
-        .slide-up { animation: slideUp 0.4s ease forwards; }
-        @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-
-        .step { display: none; }
-        .step.activo { display: block; }
-
-        .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #27272a; transition: all 0.3s; }
-        .step-dot.activo { background: #7c3aed; width: 24px; border-radius: 4px; }
-        .step-dot.hecho { background: #10b981; }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        body { font-family: 'Inter', sans-serif; }
+        .input-field { width: 100%; background: #1c1c1c; border: 1.5px solid #27272a; color: #fff; border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+        .input-field:focus { outline: none; border-color: var(--acento, #7c3aed); }
+        .btn-primary { background: var(--acento, #7c3aed); color: #fff; font-weight: 700; padding: 12px; border-radius: 10px; transition: all 0.2s; }
+        .btn-primary:hover { filter: brightness(1.2); }
+        .btn-primary:disabled { background: #3f3f46; cursor: not-allowed; filter: none; }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-[#0e0e0e] text-white min-h-screen">
 
-    <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-            <a href="index.html" class="inline-block">
-                <h1 class="text-3xl font-black tracking-tight">MUSA<span class="text-purple-600">CONNECT</span></h1>
-            </a>
-            <p class="text-zinc-500 text-sm mt-1">Tu ecosistema musical</p>
+    <header class="border-b border-zinc-800/50 bg-[#0e0e0e]/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="profile.html" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">← Cancelar</a>
+            <span class="font-black text-sm text-purple-500 uppercase tracking-widest">Ajustes de Cuenta</span>
+            <div class="w-16"></div>
         </div>
+    </header>
 
-        <div class="flex items-center justify-center gap-2 mb-8">
-            <div class="step-dot activo" id="dot-1"></div>
-            <div class="step-dot" id="dot-2"></div>
-            <div class="step-dot" id="dot-3"></div>
-        </div>
-
-        <div class="bg-[#141414] border border-zinc-800 rounded-3xl p-8 shadow-2xl">
-
-            <!-- PASO 1 CON EL NUEVO ROL DE ESTUDIO -->
-            <div class="step activo slide-up" id="step-1">
-                <h2 class="text-xl font-black mb-1">¿Qué haces en la música?</h2>
-                <p class="text-zinc-500 text-sm mb-6">Elige tu rol principal.</p>
-
-                <!-- Scroll activado para que quepan las 5 opciones cómodamente -->
-                <div class="max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar">
-                    <div class="flex flex-col gap-3" id="tipos-container">
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="fan" onclick="seleccionarTipo('fan')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎧</div>
-                            <div>
-                                <p class="font-bold text-sm">Fan</p>
-                                <p class="text-zinc-500 text-xs">Descubre artistas y debate</p>
-                            </div>
-                        </div>
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="artista" onclick="seleccionarTipo('artista')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎤</div>
-                            <div>
-                                <p class="font-bold text-sm">Artista</p>
-                                <p class="text-zinc-500 text-xs">Sube música y adelantos</p>
-                            </div>
-                        </div>
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="banda" onclick="seleccionarTipo('banda')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎸</div>
-                            <div>
-                                <p class="font-bold text-sm">Banda</p>
-                                <p class="text-zinc-500 text-xs">Gestión grupal de música</p>
-                            </div>
-                        </div>
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="compositor" onclick="seleccionarTipo('compositor')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎼</div>
-                            <div>
-                                <p class="font-bold text-sm">Compositor / Beatmaker</p>
-                                <p class="text-zinc-500 text-xs">Publica beats y colabora</p>
-                            </div>
-                        </div>
-
-                        <!-- NUEVO ROL: ESTUDIO DE GRABACIÓN -->
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="estudio" onclick="seleccionarTipo('estudio')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎙️</div>
-                            <div>
-                                <p class="font-bold text-sm">Estudio de Grabación</p>
-                                <p class="text-zinc-500 text-xs">Ofrece mezcla, master y spots</p>
-                            </div>
-                        </div>
-
+    <main class="max-w-2xl mx-auto pt-6 px-4 pb-20">
+        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6 space-y-8">
+            
+            <div class="relative mb-12">
+                <div id="banner-preview" class="h-32 md:h-40 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden relative group">
+                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <label class="cursor-pointer bg-black/80 text-white text-xs font-bold px-4 py-2 rounded-lg border border-zinc-600">
+                            Cambiar Portada
+                            <input type="file" id="banner-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'banner-preview')">
+                        </label>
                     </div>
                 </div>
 
-                <button class="btn-primary mt-6" id="btn-paso1" onclick="irPaso2()" disabled>Continuar →</button>
-            </div>
-
-            <!-- PASO 2 -->
-            <div class="step slide-up" id="step-2">
-                <button onclick="irPaso1()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
-                <h2 class="text-xl font-black mb-1">Credenciales</h2>
-                <p class="text-zinc-500 text-sm mb-6">Tus datos para acceder.</p>
-
-                <div class="flex flex-col gap-3">
-                    <input type="email" id="reg-email" class="input-field" placeholder="Correo electrónico">
-                    <input type="password" id="reg-password" class="input-field" placeholder="Contraseña">
-                    <input type="password" id="reg-password2" class="input-field" placeholder="Confirmar contraseña">
-                </div>
-
-                <div id="error-paso2" class="hidden mt-3 bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3 text-center"></div>
-                <button class="btn-primary mt-5" onclick="irPaso3()">Continuar →</button>
-            </div>
-
-            <!-- PASO 3 -->
-            <div class="step slide-up" id="step-3">
-                <button onclick="irPaso2()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
-                <h2 class="text-xl font-black mb-1">Configura tu perfil</h2>
-                <p class="text-zinc-500 text-sm mb-4">Dale identidad a tu cuenta.</p>
-
-                <div class="flex flex-col gap-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                    <input type="text" id="reg-username" class="input-field" placeholder="@usuario (sin espacios)" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
-                    <input type="text" id="reg-nombre" class="input-field" placeholder="Nombre (Artístico o del Estudio)" maxlength="50">
-
-                    <!-- SECCIÓN ESTILO -->
-                    <div class="grid grid-cols-2 gap-3 mt-1 mb-1">
-                        <div>
-                            <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Color de Acento</label>
-                            <input type="color" id="reg-color" value="#7c3aed" class="w-full h-10 rounded-lg cursor-pointer bg-[#1c1c1c] border border-zinc-800 p-1">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Fuente</label>
-                            <select id="reg-fuente" class="input-field py-2 text-xs h-10">
-                                <option value="Inter">Moderna (Inter)</option>
-                                <option value="'Bebas Neue'">Impacto (Bebas)</option>
-                                <option value="'Space Mono'">Tech (Mono)</option>
-                                <option value="'Permanent Marker'">Urbano (Marker)</option>
-                            </select>
+                <div class="absolute -bottom-10 left-6 flex items-end gap-4">
+                    <div id="avatar-preview" class="w-24 h-24 bg-zinc-800 border-4 border-[#141414] flex items-center justify-center text-3xl font-black overflow-hidden relative group rounded-full">
+                        📸
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <label class="cursor-pointer text-[10px] text-white font-bold text-center w-full h-full flex items-center justify-center">
+                                Cambiar
+                                <input type="file" id="avatar-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'avatar-preview')">
+                            </label>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div>
-                        <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre del responsable legal" maxlength="80">
-                        <p class="text-[10px] text-zinc-500 mt-1.5 px-1">🔒 No será visible en el perfil público.</p>
-                    </div>
-
-                    <textarea id="reg-bio" class="input-field resize-none" rows="3" placeholder="Información, ubicación, biografía..." maxlength="160"></textarea>
-                    
-                    <div id="seccion-generos" class="hidden">
-                        <p class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider">Géneros (selecciona hasta 5)</p>
-                        <div class="flex flex-wrap gap-2" id="generos-lista"></div>
+            <!-- PERSONALIZACIÓN DE ESTILO -->
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-800/60">
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Color de Acento</label>
+                    <div class="flex items-center gap-3 bg-[#1c1c1c] border border-zinc-800 rounded-lg p-2">
+                        <input type="color" id="perfil-color" value="#7c3aed" class="w-8 h-8 rounded cursor-pointer border-none bg-transparent" onchange="actualizarAcento(this.value)">
+                        <span class="text-xs text-zinc-400" id="color-hex">#7c3aed</span>
                     </div>
                 </div>
-
-                <div id="error-paso3" class="hidden mt-3 bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3 text-center"></div>
-                <button class="btn-primary mt-5" id="btn-registrar" onclick="registrar()">Crear mi cuenta</button>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Fuente del Nombre</label>
+                    <select id="perfil-fuente" class="input-field">
+                        <option value="Inter">Moderna (Inter)</option>
+                        <option value="'Bebas Neue'">Impacto (Bebas)</option>
+                        <option value="'Space Mono'">Tech (Mono)</option>
+                        <option value="'Permanent Marker'">Urbano (Marker)</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Estilo del Avatar</label>
+                    <select id="perfil-forma-avatar" class="input-field" onchange="cambiarFormaAvatar(this.value)">
+                        <option value="rounded-full">Círculo Clásico</option>
+                        <option value="rounded-2xl">Cuadrado (Tipo Portada de Disco)</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- ÉXITO -->
-            <div class="step slide-up text-center py-4" id="step-exito">
-                <div class="text-5xl mb-4">✨</div>
-                <h2 class="text-xl font-black mb-2">¡Bienvenido a la comunidad!</h2>
-                <p class="text-zinc-500 text-xs mb-6">Todo listo para empezar.</p>
-                <a href="login.html" class="btn-primary inline-block w-full">Ir a Iniciar Sesión</a>
+            <!-- DATOS BÁSICOS -->
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Nombre en pantalla</label>
+                    <input type="text" id="perfil-nombre" class="input-field font-bold text-lg" placeholder="Tu nombre artístico">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Estado / Vibe Actual</label>
+                    <input type="text" id="perfil-estado" class="input-field" placeholder="Ej: 🔴 Grabando en el estudio" maxlength="40">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">Biografía</label>
+                    <textarea id="perfil-bio" class="input-field resize-none" rows="3" placeholder="Cuéntale al mundo quién eres..." maxlength="160"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 block mb-1">⭐ Track Destacado (Fijado)</label>
+                    <input type="text" id="track-destacado" class="input-field" placeholder="Pega el código iframe de tu mejor tema">
+                </div>
             </div>
 
+            <!-- INFLUENCIAS MUSICALES -->
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎧 Influencias Musicales</label>
+                <p class="text-[10px] text-zinc-500 mb-3">¿Qué artistas te inspiran?</p>
+                <div id="contenedor-influencias" class="flex flex-wrap gap-2 mb-3"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="input-nueva-influencia" class="input-field text-xs" placeholder="Ej: Travis Scott">
+                    <button type="button" onclick="agregarInfluencia()" class="bg-zinc-800 text-white px-4 rounded-lg text-xs font-bold hover:bg-zinc-700">+</button>
+                </div>
+            </div>
+
+            <!-- ESTUDIOS Y EQUIPAMIENTO -->
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎓 Formación y Estudios</label>
+                <div id="contenedor-estudios" class="space-y-3 mb-3"></div>
+                <button type="button" onclick="agregarInputEstudio('', '', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Estudio</button>
+            </div>
+
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎛️ Equipamiento / Setup</label>
+                <div id="contenedor-equipos" class="space-y-3 mb-3"></div>
+                <button type="button" onclick="agregarInputEquipo('', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Equipo</button>
+            </div>
+
+            <!-- ESTUDIO / COLECTIVO -->
+            <div class="pt-4 border-t border-zinc-800/60">
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎙️ Estudio / Colectivo</label>
+                <p class="text-[10px] text-zinc-500 mb-3">Agrega los integrantes de tu estudio o colectivo musical.</p>
+                <div id="contenedor-integrantes" class="space-y-3 mb-3"></div>
+                <button type="button" onclick="agregarIntegrante()" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Integrante</button>
+            </div>
+
+            <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4 font-bold text-center"></div>
+            <button id="btn-guardar" onclick="guardarTodo()" class="btn-primary w-full shadow-lg">Guardar y Actualizar Perfil</button>
         </div>
-    </div>
+    </main>
 
     <script>
-    const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
-    const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
-    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+        const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    let tipoSeleccionado = null;
-    let generosSeleccionados = [];
-    const GENEROS = ['Trap','R&B','Hip Hop','Reggaeton','Pop','Electrónica','Rock','Metal','Indie','Salsa','Cumbia','Jazz','Punk'];
+        let usuarioActual = null;
+        let urlFotoFinal = null;
+        let urlBannerFinal = null;
 
-    function seleccionarTipo(tipo) {
-        tipoSeleccionado = tipo;
-        document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('seleccionado'));
-        document.querySelector(`[data-tipo="${tipo}"]`).classList.add('seleccionado');
-        document.getElementById('btn-paso1').disabled = false;
-
-        const seccion = document.getElementById('seccion-generos');
-        // A los estudios también les sirve elegir géneros para mostrar qué graban más
-        if (tipo !== 'fan') {
-            seccion.classList.remove('hidden');
-            renderGeneros();
-        } else {
-            seccion.classList.add('hidden');
-        }
-    }
-
-    function renderGeneros() {
-        document.getElementById('generos-lista').innerHTML = GENEROS.map(g => `
-            <button onclick="toggleGenero('${g}', this)" class="px-3 py-1 rounded-full text-xs font-bold border border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-purple-500 transition-all">${g}</button>
-        `).join('');
-    }
-
-    function toggleGenero(g, el) {
-        if (generosSeleccionados.includes(g)) {
-            generosSeleccionados = generosSeleccionados.filter(x => x !== g);
-            el.classList.remove('border-purple-500','text-white','bg-purple-900/20');
-            el.classList.add('border-zinc-800','text-zinc-400','bg-zinc-900');
-        } else if (generosSeleccionados.length < 5) {
-            generosSeleccionados.push(g);
-            el.classList.add('border-purple-500','text-white','bg-purple-900/20');
-            el.classList.remove('border-zinc-800','text-zinc-400','bg-zinc-900');
-        }
-    }
-
-    function irPaso1() { mostrarPaso(1); }
-    function irPaso2() { if (tipoSeleccionado) mostrarPaso(2); }
-    function irPaso3() {
-        const err = document.getElementById('error-paso2');
-        const e = document.getElementById('reg-email').value, p1 = document.getElementById('reg-password').value, p2 = document.getElementById('reg-password2').value;
-        if (!e || !p1) return mostrarError(err, 'Completa todo.');
-        if (p1.length < 6) return mostrarError(err, 'Mínimo 6 caracteres.');
-        if (p1 !== p2) return mostrarError(err, 'Las contraseñas no coinciden.');
-        err.classList.add('hidden'); mostrarPaso(3);
-    }
-
-    async function registrar() {
-        const btn = document.getElementById('btn-registrar');
-        const err = document.getElementById('error-paso3');
-        const user = document.getElementById('reg-username').value.trim();
-        const nom = document.getElementById('reg-nombre').value.trim();
-        const bio = document.getElementById('reg-bio').value.trim();
-        const nombreLegal = document.getElementById('reg-nombre-legal').value.trim();
-        
-        const color = document.getElementById('reg-color').value;
-        const fuente = document.getElementById('reg-fuente').value;
-        
-        if (!user || !nom) return mostrarError(err, 'Username y nombre son obligatorios.');
-
-        btn.disabled = true; 
-        btn.textContent = 'Procesando...';
-        
-        const { error } = await client.auth.signUp({
-            email: document.getElementById('reg-email').value,
-            password: document.getElementById('reg-password').value,
-            options: { data: { username: user, nombre_display: nom, tipo: tipoSeleccionado } }
-        });
-
-        if (error) {
-            btn.disabled = false; 
-            btn.textContent = 'Crear cuenta';
-            return mostrarError(err, error.message);
+        function actualizarAcento(color) {
+            document.documentElement.style.setProperty('--acento', color);
+            document.getElementById('color-hex').textContent = color;
         }
 
-        setTimeout(async () => {
-            const { data: { user: supabaseUser } } = await client.auth.getUser();
-            if (supabaseUser) {
-                await client.from('perfiles').update({ 
-                    bio: bio, 
-                    generos: generosSeleccionados, 
-                    nombre_legal: nombreLegal || null,
-                    estudios: [],
-                    equipamiento: [],
-                    links_custom: [],
-                    color_acento: color,
-                    fuente_nombre: fuente
-                }).eq('id', supabaseUser.id);
+        function cambiarFormaAvatar(forma) {
+            const avatar = document.getElementById('avatar-preview');
+            avatar.classList.remove('rounded-full', 'rounded-2xl');
+            avatar.classList.add(forma);
+        }
+
+        async function init() {
+            const { data: { user } } = await client.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+            usuarioActual = user;
+
+            const { data: perfil } = await client.from('perfiles').select('*').eq('id', user.id).single();
+            if (perfil) {
+                document.getElementById('perfil-nombre').value = perfil.nombre_display || '';
+                document.getElementById('perfil-bio').value = perfil.bio || '';
+                document.getElementById('perfil-estado').value = perfil.estado_vibe || '';
+                document.getElementById('track-destacado').value = perfil.track_destacado || '';
+                
+                if(perfil.color_acento) {
+                    document.getElementById('perfil-color').value = perfil.color_acento;
+                    actualizarAcento(perfil.color_acento);
+                }
+                if(perfil.fuente_nombre) document.getElementById('perfil-fuente').value = perfil.fuente_nombre;
+                if(perfil.forma_avatar) {
+                    document.getElementById('perfil-forma-avatar').value = perfil.forma_avatar;
+                    cambiarFormaAvatar(perfil.forma_avatar);
+                }
+                
+                urlFotoFinal = perfil.avatar_url;
+                if(urlFotoFinal) document.getElementById('avatar-preview').insertAdjacentHTML('afterbegin', `<img src="${urlFotoFinal}" class="absolute inset-0 w-full h-full object-cover">`);
+                
+                urlBannerFinal = perfil.banner_url;
+                if(urlBannerFinal) document.getElementById('banner-preview').insertAdjacentHTML('afterbegin', `<img src="${urlBannerFinal}" class="absolute inset-0 w-full h-full object-cover">`);
+
+                if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
+                if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano, e.musa_username || ''));
+                if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
+                if (perfil.integrantes) perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || ''));
             }
-        }, 1500);
+        }
 
-        mostrarPaso('exito');
-    }
+        window.agregarTagInfluencia = function(nombre) {
+            const div = document.createElement('div');
+            div.className = 'bg-zinc-800 text-zinc-300 text-[10px] px-2 py-1 rounded-md flex items-center gap-1 tag-influencia fade-in';
+            div.innerHTML = `<span>${nombre}</span><button type="button" onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 ml-1">✕</button>`;
+            document.getElementById('contenedor-influencias').appendChild(div);
+        }
 
-    function mostrarPaso(n) {
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('activo'));
-        document.getElementById('step-' + (typeof n === 'number' ? n : 'exito')).classList.add('activo');
-        [1,2,3].forEach(i => {
-            const dot = document.getElementById('dot-'+i);
-            if(dot) { dot.classList.remove('activo','hecho'); if (typeof n==='number') { if(i<n) dot.classList.add('hecho'); else if(i===n) dot.classList.add('activo'); } }
-        });
-    }
-    function mostrarError(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }
+        window.agregarInfluencia = function() {
+            const input = document.getElementById('input-nueva-influencia');
+            const val = input.value.trim();
+            if(val) { agregarTagInfluencia(val); input.value = ''; }
+        }
+
+        window.agregarInputEstudio = function(tit = '', inst = '', ano = '', musa = '') {
+            const div = document.createElement('div'); div.className = 'flex gap-2 items-start estudio-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800';
+            div.innerHTML = `
+                <div class="flex-1 grid grid-cols-2 gap-2">
+                    <input type="text" placeholder="Título (Ej: Producción Musical)" value="${tit}" class="input-field col-span-2 text-xs estudio-titulo">
+                    <input type="text" placeholder="Institución" value="${inst}" class="input-field text-xs estudio-inst">
+                    <input type="text" placeholder="Año (Ej: 2024)" value="${ano}" class="input-field text-xs estudio-ano">
+                    <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
+                        <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil de MusaConnect</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 Usuario</span>
+                            <input type="text" placeholder="@usuario o link de su perfil" value="${musa}" class="input-field text-xs estudio-musa" onblur="this.value = limpiarUsername(this.value)">
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
+            document.getElementById('contenedor-estudios').appendChild(div);
+        }
+
+        window.agregarIntegrante = function(nombre = '', rol = '', musa = '') {
+            const div = document.createElement('div');
+            div.className = 'integrante-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 space-y-2';
+            div.innerHTML = `
+                <div class="flex gap-2 items-start">
+                    <div class="flex-1 grid grid-cols-2 gap-2">
+                        <input type="text" placeholder="Nombre del integrante" value="${nombre}" class="input-field col-span-2 text-xs integrante-nombre">
+                        <input type="text" placeholder="Rol (Ej: Productor)" value="${rol}" class="input-field col-span-2 text-xs integrante-rol">
+                        <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
+                            <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil de MusaConnect</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 Usuario</span>
+                                <input type="text" placeholder="@usuario o link de su perfil" value="${musa}" class="input-field text-xs integrante-musa" onblur="this.value = limpiarUsername(this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="this.closest('.integrante-item').remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>
+                </div>`;
+            document.getElementById('contenedor-integrantes').appendChild(div);
+        }
+
+        window.agregarInputEquipo = function(cat = '', det = '') {
+            const div = document.createElement('div'); div.className = 'flex gap-2 items-center equipo-item fade-in';
+            div.innerHTML = `
+                <input type="text" placeholder="Tipo (Ej: Teclado)" value="${cat}" class="input-field text-xs w-1/3 equipo-cat">
+                <input type="text" placeholder="Modelo (Ej: Redragon Kumara)" value="${det}" class="input-field text-xs flex-1 equipo-det">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
+            document.getElementById('contenedor-equipos').appendChild(div);
+        }
+
+        window.previsualizar = function(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const preview = document.getElementById(previewId);
+                    const oldImg = preview.querySelector('img.object-cover');
+                    if(oldImg) oldImg.remove();
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'absolute inset-0 w-full h-full object-cover';
+                    preview.insertBefore(img, preview.firstChild);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function subirImagen(file, bucket) {
+            const fileExt = file.name.split('.').pop();
+            const filePath = `${usuarioActual.id}-${Date.now()}.${fileExt}`;
+            const { error } = await client.storage.from(bucket).upload(filePath, file, { upsert: true });
+            if (error) throw error;
+            const { data } = client.storage.from(bucket).getPublicUrl(filePath);
+            return data.publicUrl;
+        }
+
+        window.guardarTodo = async function() {
+            const btn = document.getElementById('btn-guardar');
+            const nombre = document.getElementById('perfil-nombre').value.trim();
+            if (!nombre) return mostrarMensaje("El nombre en pantalla es obligatorio.", false);
+
+            btn.disabled = true; btn.textContent = "Guardando en la base de datos...";
+
+            try {
+                const avatarFile = document.getElementById('avatar-file').files[0];
+                if (avatarFile) urlFotoFinal = await subirImagen(avatarFile, 'avatares');
+
+                const bannerFile = document.getElementById('banner-file').files[0];
+                if (bannerFile) urlBannerFinal = await subirImagen(bannerFile, 'banners');
+
+                const influencias = Array.from(document.querySelectorAll('.tag-influencia span')).map(s => s.textContent);
+
+                const estudios = Array.from(document.querySelectorAll('.estudio-item')).map(item => ({
+                    titulo: item.querySelector('.estudio-titulo').value.trim(),
+                    institucion: item.querySelector('.estudio-inst').value.trim(),
+                    ano: item.querySelector('.estudio-ano').value.trim(),
+                    musa_username: limpiarUsername(item.querySelector('.estudio-musa').value)
+                })).filter(e => e.titulo);
+
+                const equipamiento = Array.from(document.querySelectorAll('.equipo-item')).map(item => ({
+                    categoria: item.querySelector('.equipo-cat').value.trim(),
+                    detalle: item.querySelector('.equipo-det').value.trim()
+                })).filter(eq => eq.detalle);
+
+                const integrantes = Array.from(document.querySelectorAll('.integrante-item')).map(item => ({
+                    nombre: item.querySelector('.integrante-nombre').value.trim(),
+                    rol: item.querySelector('.integrante-rol').value.trim(),
+                    musa_username: limpiarUsername(item.querySelector('.integrante-musa').value)
+                })).filter(i => i.nombre);
+
+                const { error } = await client.from('perfiles').update({
+                    nombre_display: nombre,
+                    bio: document.getElementById('perfil-bio').value.trim(),
+                    estado_vibe: document.getElementById('perfil-estado').value.trim(),
+                    track_destacado: document.getElementById('track-destacado').value.trim(),
+                    color_acento: document.getElementById('perfil-color').value,
+                    fuente_nombre: document.getElementById('perfil-fuente').value,
+                    forma_avatar: document.getElementById('perfil-forma-avatar').value,
+                    avatar_url: urlFotoFinal,
+                    banner_url: urlBannerFinal,
+                    influencias,
+                    estudios,
+                    equipamiento,
+                    integrantes
+                }).eq('id', usuarioActual.id);
+
+                if (error) throw error;
+
+                mostrarMensaje("¡Perfil actualizado con éxito! Redirigiendo...", true);
+                setTimeout(() => window.location.href = 'profile.html', 1500);
+
+            } catch (error) {
+                mostrarMensaje("Error al guardar: " + error.message, false);
+                btn.disabled = false; btn.textContent = "Reintentar";
+            }
+        }
+
+        function mostrarMensaje(texto, exito) {
+            const msgBox = document.getElementById('msg-box');
+            msgBox.textContent = texto;
+            msgBox.className = `text-xs px-3 py-3 rounded-lg mb-4 mt-4 font-bold text-center ${exito ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`;
+            msgBox.classList.remove('hidden');
+        }
+
+        // Extrae el @usuario de MusaConnect ya sea que pegues el link completo o solo el username
+        function limpiarUsername(valor) {
+            if (!valor) return '';
+            let v = valor.trim();
+            if (v.includes('http') || v.includes('musaconnect')) {
+                try {
+                    const url = new URL(v.startsWith('http') ? v : 'https://' + v);
+                    const porParametro = url.searchParams.get('u');
+                    if (porParametro) return porParametro.replace('@', '').toLowerCase();
+                    const partes = url.pathname.split('/').filter(Boolean);
+                    if (partes.length) return partes[partes.length - 1].replace('@', '').toLowerCase();
+                } catch (e) { /* no era un link válido, seguimos con el texto tal cual */ }
+            }
+            return v.replace('@', '').toLowerCase();
+        }
+
+        init();
     </script>
 </body>
 </html>
