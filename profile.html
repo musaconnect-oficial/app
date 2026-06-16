@@ -10,10 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
         
         body { font-family: 'Inter', sans-serif; }
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
-            color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 13px;
-        }
+        .input-field { width: 100%; background: #1c1c1c; border: 1px solid #27272a; color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 13px; }
         .input-field:focus { outline: none; border-color: var(--acento, #7c3aed); }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
@@ -29,7 +26,6 @@
         .waveform div:nth-child(4) { animation-delay: 0.2s; }
         @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 15px; } }
 
-        /* Clases dinámicas inyectadas por JS */
         .border-acento { border-color: var(--acento, #7c3aed) !important; }
         .text-acento { color: var(--acento, #7c3aed) !important; }
         .bg-acento { background-color: var(--acento, #7c3aed) !important; }
@@ -44,7 +40,7 @@
             <div class="flex items-center gap-3">
                 <a href="radar.html" class="text-pink-500 hover:text-pink-400 text-xs font-bold transition-colors hidden sm:flex items-center gap-1 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]">📡 Radar</a>
                 <a href="feed.html" class="text-zinc-400 hover:text-white text-xs font-bold transition-colors hidden sm:block mr-2">Muro Global</a>
-                <a href="editar-perfil.html" id="btn-editar-header" class="bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-lg">Editar perfil</a>
+                <a href="editar-perfil.html" class="bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-lg">Editar perfil</a>
                 <button onclick="cerrarSesion()" class="text-red-500 hover:text-red-400 text-xs font-bold px-3 transition-colors">Salir</button>
             </div>
         </div>
@@ -52,12 +48,11 @@
 
     <main class="max-w-6xl mx-auto pt-8 px-4">
         
-        <!-- CABECERA DE PERFIL PRIVADO -->
         <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-8 relative border-b-4 border-acento">
             <div id="profile-banner" class="h-32 md:h-56 bg-zinc-900 relative transition-all duration-700"></div>
             
             <div class="px-6 md:px-10 pb-8 relative">
-                <div id="profile-avatar" class="absolute -top-12 md:-top-16 w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-800 border-4 border-[#141414] overflow-hidden flex items-center justify-center text-4xl shadow-xl">
+                <div id="profile-avatar" class="absolute -top-12 md:-top-16 w-24 h-24 md:w-32 md:h-32 bg-zinc-800 border-4 border-[#141414] overflow-hidden flex items-center justify-center text-4xl shadow-xl rounded-full">
                     <span class="animate-pulse">⏳</span>
                 </div>
                 
@@ -65,15 +60,18 @@
                     <div>
                         <h1 id="profile-name" class="text-3xl md:text-5xl font-black tracking-tight" style="transition: font-family 0.3s;">Cargando...</h1>
                         <p id="profile-username" class="text-zinc-500 text-sm font-medium mt-1">@...</p>
-                        <span id="profile-role" class="inline-block mt-3 text-[10px] font-black uppercase tracking-wider bg-acento-transparente text-acento border-acento px-2.5 py-1 rounded-md border">...</span>
+                        <div id="profile-tags" class="flex flex-wrap items-center gap-2 mt-3">
+                            <span id="profile-role" class="inline-block text-[10px] font-black uppercase tracking-wider bg-acento-transparente text-acento border-acento px-2.5 py-1 rounded-md border">...</span>
+                            <!-- Vibe/Estado se inyectará aquí -->
+                        </div>
                     </div>
                     <div id="profile-links" class="flex flex-wrap gap-2"></div>
                 </div>
                 <p id="profile-bio" class="text-zinc-300 text-sm mt-6 border-t border-zinc-800/60 pt-4 leading-relaxed">Aún no hay biografía configurada.</p>
+                <!-- Influencias se inyectarán aquí -->
             </div>
         </div>
 
-        <!-- CONTROLES DE PUBLICACIÓN -->
         <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-12 shadow-lg">
             <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-4 text-center">Tus Herramientas</h3>
             <div id="botones-control" class="flex flex-wrap gap-4 mb-6"></div>
@@ -122,7 +120,6 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-10">
                 
-                <!-- TRACK DESTACADO (Siempre visible el contenedor principal) -->
                 <div id="seccion-destacado" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">⭐ Lanzamiento Destacado</h2>
                     <div id="contenedor-destacado" class="rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-[#0a0a0a]">
@@ -150,10 +147,7 @@
                 </div>
             </div>
 
-            <!-- BARRA LATERAL (SIEMPRE VISIBLE PARA CONFIRMAR QUE EXISTE) -->
             <div class="space-y-10">
-                
-                <!-- ESTUDIOS -->
                 <div id="seccion-estudios" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎓 Formación</h2>
                     <div id="contenedor-estudios" class="flex flex-col gap-3">
@@ -161,7 +155,6 @@
                     </div>
                 </div>
 
-                <!-- EQUIPAMIENTO -->
                 <div id="seccion-equipamiento" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎛️ Setup / Equipo</h2>
                     <div id="contenedor-equipamiento" class="flex flex-wrap gap-2">
@@ -169,7 +162,6 @@
                     </div>
                 </div>
 
-                <!-- ENLACES EXTRA -->
                 <div id="seccion-links-extra" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🔗 Enlaces</h2>
                     <div id="contenedor-links-extra" class="flex flex-col gap-2">
@@ -217,6 +209,11 @@
                 // INYECCIÓN DE ESTILOS
                 if (perfil.color_acento) document.documentElement.style.setProperty('--acento', perfil.color_acento);
                 if (perfil.fuente_nombre) document.getElementById('profile-name').style.fontFamily = perfil.fuente_nombre;
+                
+                // FORMA DEL AVATAR
+                const avatarC = document.getElementById('profile-avatar');
+                avatarC.classList.remove('rounded-full', 'rounded-2xl');
+                avatarC.classList.add(perfil.forma_avatar || 'rounded-full');
 
                 // BÁSICOS
                 document.getElementById('profile-name').textContent = perfil.nombre_display || "Sin Nombre";
@@ -225,6 +222,24 @@
                 document.getElementById('profile-bio').textContent = perfil.bio || "Sin biografía.";
                 if (perfil.avatar_url) document.getElementById('profile-avatar').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
                 
+                // VIBE / ESTADO
+                if (perfil.estado_vibe) {
+                    const vibeHtml = `<span class="inline-block text-[11px] font-bold text-zinc-300 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full shadow-lg">${perfil.estado_vibe}</span>`;
+                    document.getElementById('profile-tags').innerHTML += vibeHtml;
+                }
+
+                // INFLUENCIAS
+                if (perfil.influencias && perfil.influencias.length > 0) {
+                    const infHtml = `
+                        <div class="mt-4 pt-4 border-t border-zinc-800/60 fade-in">
+                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">Influencias:</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${perfil.influencias.map(inf => `<span class="bg-[#1c1c1c] text-zinc-300 text-[10px] px-2.5 py-1 rounded-md border border-zinc-800">${inf}</span>`).join('')}
+                            </div>
+                        </div>`;
+                    document.getElementById('profile-bio').insertAdjacentHTML('afterend', infHtml);
+                }
+
                 const banner = document.getElementById('profile-banner');
                 if (perfil.banner_url) {
                     banner.innerHTML = `<img src="${perfil.banner_url}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">`;
@@ -242,10 +257,10 @@
                     document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
                 }
 
-                // ESTUDIOS (Ahora elimina el mensaje de "vacio" si hay datos)
+                // ESTUDIOS
                 if (perfil.estudios && perfil.estudios.length > 0) {
                     document.getElementById('estudios-vacio').style.display = 'none';
-                    const htmlEstudios = perfil.estudios.map(est => `
+                    document.getElementById('contenedor-estudios').innerHTML += perfil.estudios.map(est => `
                         <div class="bg-[#1a1a1a] p-3 rounded-xl border border-zinc-800 border-l-4 border-acento fade-in">
                             <h4 class="font-black text-white text-sm">${est.titulo}</h4>
                             <div class="flex items-center justify-between mt-1">
@@ -254,38 +269,33 @@
                             </div>
                         </div>
                     `).join('');
-                    // Se agrega al final para no borrar el <p> de vacio (aunque esté oculto)
-                    document.getElementById('contenedor-estudios').innerHTML += htmlEstudios;
                 }
 
                 // EQUIPAMIENTO
                 if (perfil.equipamiento && perfil.equipamiento.length > 0) {
                     document.getElementById('equipamiento-vacio').style.display = 'none';
-                    const htmlEquipos = perfil.equipamiento.map(eq => `
+                    document.getElementById('contenedor-equipamiento').innerHTML += perfil.equipamiento.map(eq => `
                         <div class="bg-[#141414] px-3 py-2 rounded-lg border border-zinc-800 text-sm fade-in w-full">
                             <span class="text-zinc-500 text-xs font-bold uppercase mr-2">${eq.categoria}:</span>
                             <span class="text-white font-bold">${eq.detalle}</span>
                         </div>
                     `).join('');
-                    document.getElementById('contenedor-equipamiento').innerHTML += htmlEquipos;
                 }
 
                 // LINKS EXTRA
                 if (perfil.links_custom && perfil.links_custom.length > 0) {
                     document.getElementById('links-vacio').style.display = 'none';
-                    const htmlLinks = perfil.links_custom.map(link => `
+                    document.getElementById('contenedor-links-extra').innerHTML += perfil.links_custom.map(link => `
                         <a href="${link.url}" target="_blank" class="flex items-center justify-between bg-[#1c1c1c] hover:bg-zinc-800 p-3 rounded-xl border border-zinc-800 transition-colors group fade-in">
                             <span class="text-sm font-bold text-white group-hover:text-acento transition-colors">${link.titulo}</span>
                             <span class="text-zinc-500">→</span>
                         </a>
                     `).join('');
-                    document.getElementById('contenedor-links-extra').innerHTML += htmlLinks;
                 }
 
                 misIntegrantes = perfil.integrantes_banda || [];
                 const controles = document.getElementById('botones-control');
 
-                // LÓGICA DE ROLES PARA PANELES DE CONTROL
                 if (miTipoPerfil === 'compositor') {
                     controles.innerHTML = `
                         <button onclick="mostrarPanel('panel-beat')" class="flex-1 min-w-[150px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2 shadow-lg"><span class="text-2xl">🎹</span> Subir Beat</button>
@@ -293,7 +303,6 @@
                     `;
                     document.getElementById('seccion-beats').classList.remove('hidden');
                     cargarBeats(); cargarPreviews();
-
                 } else if (miTipoPerfil === 'banda') {
                     controles.innerHTML = `
                         <button onclick="mostrarPanel('panel-integrante')" class="flex-1 min-w-[150px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">👥</span> Alineación</button>
@@ -304,7 +313,6 @@
                     document.getElementById('seccion-integrantes').classList.remove('hidden');
                     document.getElementById('seccion-eventos').classList.remove('hidden');
                     cargarLanzamientos(); renderIntegrantes(); cargarEventos();
-
                 } else {
                     controles.innerHTML = `
                         <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[150px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎵</span> Spotify</button>
@@ -318,7 +326,6 @@
             }
         }
 
-        /* --- MANTENEMOS LAS MISMAS FUNCIONES CRUD QUE YA TENÍAS --- */
         async function cargarBeats() {
             const { data: beats } = await client.from('beats').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-beats');
@@ -445,7 +452,6 @@
         initPerfil();
     </script>
     
-    <!-- BARRA DE NAVEGACIÓN MÓVIL ESTILO APP -->
     <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
         <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
             <span class="text-2xl mb-0.5">🌍</span><span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
