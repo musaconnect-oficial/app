@@ -40,6 +40,10 @@
         .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #27272a; transition: all 0.3s; }
         .step-dot.activo { background: #7c3aed; width: 24px; border-radius: 4px; }
         .step-dot.hecho { background: #10b981; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col items-center justify-center p-4">
@@ -116,14 +120,43 @@
             <div class="step slide-up" id="step-3">
                 <button onclick="irPaso2()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
                 <h2 class="text-xl font-black mb-1">Configura tu perfil</h2>
-                <p class="text-zinc-500 text-sm mb-6">Dale identidad a tu cuenta.</p>
+                <p class="text-zinc-500 text-sm mb-4">Dale identidad a tu cuenta.</p>
 
-                <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
                     <input type="text" id="reg-username" class="input-field" placeholder="@usuario (sin espacios)" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
                     <input type="text" id="reg-nombre" class="input-field" placeholder="Nombre completo o banda" maxlength="50">
 
+                    <!-- SECCIÓN ESTILO -->
+                    <div class="grid grid-cols-2 gap-3 mt-1 mb-1">
+                        <div>
+                            <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Color de Acento</label>
+                            <input type="color" id="reg-color" value="#7c3aed" class="w-full h-10 rounded-lg cursor-pointer bg-[#1c1c1c] border border-zinc-800 p-1">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Fuente</label>
+                            <select id="reg-fuente" class="input-field py-2 text-xs h-10">
+                                <option value="Inter">Moderna (Inter)</option>
+                                <option value="'Bebas Neue'">Impacto (Bebas)</option>
+                                <option value="'Space Mono'">Tech (Mono)</option>
+                                <option value="'Permanent Marker'">Urbano (Marker)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- SECCIÓN ESTUDIOS DIRECTO EN REGISTRO -->
+                    <div class="mt-2 p-3 bg-[#1c1c1c] border border-zinc-800 rounded-lg">
+                        <label class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider block">🎓 Primer Estudio (Opcional)</label>
+                        <div class="space-y-2">
+                            <input type="text" id="reg-estudio-titulo" class="input-field py-2 text-xs" placeholder="Título (Ej: Producción Musical)">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="reg-estudio-inst" class="input-field py-2 text-xs" placeholder="Institución">
+                                <input type="text" id="reg-estudio-ano" class="input-field py-2 text-xs" placeholder="Año">
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
-                        <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre y apellido" maxlength="80">
+                        <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre y apellido legal" maxlength="80">
                         <p class="text-[10px] text-zinc-500 mt-1.5 px-1">🔒 No será visible en tu perfil público.</p>
                     </div>
 
@@ -210,6 +243,17 @@
         const bio = document.getElementById('reg-bio').value.trim();
         const nombreLegal = document.getElementById('reg-nombre-legal').value.trim();
         
+        const color = document.getElementById('reg-color').value;
+        const fuente = document.getElementById('reg-fuente').value;
+        
+        // Recogemos la info de ESTUDIOS del formulario nuevo
+        const estTit = document.getElementById('reg-estudio-titulo').value.trim();
+        const estInst = document.getElementById('reg-estudio-inst').value.trim();
+        const estAno = document.getElementById('reg-estudio-ano').value.trim();
+        
+        // Si puso un título, armamos el JSON para mandarlo directo
+        const estudiosArray = estTit ? [{ titulo: estTit, institucion: estInst, ano: estAno }] : [];
+        
         if (!user || !nom) return mostrarError(err, 'Username y nombre son obligatorios.');
 
         btn.disabled = true; 
@@ -227,21 +271,20 @@
             return mostrarError(err, error.message);
         }
 
-        // Esperamos un momento para que Supabase cree el usuario en la tabla 'perfiles' con sus triggers
         setTimeout(async () => {
-            const { data: { user } } = await client.auth.getUser();
-            if (user) {
-                // Inyectamos la estructura vacía desde el día 1 para evitar errores
+            const { data: { user: supabaseUser } } = await client.auth.getUser();
+            if (supabaseUser) {
+                // Acá mandamos el JSON de estudios fresquito de una
                 await client.from('perfiles').update({ 
                     bio: bio, 
                     generos: generosSeleccionados, 
                     nombre_legal: nombreLegal || null,
-                    estudios: [],
+                    estudios: estudiosArray,
                     equipamiento: [],
                     links_custom: [],
-                    color_acento: '#7c3aed',
-                    fuente_nombre: 'Inter'
-                }).eq('id', user.id);
+                    color_acento: color,
+                    fuente_nombre: fuente
+                }).eq('id', supabaseUser.id);
             }
         }, 1500);
 
