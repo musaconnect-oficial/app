@@ -73,7 +73,6 @@
             </div>
         </div>
 
-        <!-- PANEL DE HERRAMIENTAS -->
         <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-12 shadow-lg">
             <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-4 text-center">Tus Herramientas</h3>
             <div id="botones-control" class="flex flex-wrap gap-4 mb-6"></div>
@@ -108,19 +107,6 @@
                 </div>
                 <input type="file" id="input-file-beat" accept="audio/mp3, audio/wav" class="input-field mb-3 text-zinc-400 p-2">
                 <button onclick="publicarBeat()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg transition-colors bg-acento">Subir al Catálogo</button>
-            </div>
-
-            <!-- NUEVO: PANEL INSTAGRAM -->
-            <div id="panel-instagram" class="hidden bg-[#141414] p-5 rounded-xl border border-pink-900/50 fade-in">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-2xl">📸</span>
-                    <div>
-                        <h4 class="font-bold text-sm text-pink-400">Fijar Post de Instagram</h4>
-                        <p class="text-[10px] text-zinc-400">Pega el link (URL) o el código embed de tu reel o foto.</p>
-                    </div>
-                </div>
-                <input type="text" id="input-ig-post" placeholder="Ej: https://www.instagram.com/p/..." class="input-field mb-4 border-pink-900/30 focus:border-pink-500">
-                <button onclick="publicarInstagram()" class="w-full bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 text-white font-bold py-3 rounded-lg transition-opacity">Fijar Post en Perfil</button>
             </div>
         </div>
 
@@ -163,6 +149,31 @@
 
             <!-- COLUMNA DERECHA -->
             <div class="space-y-10">
+
+                <!-- TARJETA INSTAGRAM DIRECTA EN EL PERFIL -->
+                <div id="seccion-instagram-directo" class="block">
+                    <h2 class="text-xl font-bold mb-4 border-b border-pink-900/50 pb-2 text-pink-500 flex items-center gap-2">📸 En Instagram</h2>
+                    
+                    <!-- Estado 1: Formulario bonito -->
+                    <div id="ig-form-card" class="bg-gradient-to-br from-[#1a0b1c] to-[#0e0e0e] border border-pink-900/50 rounded-2xl p-6 shadow-[0_0_20px_rgba(236,72,153,0.1)] transition-all fade-in">
+                        <div class="flex items-center gap-4 mb-5">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-2xl shadow-lg shrink-0">📸</div>
+                            <div>
+                                <h3 class="font-black text-white text-lg leading-tight">Post IG</h3>
+                                <p class="text-[11px] text-zinc-400 mt-1">Sube tu reel, flyer o foto más reciente.</p>
+                            </div>
+                        </div>
+                        <input type="text" id="input-ig-post-directo" placeholder="Ej: https://www.instagram.com/p/..." class="w-full bg-[#0a0a0a] border border-pink-900/30 text-white rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-pink-500 mb-4 shadow-inner">
+                        <button onclick="publicarInstagramDirecto()" class="w-full bg-white text-black hover:bg-zinc-200 font-black tracking-widest uppercase text-xs py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] active:scale-[0.98]">Fijar en perfil</button>
+                    </div>
+
+                    <!-- Estado 2: Post cargado -->
+                    <div id="ig-post-mostrado" class="hidden bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative fade-in">
+                        <button onclick="borrarInstagramDirecto()" class="absolute top-3 right-3 bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest z-10 shadow-lg border border-red-800 transition-colors">🗑️ Quitar</button>
+                        <div id="contenedor-ig-directo" class="w-full flex justify-center"></div>
+                    </div>
+                </div>
+
                 <div id="seccion-estudios" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎓 Formación</h2>
                     <div id="contenedor-estudios" class="flex flex-col gap-3">
@@ -180,11 +191,6 @@
                 <div id="seccion-integrantes" class="hidden">
                     <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-red-500 flex items-center gap-2">🎸 Alineación Oficial</h2>
                     <div id="contenedor-integrantes" class="flex flex-col gap-4"></div>
-                </div>
-
-                <div id="seccion-instagram" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-pink-900/50 pb-2 text-pink-500 flex items-center gap-2">📸 En Instagram</h2>
-                    <div id="contenedor-instagram" class="w-full flex justify-center bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-zinc-800"></div>
                 </div>
 
                 <div id="seccion-eventos" class="hidden">
@@ -205,7 +211,7 @@
         let miTipoPerfil = null;
 
         function mostrarPanel(panelId) {
-            ['panel-fragmento', 'panel-preview', 'panel-evento', 'panel-beat', 'panel-integrante', 'panel-instagram'].forEach(id => {
+            ['panel-fragmento', 'panel-preview', 'panel-evento', 'panel-beat'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -261,15 +267,14 @@
                     document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
                 }
 
-                // RENDERIZAR INSTAGRAM PRIVADO CON BOTÓN BORRAR
+                // MOSTRAR TARJETA INSTAGRAM
                 if (perfil.post_instagram) {
-                    document.getElementById('seccion-instagram').classList.remove('hidden');
-                    document.getElementById('contenedor-instagram').innerHTML = `
-                        <div class="relative w-full flex justify-center">
-                            <button onclick="borrarInstagram()" class="absolute top-2 right-2 bg-red-600 hover:bg-red-500 text-white p-2 rounded-lg text-xs z-10 shadow-[0_0_15px_rgba(0,0,0,0.8)] transition-colors border border-red-800">🗑️ Quitar</button>
-                            ${perfil.post_instagram}
-                        </div>
-                    `;
+                    document.getElementById('ig-form-card').classList.add('hidden');
+                    document.getElementById('ig-post-mostrado').classList.remove('hidden');
+                    document.getElementById('contenedor-ig-directo').innerHTML = perfil.post_instagram;
+                } else {
+                    document.getElementById('ig-form-card').classList.remove('hidden');
+                    document.getElementById('ig-post-mostrado').classList.add('hidden');
                 }
 
                 if (perfil.estudios && perfil.estudios.length > 0) {
@@ -301,7 +306,6 @@
                     controles.innerHTML = `
                         <button onclick="mostrarPanel('panel-beat')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1 shadow-lg"><span class="text-2xl">🎹</span> Subir Beat</button>
                         <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎬</span> Preview Visual</button>
-                        <button onclick="mostrarPanel('panel-instagram')" class="flex-1 min-w-[130px] bg-[#141414] border border-pink-900/30 hover:border-pink-500 text-pink-500 p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">📸</span> Post IG</button>
                     `;
                     document.getElementById('seccion-beats').classList.remove('hidden');
                     cargarBeats(); cargarPreviews();
@@ -310,7 +314,6 @@
                     controles.innerHTML = `
                         <button onclick="window.location.href='editar-perfil.html'" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1 shadow-lg"><span class="text-2xl">👥</span> Roster</button>
                         <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">📅</span> Eventos</button>
-                        <button onclick="mostrarPanel('panel-instagram')" class="flex-1 min-w-[130px] bg-[#141414] border border-pink-900/30 hover:border-pink-500 text-pink-500 p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">📸</span> Post IG</button>
                     `;
                     document.getElementById('seccion-roster-estudio').classList.remove('hidden');
                     document.getElementById('seccion-eventos').classList.remove('hidden');
@@ -342,7 +345,6 @@
                         <button onclick="window.location.href='editar-perfil.html'" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">👥</span> Alineación</button>
                         <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎵</span> Spotify</button>
                         <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎟️</span> Tour</button>
-                        <button onclick="mostrarPanel('panel-instagram')" class="flex-1 min-w-[130px] bg-[#141414] border border-pink-900/30 hover:border-pink-500 text-pink-500 p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">📸</span> Post IG</button>
                     `;
                     document.getElementById('seccion-musica').classList.remove('hidden');
                     document.getElementById('seccion-integrantes').classList.remove('hidden');
@@ -372,7 +374,6 @@
                         <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎵</span> Spotify</button>
                         <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎬</span> Preview</button>
                         <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎟️</span> Evento</button>
-                        <button onclick="mostrarPanel('panel-instagram')" class="flex-1 min-w-[130px] bg-[#141414] border border-pink-900/30 hover:border-pink-500 text-pink-500 p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">📸</span> Post IG</button>
                     `;
                     document.getElementById('seccion-musica').classList.remove('hidden');
                     document.getElementById('seccion-eventos').classList.remove('hidden');
@@ -381,12 +382,12 @@
             }
         }
 
-        window.publicarInstagram = async function() {
-            let igPost = document.getElementById('input-ig-post').value.trim();
+        window.publicarInstagramDirecto = async function() {
+            let igPost = document.getElementById('input-ig-post-directo').value.trim();
             if (!igPost) return;
             
             const btn = event.target;
-            btn.textContent = "Procesando..."; btn.disabled = true;
+            btn.textContent = "Cargando..."; btn.disabled = true;
 
             if (igPost && !igPost.includes('<iframe') && !igPost.includes('<blockquote')) {
                 if (igPost.includes('instagram.com')) {
@@ -398,24 +399,20 @@
 
             const { error } = await client.from('perfiles').update({ post_instagram: igPost }).eq('id', miUsuarioId);
             if (!error) {
-                document.getElementById('input-ig-post').value = '';
-                document.getElementById('panel-instagram').classList.add('hidden');
-                document.getElementById('seccion-instagram').classList.remove('hidden');
-                document.getElementById('contenedor-instagram').innerHTML = `
-                    <div class="relative w-full flex justify-center">
-                        <button onclick="borrarInstagram()" class="absolute top-2 right-2 bg-red-600 hover:bg-red-500 text-white p-2 rounded-lg text-xs z-10 shadow-[0_0_15px_rgba(0,0,0,0.8)] transition-colors border border-red-800">🗑️ Quitar</button>
-                        ${igPost}
-                    </div>
-                `;
+                document.getElementById('ig-form-card').classList.add('hidden');
+                document.getElementById('ig-post-mostrado').classList.remove('hidden');
+                document.getElementById('contenedor-ig-directo').innerHTML = igPost;
+                document.getElementById('input-ig-post-directo').value = '';
             }
-            btn.textContent = "Fijar Post en Perfil"; btn.disabled = false;
+            btn.textContent = "Fijar en perfil"; btn.disabled = false;
         }
 
-        window.borrarInstagram = async function() {
-            if(confirm("¿Estás seguro de quitar este post de Instagram de tu perfil?")) {
+        window.borrarInstagramDirecto = async function() {
+            if(confirm("¿Quitar este post de tu perfil?")) {
                 await client.from('perfiles').update({ post_instagram: null }).eq('id', miUsuarioId);
-                document.getElementById('seccion-instagram').classList.add('hidden');
-                document.getElementById('contenedor-instagram').innerHTML = '';
+                document.getElementById('ig-post-mostrado').classList.add('hidden');
+                document.getElementById('contenedor-ig-directo').innerHTML = '';
+                document.getElementById('ig-form-card').classList.remove('hidden');
             }
         }
 
