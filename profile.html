@@ -240,7 +240,29 @@
                     document.getElementById('profile-bio').insertAdjacentHTML('afterend', infHtml);
                 }
 
-                const banner = document.getElementById('profile-banner');
+                // INTEGRANTES DEL ESTUDIO
+                if (perfil.integrantes && perfil.integrantes.length > 0) {
+                    const integrantesHtml = `
+                        <div class="mt-5 pt-4 border-t border-zinc-800/60 fade-in" id="bloque-integrantes-estudio">
+                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-3">🎙️ Estudio / Colectivo</p>
+                            <div class="flex flex-wrap gap-3">
+                                ${perfil.integrantes.map(int => `
+                                    <div class="bg-[#1a1a1a] border border-zinc-800 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 min-w-[130px]">
+                                        <p class="text-white font-black text-sm leading-tight">${int.nombre}</p>
+                                        ${int.rol ? `<p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">${int.rol}</p>` : ''}
+                                        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                            ${int.spotify ? `<a href="${int.spotify}" target="_blank" title="Spotify" class="bg-[#1DB954]/10 hover:bg-[#1DB954]/20 text-[#1DB954] text-[10px] font-black px-2 py-0.5 rounded-full transition-colors">🎵</a>` : ''}
+                                            ${int.ig ? `<a href="${int.ig}" target="_blank" title="Instagram" class="bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 text-[10px] font-black px-2 py-0.5 rounded-full transition-colors">📸</a>` : ''}
+                                            ${int.youtube ? `<a href="${int.youtube}" target="_blank" title="YouTube" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-black px-2 py-0.5 rounded-full transition-colors">▶</a>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                    document.getElementById('profile-bio').insertAdjacentHTML('afterend', integrantesHtml);
+                }
+
+
                 if (perfil.banner_url) {
                     banner.innerHTML = `<img src="${perfil.banner_url}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">`;
                 }
