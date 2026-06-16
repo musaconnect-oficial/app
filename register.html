@@ -1,4 +1,208 @@
-async function registrar() {
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Únete | MusaConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .tipo-card { cursor: pointer; transition: all 0.3s ease; border: 1px solid #27272a; background: #141414; }
+        .tipo-card:hover { border-color: #7c3aed; transform: translateY(-2px); }
+        .tipo-card.seleccionado { border-color: #7c3aed; background: rgba(124,58,237,0.1); }
+        .tipo-card.seleccionado .tipo-icon { background: #7c3aed; }
+
+        .input-field {
+            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
+            color: #fff; border-radius: 12px; padding: 14px 16px;
+            font-size: 14px; transition: all 0.2s;
+        }
+        .input-field:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
+        
+        .btn-primary {
+            width: 100%; background: #7c3aed; color: #fff; font-weight: 700;
+            padding: 14px; border-radius: 12px; font-size: 15px;
+            transition: all 0.2s; border: none; cursor: pointer;
+            box-shadow: 0 0 15px rgba(124,58,237,0.3);
+        }
+        .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 0 20px rgba(124,58,237,0.5); }
+        .btn-primary:disabled { background: #3f3f46; box-shadow: none; cursor: not-allowed; }
+
+        .slide-up { animation: slideUp 0.4s ease forwards; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+        .step { display: none; }
+        .step.activo { display: block; }
+
+        .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #27272a; transition: all 0.3s; }
+        .step-dot.activo { background: #7c3aed; width: 24px; border-radius: 4px; }
+        .step-dot.hecho { background: #10b981; }
+    </style>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-block">
+                <h1 class="text-3xl font-black tracking-tight">MUSA<span class="text-purple-600">CONNECT</span></h1>
+            </a>
+            <p class="text-zinc-500 text-sm mt-1">Tu ecosistema musical</p>
+        </div>
+
+        <div class="flex items-center justify-center gap-2 mb-8">
+            <div class="step-dot activo" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-dot" id="dot-3"></div>
+        </div>
+
+        <div class="bg-[#141414] border border-zinc-800 rounded-3xl p-8 shadow-2xl">
+
+            <div class="step activo slide-up" id="step-1">
+                <h2 class="text-xl font-black mb-1">¿Qué haces en la música?</h2>
+                <p class="text-zinc-500 text-sm mb-6">Elige tu rol principal.</p>
+
+                <div class="flex flex-col gap-3" id="tipos-container">
+                    <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="fan" onclick="seleccionarTipo('fan')">
+                        <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎧</div>
+                        <div>
+                            <p class="font-bold text-sm">Fan</p>
+                            <p class="text-zinc-500 text-xs">Descubre artistas y debate</p>
+                        </div>
+                    </div>
+                    <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="artista" onclick="seleccionarTipo('artista')">
+                        <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎤</div>
+                        <div>
+                            <p class="font-bold text-sm">Artista</p>
+                            <p class="text-zinc-500 text-xs">Sube música y adelantos</p>
+                        </div>
+                    </div>
+                    <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="banda" onclick="seleccionarTipo('banda')">
+                        <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎸</div>
+                        <div>
+                            <p class="font-bold text-sm">Banda</p>
+                            <p class="text-zinc-500 text-xs">Gestión grupal de música</p>
+                        </div>
+                    </div>
+                    <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="compositor" onclick="seleccionarTipo('compositor')">
+                        <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎼</div>
+                        <div>
+                            <p class="font-bold text-sm">Compositor</p>
+                            <p class="text-zinc-500 text-xs">Publica beats y colabora</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary mt-6" id="btn-paso1" onclick="irPaso2()" disabled>Continuar →</button>
+            </div>
+
+            <div class="step slide-up" id="step-2">
+                <button onclick="irPaso1()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
+                <h2 class="text-xl font-black mb-1">Credenciales</h2>
+                <p class="text-zinc-500 text-sm mb-6">Tus datos para acceder.</p>
+
+                <div class="flex flex-col gap-3">
+                    <input type="email" id="reg-email" class="input-field" placeholder="Correo electrónico">
+                    <input type="password" id="reg-password" class="input-field" placeholder="Contraseña">
+                    <input type="password" id="reg-password2" class="input-field" placeholder="Confirmar contraseña">
+                </div>
+
+                <div id="error-paso2" class="hidden mt-3 bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3 text-center"></div>
+                <button class="btn-primary mt-5" onclick="irPaso3()">Continuar →</button>
+            </div>
+
+            <div class="step slide-up" id="step-3">
+                <button onclick="irPaso2()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
+                <h2 class="text-xl font-black mb-1">Configura tu perfil</h2>
+                <p class="text-zinc-500 text-sm mb-6">Dale identidad a tu cuenta.</p>
+
+                <div class="flex flex-col gap-3">
+                    <input type="text" id="reg-username" class="input-field" placeholder="@usuario (sin espacios)" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
+                    <input type="text" id="reg-nombre" class="input-field" placeholder="Nombre completo o banda" maxlength="50">
+
+                    <div>
+                        <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre y apellido" maxlength="80">
+                        <p class="text-[10px] text-zinc-500 mt-1.5 px-1">🔒 No será visible en tu perfil público.</p>
+                    </div>
+
+                    <textarea id="reg-bio" class="input-field resize-none" rows="3" placeholder="Tu bio..." maxlength="160"></textarea>
+                    
+                    <div id="seccion-generos" class="hidden">
+                        <p class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider">Géneros (selecciona hasta 5)</p>
+                        <div class="flex flex-wrap gap-2" id="generos-lista"></div>
+                    </div>
+                </div>
+
+                <div id="error-paso3" class="hidden mt-3 bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3 text-center"></div>
+                <button class="btn-primary mt-5" id="btn-registrar" onclick="registrar()">Crear mi cuenta</button>
+            </div>
+
+            <div class="step slide-up text-center py-4" id="step-exito">
+                <div class="text-5xl mb-4">✨</div>
+                <h2 class="text-xl font-black mb-2">¡Bienvenido a la comunidad!</h2>
+                <p class="text-zinc-500 text-xs mb-6">Todo listo para empezar.</p>
+                <a href="login.html" class="btn-primary inline-block w-full">Ir a Iniciar Sesión</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
+    const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
+    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    let tipoSeleccionado = null;
+    let generosSeleccionados = [];
+    const GENEROS = ['Trap','R&B','Hip Hop','Reggaeton','Pop','Electrónica','Rock','Metal','Indie','Salsa','Cumbia','Jazz','Punk'];
+
+    function seleccionarTipo(tipo) {
+        tipoSeleccionado = tipo;
+        document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('seleccionado'));
+        document.querySelector(`[data-tipo="${tipo}"]`).classList.add('seleccionado');
+        document.getElementById('btn-paso1').disabled = false;
+
+        const seccion = document.getElementById('seccion-generos');
+        if (tipo !== 'fan') {
+            seccion.classList.remove('hidden');
+            renderGeneros();
+        } else {
+            seccion.classList.add('hidden');
+        }
+    }
+
+    function renderGeneros() {
+        document.getElementById('generos-lista').innerHTML = GENEROS.map(g => `
+            <button onclick="toggleGenero('${g}', this)" class="px-3 py-1 rounded-full text-xs font-bold border border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-purple-500 transition-all">${g}</button>
+        `).join('');
+    }
+
+    function toggleGenero(g, el) {
+        if (generosSeleccionados.includes(g)) {
+            generosSeleccionados = generosSeleccionados.filter(x => x !== g);
+            el.classList.remove('border-purple-500','text-white','bg-purple-900/20');
+            el.classList.add('border-zinc-800','text-zinc-400','bg-zinc-900');
+        } else if (generosSeleccionados.length < 5) {
+            generosSeleccionados.push(g);
+            el.classList.add('border-purple-500','text-white','bg-purple-900/20');
+            el.classList.remove('border-zinc-800','text-zinc-400','bg-zinc-900');
+        }
+    }
+
+    function irPaso1() { mostrarPaso(1); }
+    function irPaso2() { if (tipoSeleccionado) mostrarPaso(2); }
+    function irPaso3() {
+        const err = document.getElementById('error-paso2');
+        const e = document.getElementById('reg-email').value, p1 = document.getElementById('reg-password').value, p2 = document.getElementById('reg-password2').value;
+        if (!e || !p1) return mostrarError(err, 'Completa todo.');
+        if (p1.length < 6) return mostrarError(err, 'Mínimo 6 caracteres.');
+        if (p1 !== p2) return mostrarError(err, 'Las contraseñas no coinciden.');
+        err.classList.add('hidden'); mostrarPaso(3);
+    }
+
+    async function registrar() {
         const btn = document.getElementById('btn-registrar');
         const err = document.getElementById('error-paso3');
         const user = document.getElementById('reg-username').value.trim();
@@ -43,3 +247,16 @@ async function registrar() {
 
         mostrarPaso('exito');
     }
+
+    function mostrarPaso(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('activo'));
+        document.getElementById('step-' + (typeof n === 'number' ? n : 'exito')).classList.add('activo');
+        [1,2,3].forEach(i => {
+            const dot = document.getElementById('dot-'+i);
+            if(dot) { dot.classList.remove('activo','hecho'); if (typeof n==='number') { if(i<n) dot.classList.add('hecho'); else if(i===n) dot.classList.add('activo'); } }
+        });
+    }
+    function mostrarError(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }
+    </script>
+</body>
+</html>
