@@ -99,13 +99,20 @@
             </div>
 
             <div id="panel-beat" class="hidden bg-[#141414] p-5 rounded-xl border border-acento fade-in">
+                <p class="text-[11px] text-zinc-500 mb-3 leading-relaxed">Enlaza un beat desde <span class="text-acento font-bold">BeatStars, SoundCloud o YouTube</span>. Copia el código embed del reproductor y pégalo aquí.</p>
                 <input type="text" id="input-titulo-beat" placeholder="Nombre del Beat" class="input-field mb-3">
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <input type="number" id="input-bpm-beat" placeholder="BPM (Ej: 140)" class="input-field">
                     <input type="text" id="input-etiqueta-beat" placeholder="Etiqueta (Ej: Uso Libre / $50)" class="input-field">
                 </div>
-                <input type="file" id="input-file-beat" accept="audio/mp3, audio/wav" class="input-field mb-3 text-zinc-400 p-2">
-                <button onclick="publicarBeat()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg transition-colors bg-acento">Subir al Catálogo</button>
+                <textarea id="input-embed-beat" placeholder='Pega aquí el embed del beat (desde BeatStars, SoundCloud o YouTube)' class="input-field mb-2 resize-none h-20 text-xs"></textarea>
+                <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-3 mb-3 text-[10px] text-zinc-500 leading-relaxed">
+                    <p class="font-black text-zinc-400 mb-1">¿Cómo obtener el embed?</p>
+                    <p>• <span class="text-cyan-400 font-bold">BeatStars:</span> Abre el beat → "Share" → "Embed" → copia el código iframe.</p>
+                    <p>• <span class="text-orange-400 font-bold">SoundCloud:</span> Abre la pista → "Share" → pestaña "Embed" → copia el código.</p>
+                    <p>• <span class="text-red-400 font-bold">YouTube:</span> Video → "Compartir" → "Insertar" → copia el iframe.</p>
+                </div>
+                <button onclick="publicarBeat()" class="w-full bg-acento hover:opacity-90 text-white font-bold py-3 rounded-lg transition-all">Agregar al Catálogo</button>
             </div>
 
             <div id="panel-integrante" class="hidden bg-[#141414] p-5 rounded-xl border border-red-900/50 fade-in">
@@ -169,6 +176,26 @@
                     </div>
                 </div>
 
+                <div id="seccion-instagram" class="block">
+                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2"><span class="bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] bg-clip-text text-transparent">📸</span> Instagram</h2>
+                    <div id="contenedor-instagram" class="flex flex-col gap-3">
+                        <p class="text-zinc-600 text-xs italic" id="instagram-vacio">No hay publicaciones de Instagram vinculadas.</p>
+                    </div>
+
+                    <div id="panel-instagram-form" class="mt-4 bg-[#141414] p-4 rounded-xl border border-zinc-800">
+                        <p class="text-[11px] text-zinc-400 font-bold mb-1">Agrega tu perfil o una publicación de IG</p>
+                        <p class="text-[10px] text-zinc-600 mb-3 leading-relaxed">Pega un <span class="text-pink-400 font-bold">link directo</span> de tu perfil o publicación, o el <span class="text-pink-400 font-bold">código embed</span> de una publicación de Instagram.</p>
+                        <input type="text" id="input-ig-label" placeholder="Etiqueta (Ej: Último post, Mi perfil)" class="input-field mb-2">
+                        <input type="text" id="input-ig-valor" placeholder="Link o código embed de Instagram" class="input-field mb-2">
+                        <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-3 mb-3 text-[10px] text-zinc-500 leading-relaxed">
+                            <p class="font-black text-zinc-400 mb-1">¿Cómo obtener el embed o el link?</p>
+                            <p>• <span class="text-pink-400 font-bold">Link de perfil:</span> Pega directo tu URL de Instagram (ej: https://instagram.com/tunombre) — aparecerá como botón.</p>
+                            <p class="mt-1">• <span class="text-pink-400 font-bold">Publicación embed:</span> Abre la publicación en IG → "…" → "Insertar" → copia el código iframe — se verá el post directamente en tu perfil.</p>
+                        </div>
+                        <button onclick="agregarInstagram()" class="w-full bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-bold py-2.5 rounded-lg transition-all hover:opacity-90 text-sm">Agregar</button>
+                    </div>
+                </div>
+
                 <div id="seccion-integrantes" class="hidden">
                     <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-red-500 flex items-center gap-2">🎸 Alineación Oficial</h2>
                     <div id="contenedor-integrantes" class="flex flex-col gap-2"></div>
@@ -193,8 +220,12 @@
         let misIntegrantes = [];
 
         function mostrarPanel(panelId) {
-            ['panel-fragmento', 'panel-preview', 'panel-evento', 'panel-beat', 'panel-integrante'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById(panelId).classList.remove('hidden');
+            ['panel-fragmento', 'panel-preview', 'panel-evento', 'panel-beat', 'panel-integrante'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(panelId);
+            if (target) target.classList.remove('hidden');
         }
 
         async function initPerfil() {
@@ -316,6 +347,7 @@
                 }
 
                 misIntegrantes = perfil.integrantes_banda || [];
+                cargarInstagram();
                 const controles = document.getElementById('botones-control');
 
                 if (miTipoPerfil === 'compositor') {
@@ -361,7 +393,7 @@
                             </div>
                             <button onclick="borrarBeat(${b.id})" class="text-red-500 hover:text-red-400 bg-red-900/20 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-xs">🗑️</button>
                         </div>
-                        <audio controls controlsList="nodownload" class="w-full h-8 mt-1 custom-audio" src="${b.url_audio}"></audio>
+                        <div class="rounded-xl overflow-hidden mt-1">${b.enlace_embed || ''}</div>
                     </div>
                 `).join('');
             } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">Sube tu primer beat para abrir la tienda.</p>'; }
@@ -371,15 +403,12 @@
             const titulo = document.getElementById('input-titulo-beat').value.trim();
             const bpm = document.getElementById('input-bpm-beat').value.trim();
             const etiqueta = document.getElementById('input-etiqueta-beat').value.trim();
-            const file = document.getElementById('input-file-beat').files[0];
-            if(!titulo || !file) return alert("Falta el archivo o el título del beat.");
-            const btn = event.target; btn.textContent = "Procesando..."; btn.disabled = true;
-            const filePath = `${miUsuarioId}-${Date.now()}.${file.name.split('.').pop()}`;
-            await client.storage.from('beats').upload(filePath, file);
-            const { data: { publicUrl } } = client.storage.from('beats').getPublicUrl(filePath);
-            await client.from('beats').insert([{ usuario_id: miUsuarioId, titulo, bpm, etiqueta, url_audio: publicUrl }]);
-            ['input-titulo-beat', 'input-bpm-beat', 'input-etiqueta-beat', 'input-file-beat'].forEach(id => document.getElementById(id).value = '');
-            btn.textContent = "Subir al Catálogo"; btn.disabled = false; cargarBeats();
+            const embed = document.getElementById('input-embed-beat').value.trim();
+            if(!titulo || !embed) return alert("Falta el título o el embed del beat.");
+            const btn = event.target; btn.textContent = "Guardando..."; btn.disabled = true;
+            await client.from('beats').insert([{ usuario_id: miUsuarioId, titulo, bpm, etiqueta, enlace_embed: embed }]);
+            ['input-titulo-beat', 'input-bpm-beat', 'input-etiqueta-beat', 'input-embed-beat'].forEach(id => document.getElementById(id).value = '');
+            btn.textContent = "Agregar al Catálogo"; btn.disabled = false; cargarBeats();
         }
 
         window.borrarBeat = async function(id) { if(confirm("¿Eliminar este beat de tu catálogo?")) { await client.from('beats').delete().eq('id', id); cargarBeats(); } }
@@ -468,6 +497,55 @@
             cargarEventos();
         }
         window.borrarEvento = async function(id) { if(confirm("Borrar evento?")) { await client.from('eventos').delete().eq('id', id); cargarEventos(); } }
+
+        // INSTAGRAM
+        async function cargarInstagram() {
+            const { data: perfil } = await client.from('perfiles').select('instagram_items').eq('id', miUsuarioId).single();
+            const items = perfil?.instagram_items || [];
+            const cont = document.getElementById('contenedor-instagram');
+            if (items.length > 0) {
+                document.getElementById('instagram-vacio').style.display = 'none';
+                cont.innerHTML = items.map((item, i) => {
+                    const esEmbed = item.valor.trim().startsWith('<');
+                    return `<div class="relative group fade-in">
+                        ${esEmbed
+                            ? `<div class="rounded-xl overflow-hidden border border-zinc-800">${item.valor}</div>`
+                            : `<a href="${item.valor}" target="_blank" class="flex items-center justify-between bg-gradient-to-r from-[#833ab4]/20 to-[#fd1d1d]/20 hover:from-[#833ab4]/30 hover:to-[#fd1d1d]/30 border border-pink-900/40 p-3 rounded-xl transition-colors">
+                                <span class="text-sm font-bold text-white">📸 ${item.label || 'Ver en Instagram'}</span>
+                                <span class="text-pink-400 text-xs">→</span>
+                               </a>`
+                        }
+                        <button onclick="quitarInstagram(${i})" class="absolute top-2 right-2 text-red-500 hover:text-red-400 text-[10px] bg-black/60 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                    </div>`;
+                }).join('');
+            } else {
+                document.getElementById('instagram-vacio').style.display = '';
+                cont.innerHTML = '<p class="text-zinc-600 text-xs italic" id="instagram-vacio">No hay publicaciones de Instagram vinculadas.</p>';
+            }
+        }
+
+        window.agregarInstagram = async function() {
+            const label = document.getElementById('input-ig-label').value.trim();
+            const valor = document.getElementById('input-ig-valor').value.trim();
+            if (!valor) return alert("Pega un link o el código embed de Instagram.");
+            const { data: perfil } = await client.from('perfiles').select('instagram_items').eq('id', miUsuarioId).single();
+            const items = perfil?.instagram_items || [];
+            items.push({ label: label || 'Instagram', valor });
+            const { error } = await client.from('perfiles').update({ instagram_items: items }).eq('id', miUsuarioId);
+            if (!error) {
+                document.getElementById('input-ig-label').value = '';
+                document.getElementById('input-ig-valor').value = '';
+                cargarInstagram();
+            }
+        }
+
+        window.quitarInstagram = async function(index) {
+            const { data: perfil } = await client.from('perfiles').select('instagram_items').eq('id', miUsuarioId).single();
+            const items = perfil?.instagram_items || [];
+            items.splice(index, 1);
+            await client.from('perfiles').update({ instagram_items: items }).eq('id', miUsuarioId);
+            cargarInstagram();
+        }
 
         window.cerrarSesion = async function() { await client.auth.signOut(); window.location.href = 'index.html'; }
 
