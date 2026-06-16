@@ -52,6 +52,7 @@
 
     <main class="max-w-6xl mx-auto pt-8 px-4">
         
+        <!-- CABECERA DE PERFIL PRIVADO -->
         <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-8 relative border-b-4 border-acento">
             <div id="profile-banner" class="h-32 md:h-56 bg-zinc-900 relative transition-all duration-700"></div>
             
@@ -72,6 +73,7 @@
             </div>
         </div>
 
+        <!-- CONTROLES DE PUBLICACIÓN -->
         <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-12 shadow-lg">
             <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-4 text-center">Tus Herramientas</h3>
             <div id="botones-control" class="flex flex-wrap gap-4 mb-6"></div>
@@ -120,9 +122,12 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-10">
                 
-                <div id="seccion-destacado" class="hidden">
+                <!-- TRACK DESTACADO (Siempre visible el contenedor principal) -->
+                <div id="seccion-destacado" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">⭐ Lanzamiento Destacado</h2>
-                    <div id="contenedor-destacado" class="rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-[#0a0a0a]"></div>
+                    <div id="contenedor-destacado" class="rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-[#0a0a0a]">
+                        <p class="text-zinc-600 text-xs italic p-4" id="destacado-vacio">No has fijado ningún track destacado.</p>
+                    </div>
                 </div>
 
                 <div id="seccion-musica" class="hidden space-y-10">
@@ -145,21 +150,31 @@
                 </div>
             </div>
 
+            <!-- BARRA LATERAL (SIEMPRE VISIBLE PARA CONFIRMAR QUE EXISTE) -->
             <div class="space-y-10">
                 
-                <div id="seccion-estudios" class="hidden">
+                <!-- ESTUDIOS -->
+                <div id="seccion-estudios" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎓 Formación</h2>
-                    <div id="contenedor-estudios" class="flex flex-col gap-3"></div>
+                    <div id="contenedor-estudios" class="flex flex-col gap-3">
+                        <p class="text-zinc-600 text-xs italic" id="estudios-vacio">Aún no hay estudios registrados.</p>
+                    </div>
                 </div>
 
-                <div id="seccion-equipamiento" class="hidden">
+                <!-- EQUIPAMIENTO -->
+                <div id="seccion-equipamiento" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎛️ Setup / Equipo</h2>
-                    <div id="contenedor-equipamiento" class="flex flex-wrap gap-2"></div>
+                    <div id="contenedor-equipamiento" class="flex flex-wrap gap-2">
+                        <p class="text-zinc-600 text-xs italic" id="equipamiento-vacio">Aún no has agregado equipamiento.</p>
+                    </div>
                 </div>
 
-                <div id="seccion-links-extra" class="hidden">
+                <!-- ENLACES EXTRA -->
+                <div id="seccion-links-extra" class="block">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🔗 Enlaces</h2>
-                    <div id="contenedor-links-extra" class="flex flex-col gap-2"></div>
+                    <div id="contenedor-links-extra" class="flex flex-col gap-2">
+                        <p class="text-zinc-600 text-xs italic" id="links-vacio">No hay enlaces adicionales.</p>
+                    </div>
                 </div>
 
                 <div id="seccion-integrantes" class="hidden">
@@ -223,14 +238,14 @@
 
                 // TRACK DESTACADO
                 if (perfil.track_destacado) {
-                    document.getElementById('seccion-destacado').classList.remove('hidden');
+                    document.getElementById('destacado-vacio').style.display = 'none';
                     document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
                 }
 
-                // ESTUDIOS
+                // ESTUDIOS (Ahora elimina el mensaje de "vacio" si hay datos)
                 if (perfil.estudios && perfil.estudios.length > 0) {
-                    document.getElementById('seccion-estudios').classList.remove('hidden');
-                    document.getElementById('contenedor-estudios').innerHTML = perfil.estudios.map(est => `
+                    document.getElementById('estudios-vacio').style.display = 'none';
+                    const htmlEstudios = perfil.estudios.map(est => `
                         <div class="bg-[#1a1a1a] p-3 rounded-xl border border-zinc-800 border-l-4 border-acento fade-in">
                             <h4 class="font-black text-white text-sm">${est.titulo}</h4>
                             <div class="flex items-center justify-between mt-1">
@@ -239,28 +254,32 @@
                             </div>
                         </div>
                     `).join('');
+                    // Se agrega al final para no borrar el <p> de vacio (aunque esté oculto)
+                    document.getElementById('contenedor-estudios').innerHTML += htmlEstudios;
                 }
 
                 // EQUIPAMIENTO
                 if (perfil.equipamiento && perfil.equipamiento.length > 0) {
-                    document.getElementById('seccion-equipamiento').classList.remove('hidden');
-                    document.getElementById('contenedor-equipamiento').innerHTML = perfil.equipamiento.map(eq => `
+                    document.getElementById('equipamiento-vacio').style.display = 'none';
+                    const htmlEquipos = perfil.equipamiento.map(eq => `
                         <div class="bg-[#141414] px-3 py-2 rounded-lg border border-zinc-800 text-sm fade-in w-full">
                             <span class="text-zinc-500 text-xs font-bold uppercase mr-2">${eq.categoria}:</span>
                             <span class="text-white font-bold">${eq.detalle}</span>
                         </div>
                     `).join('');
+                    document.getElementById('contenedor-equipamiento').innerHTML += htmlEquipos;
                 }
 
                 // LINKS EXTRA
                 if (perfil.links_custom && perfil.links_custom.length > 0) {
-                    document.getElementById('seccion-links-extra').classList.remove('hidden');
-                    document.getElementById('contenedor-links-extra').innerHTML = perfil.links_custom.map(link => `
+                    document.getElementById('links-vacio').style.display = 'none';
+                    const htmlLinks = perfil.links_custom.map(link => `
                         <a href="${link.url}" target="_blank" class="flex items-center justify-between bg-[#1c1c1c] hover:bg-zinc-800 p-3 rounded-xl border border-zinc-800 transition-colors group fade-in">
                             <span class="text-sm font-bold text-white group-hover:text-acento transition-colors">${link.titulo}</span>
                             <span class="text-zinc-500">→</span>
                         </a>
                     `).join('');
+                    document.getElementById('contenedor-links-extra').innerHTML += htmlLinks;
                 }
 
                 misIntegrantes = perfil.integrantes_banda || [];
@@ -426,6 +445,7 @@
         initPerfil();
     </script>
     
+    <!-- BARRA DE NAVEGACIÓN MÓVIL ESTILO APP -->
     <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
         <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
             <span class="text-2xl mb-0.5">🌍</span><span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
