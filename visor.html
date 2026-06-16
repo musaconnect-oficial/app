@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Importamos las mismas fuentes que en la edición */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
         
         body { font-family: 'Inter', sans-serif; }
@@ -17,7 +16,6 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
         
-        /* Animación del catálogo de beats */
         .waveform { display: flex; align-items: flex-end; height: 15px; gap: 2px; }
         .waveform div { width: 3px; background: var(--acento, #06b6d4); animation: wave 1s infinite ease-in-out; border-radius: 2px;}
         .waveform div:nth-child(1) { animation-delay: 0.1s; }
@@ -26,7 +24,6 @@
         .waveform div:nth-child(4) { animation-delay: 0.2s; }
         @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 15px; } }
 
-        /* Estilos dinámicos inyectados por el color de acento */
         .border-acento { border-color: var(--acento, #7c3aed) !important; }
         .text-acento { color: var(--acento, #7c3aed) !important; }
         .bg-acento { background-color: var(--acento, #7c3aed) !important; }
@@ -47,8 +44,7 @@
     <main class="max-w-6xl mx-auto pt-8 px-4">
         
         <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-12 relative border-b-4 border-acento">
-            <div id="visor-banner" class="h-32 md:h-56 bg-zinc-900 relative transition-all duration-700">
-                </div>
+            <div id="visor-banner" class="h-32 md:h-56 bg-zinc-900 relative transition-all duration-700"></div>
             
             <div class="px-6 md:px-10 pb-8 relative">
                 <div id="visor-avatar" class="absolute -top-12 md:-top-16 w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-800 border-4 border-[#141414] overflow-hidden flex items-center justify-center text-4xl shadow-xl">
@@ -59,7 +55,9 @@
                     <div>
                         <h1 id="visor-name" class="text-3xl md:text-5xl font-black tracking-tight" style="transition: font-family 0.3s;">Cargando...</h1>
                         <p id="visor-username" class="text-zinc-500 text-sm font-medium mt-1">@...</p>
-                        <span id="visor-role" class="inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-acento bg-acento-transparente px-2.5 py-1 rounded-md border border-acento">...</span>
+                        <div id="visor-tags" class="flex flex-wrap items-center gap-2 mt-3">
+                            <span id="visor-role" class="inline-block text-[10px] font-black uppercase tracking-wider text-acento bg-acento-transparente px-2.5 py-1 rounded-md border border-acento">...</span>
+                        </div>
                     </div>
                     
                     <div class="flex items-center gap-3">
@@ -77,6 +75,13 @@
                 <div id="seccion-destacado" class="hidden">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">⭐ Lanzamiento Destacado</h2>
                     <div id="contenedor-destacado" class="rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-[#0a0a0a]"></div>
+                </div>
+
+                <div id="seccion-roster-estudio" class="hidden">
+                    <h2 class="text-xl font-bold mb-6 border-b border-blue-900/50 pb-2 text-blue-400 flex items-center justify-between">
+                        <span class="flex items-center gap-2">🎙️ Roster de Artistas</span>
+                    </h2>
+                    <div id="contenedor-roster" class="grid grid-cols-1 gap-6"></div>
                 </div>
 
                 <div id="seccion-musica" class="hidden space-y-10">
@@ -154,15 +159,13 @@
             if (perfil) {
                 perfilVisitadoTipo = perfil.tipo;
                 
-                // 1. INYECCIÓN DE ESTILOS PERSONALIZADOS
-                if (perfil.color_acento) {
-                    document.documentElement.style.setProperty('--acento', perfil.color_acento);
-                }
-                if (perfil.fuente_nombre) {
-                    document.getElementById('visor-name').style.fontFamily = perfil.fuente_nombre;
-                }
+                if (perfil.color_acento) document.documentElement.style.setProperty('--acento', perfil.color_acento);
+                if (perfil.fuente_nombre) document.getElementById('visor-name').style.fontFamily = perfil.fuente_nombre;
 
-                // 2. DATOS BÁSICOS E IMÁGENES
+                const avatarC = document.getElementById('visor-avatar');
+                avatarC.classList.remove('rounded-full', 'rounded-2xl');
+                avatarC.classList.add(perfil.forma_avatar || 'rounded-full');
+
                 document.getElementById('visor-name').textContent = perfil.nombre_display || "Sin Nombre";
                 document.getElementById('visor-username').textContent = "@" + perfil.username;
                 document.getElementById('visor-role').textContent = perfil.tipo || "Usuario";
@@ -170,6 +173,22 @@
                 
                 if (perfil.avatar_url) document.getElementById('visor-avatar').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
                 
+                if (perfil.estado_vibe) {
+                    const vibeHtml = `<span class="inline-block text-[11px] font-bold text-zinc-300 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full shadow-lg">${perfil.estado_vibe}</span>`;
+                    document.getElementById('visor-tags').innerHTML += vibeHtml;
+                }
+
+                if (perfil.influencias && perfil.influencias.length > 0) {
+                    const infHtml = `
+                        <div class="mt-4 pt-4 border-t border-zinc-800/60 fade-in">
+                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">Influencias:</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${perfil.influencias.map(inf => `<span class="bg-[#1c1c1c] text-zinc-300 text-[10px] px-2.5 py-1 rounded-md border border-zinc-800">${inf}</span>`).join('')}
+                            </div>
+                        </div>`;
+                    document.getElementById('visor-bio').insertAdjacentHTML('afterend', infHtml);
+                }
+
                 const banner = document.getElementById('visor-banner');
                 if (perfil.banner_url) {
                     banner.innerHTML = `<img src="${perfil.banner_url}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">`;
@@ -178,13 +197,11 @@
                     banner.className = "h-32 md:h-56 bg-gradient-to-r from-zinc-900 to-[#0e0e0e] relative";
                 }
 
-                // 3. TRACK DESTACADO
                 if (perfil.track_destacado) {
                     document.getElementById('seccion-destacado').classList.remove('hidden');
                     document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
                 }
 
-                // 4. FORMACIÓN Y ESTUDIOS (JSONB)
                 if (perfil.estudios && perfil.estudios.length > 0) {
                     document.getElementById('seccion-estudios').classList.remove('hidden');
                     document.getElementById('contenedor-estudios').innerHTML = perfil.estudios.map(est => `
@@ -198,7 +215,6 @@
                     `).join('');
                 }
 
-                // 5. EQUIPAMIENTO (JSONB)
                 if (perfil.equipamiento && perfil.equipamiento.length > 0) {
                     document.getElementById('seccion-equipamiento').classList.remove('hidden');
                     document.getElementById('contenedor-equipamiento').innerHTML = perfil.equipamiento.map(eq => `
@@ -209,7 +225,6 @@
                     `).join('');
                 }
 
-                // 6. REDES SOCIALES PRINCIPALES
                 let linksHtml = '';
                 if (perfil.link_instagram) linksHtml += `<a href="${perfil.link_instagram}" target="_blank" class="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105">📸 IG</a>`;
                 if (perfil.link_spotify) linksHtml += `<a href="${perfil.link_spotify}" target="_blank" class="bg-[#1DB954] text-black px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105">🎵 Spotify</a>`;
@@ -217,7 +232,6 @@
                 if (perfil.link_stream) linksHtml += `<a href="${perfil.link_stream}" target="_blank" class="bg-purple-600 text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105 animate-pulse">🔴 EN VIVO</a>`;
                 document.getElementById('visor-links-sociales').innerHTML = linksHtml;
 
-                // 7. ENLACES EXTRA (LINKTREE)
                 if (perfil.links_custom && perfil.links_custom.length > 0) {
                     document.getElementById('seccion-links-extra').classList.remove('hidden');
                     document.getElementById('contenedor-links-extra').innerHTML = perfil.links_custom.map(link => `
@@ -228,22 +242,52 @@
                     `).join('');
                 }
 
-                // 8. LÓGICA DE ROLES (Mostrar u ocultar secciones)
+                // LÓGICA DE ROLES PARA VISOR
                 if (perfil.tipo === 'compositor') {
                     document.getElementById('seccion-beats').classList.remove('hidden');
                     cargarCatalogoBeats();
+                } else if (perfil.tipo === 'estudio') {
+                    document.getElementById('seccion-roster-estudio').classList.remove('hidden');
+                    document.getElementById('seccion-eventos').classList.remove('hidden');
+                    
+                    const contRoster = document.getElementById('contenedor-roster');
+                    const integrantes = perfil.integrantes || [];
+                    if (integrantes.length > 0) {
+                        contRoster.innerHTML = integrantes.map(int => `
+                            <div class="bg-[#0a0a0a] border border-zinc-800 p-5 rounded-2xl flex flex-col md:flex-row gap-5 hover:border-acento transition-colors fade-in">
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-black text-white text-lg">${int.nombre}</h4>
+                                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-3">${int.rol}</p>
+                                        </div>
+                                        ${int.musa_username ? `<a href="visor.html?id=${int.musa_username}" class="bg-purple-900/30 text-purple-400 hover:text-white text-[10px] px-2 py-1 rounded font-bold border border-purple-800/50 transition-colors">🔗 Ver Perfil</a>` : ''}
+                                    </div>
+                                </div>
+                                ${int.embed ? `<div class="w-full md:w-1/2 rounded-xl overflow-hidden opacity-90">${int.embed}</div>` : ''}
+                            </div>
+                        `).join('');
+                    } else {
+                        contRoster.innerHTML = '<p class="text-zinc-600 text-sm">Aún no hay artistas agregados al estudio.</p>';
+                    }
+                    cargarEventos();
+
                 } else if (perfil.tipo === 'banda') {
                     document.getElementById('seccion-musica').classList.remove('hidden');
                     document.getElementById('seccion-integrantes').classList.remove('hidden');
                     document.getElementById('seccion-eventos').classList.remove('hidden');
                     
                     const contInt = document.getElementById('contenedor-integrantes');
-                    const integrantes = perfil.integrantes_banda || [];
+                    const integrantes = perfil.integrantes || [];
                     if (integrantes.length > 0) {
                         contInt.innerHTML = integrantes.map(int => `
-                            <div class="bg-[#1a1a1a] border-l-4 border-acento p-3 rounded-r-xl fade-in">
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border-l-4 border-acento fade-in">
                                 <h4 class="font-black text-white text-sm">${int.nombre}</h4>
-                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest">${int.rol}</p>
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">${int.rol}</p>
+                                <div class="flex gap-2 mt-2">
+                                    ${int.musa_username ? `<a href="visor.html?id=${int.musa_username}" class="text-[10px] text-purple-400 font-bold hover:text-white">🔗 Perfil MusaConnect</a>` : ''}
+                                </div>
+                                ${int.embed ? `<div class="mt-3 rounded-lg overflow-hidden opacity-90">${int.embed}</div>` : ''}
                             </div>
                         `).join('');
                     } else { contInt.innerHTML = '<p class="text-zinc-600 text-xs">Sin alineación pública.</p>'; }
@@ -257,7 +301,6 @@
             }
         }
 
-        /* --- LAS FUNCIONES DE CARGA DE DATOS SE MANTIENEN EXACTAMENTE IGUAL --- */
         async function cargarCatalogoBeats() {
             const { data: beats } = await client.from('beats').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-beats');
@@ -293,7 +336,6 @@
             }
         }
 
-        /* --- LÓGICA DE SESIÓN Y BOTÓN SEGUIR --- */
         async function verificarSesion() {
             const { data: { session } } = await client.auth.getSession();
             const navActions = document.getElementById('visor-nav-actions');
