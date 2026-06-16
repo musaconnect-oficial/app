@@ -64,12 +64,10 @@
 
         <div class="bg-[#141414] border border-zinc-800 rounded-3xl p-8 shadow-2xl">
 
-            <!-- PASO 1 AHORA INCLUYE ESTUDIOS -->
             <div class="step activo slide-up" id="step-1">
                 <h2 class="text-xl font-black mb-1">¿Qué haces en la música?</h2>
                 <p class="text-zinc-500 text-sm mb-6">Elige tu rol principal.</p>
 
-                <!-- SCROLL SOLO SI LA PANTALLA ES CHICA -->
                 <div class="max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar">
                     <div class="flex flex-col gap-3" id="tipos-container">
                         <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="fan" onclick="seleccionarTipo('fan')">
@@ -102,15 +100,15 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN ESTUDIOS MOVILIZADA AQUÍ -->
+                    <!-- ESTUDIO DE GRABACIÓN DIRECTO EN REGISTRO -->
                     <div class="mt-6 p-4 bg-[#1c1c1c] border border-zinc-800 rounded-xl">
-                        <label class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider block">🎓 Formación / Estudios (Opcional)</label>
-                        <p class="text-[10px] text-zinc-500 mb-3">Agrega tu carrera o formación musical.</p>
+                        <label class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider block">🎙️ Tu Estudio de Grabación (Opcional)</label>
+                        <p class="text-[10px] text-zinc-500 mb-3">¿Tienes un home studio o un spot profesional? Agrégalo aquí.</p>
                         <div class="space-y-3">
-                            <input type="text" id="reg-estudio-titulo" class="input-field py-2 text-sm" placeholder="Título (Ej: Producción Musical)">
+                            <input type="text" id="reg-estudio-titulo" class="input-field py-2 text-sm" placeholder="Nombre (Ej: La Cueva Records)">
                             <div class="grid grid-cols-2 gap-3">
-                                <input type="text" id="reg-estudio-inst" class="input-field py-2 text-sm" placeholder="Institución (Ej: INACAP)">
-                                <input type="text" id="reg-estudio-ano" class="input-field py-2 text-sm" placeholder="Año">
+                                <input type="text" id="reg-estudio-inst" class="input-field py-2 text-sm" placeholder="Ubicación (Ej: Hualpén)">
+                                <input type="text" id="reg-estudio-ano" class="input-field py-2 text-sm" placeholder="Servicio (Ej: Mezcla y Máster)">
                             </div>
                         </div>
                     </div>
@@ -119,7 +117,6 @@
                 <button class="btn-primary mt-6" id="btn-paso1" onclick="irPaso2()" disabled>Continuar →</button>
             </div>
 
-            <!-- PASO 2 -->
             <div class="step slide-up" id="step-2">
                 <button onclick="irPaso1()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
                 <h2 class="text-xl font-black mb-1">Credenciales</h2>
@@ -135,7 +132,6 @@
                 <button class="btn-primary mt-5" onclick="irPaso3()">Continuar →</button>
             </div>
 
-            <!-- PASO 3 -->
             <div class="step slide-up" id="step-3">
                 <button onclick="irPaso2()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
                 <h2 class="text-xl font-black mb-1">Configura tu perfil</h2>
@@ -145,7 +141,6 @@
                     <input type="text" id="reg-username" class="input-field" placeholder="@usuario (sin espacios)" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
                     <input type="text" id="reg-nombre" class="input-field" placeholder="Nombre completo o banda" maxlength="50">
 
-                    <!-- SECCIÓN ESTILO (Se queda en el paso 3) -->
                     <div class="grid grid-cols-2 gap-3 mt-1 mb-1">
                         <div>
                             <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Color de Acento</label>
@@ -253,7 +248,7 @@
         const color = document.getElementById('reg-color').value;
         const fuente = document.getElementById('reg-fuente').value;
         
-        // Recogemos la info de ESTUDIOS que ahora está en el Paso 1
+        // Estudios de grabación
         const estTit = document.getElementById('reg-estudio-titulo').value.trim();
         const estInst = document.getElementById('reg-estudio-inst').value.trim();
         const estAno = document.getElementById('reg-estudio-ano').value.trim();
