@@ -180,7 +180,7 @@
                 if(urlBannerFinal) document.getElementById('banner-preview').innerHTML += `<img src="${urlBannerFinal}" class="absolute inset-0 w-full h-full object-cover -z-10">`;
 
                 if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
-                if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano));
+                if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano, e.spotify || '', e.ig || '', e.youtube || ''));
                 if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
             }
         }
@@ -198,13 +198,30 @@
             if(val) { agregarTagInfluencia(val); input.value = ''; }
         }
 
-        window.agregarInputEstudio = function(tit = '', inst = '', ano = '') {
+        window.agregarInputEstudio = function(tit = '', inst = '', ano = '', spotify = '', ig = '', youtube = '') {
             const div = document.createElement('div'); div.className = 'flex gap-2 items-start estudio-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800';
             div.innerHTML = `
                 <div class="flex-1 grid grid-cols-2 gap-2">
                     <input type="text" placeholder="Título (Ej: Producción Musical)" value="${tit}" class="input-field col-span-2 text-xs estudio-titulo">
                     <input type="text" placeholder="Institución" value="${inst}" class="input-field text-xs estudio-inst">
                     <input type="text" placeholder="Año (Ej: 2024)" value="${ano}" class="input-field text-xs estudio-ano">
+                    <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
+                        <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Redes sociales del integrante</p>
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-[#1DB954] w-16 shrink-0 font-bold">🎵 Spotify</span>
+                                <input type="url" placeholder="https://open.spotify.com/artist/..." value="${spotify}" class="input-field text-xs estudio-spotify">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-pink-400 w-16 shrink-0 font-bold">📸 Instagram</span>
+                                <input type="url" placeholder="https://instagram.com/usuario" value="${ig}" class="input-field text-xs estudio-ig">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-red-500 w-16 shrink-0 font-bold">▶ YouTube</span>
+                                <input type="url" placeholder="https://youtube.com/@canal" value="${youtube}" class="input-field text-xs estudio-youtube">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
             document.getElementById('contenedor-estudios').appendChild(div);
@@ -263,7 +280,10 @@
                 const estudios = Array.from(document.querySelectorAll('.estudio-item')).map(item => ({
                     titulo: item.querySelector('.estudio-titulo').value.trim(),
                     institucion: item.querySelector('.estudio-inst').value.trim(),
-                    ano: item.querySelector('.estudio-ano').value.trim()
+                    ano: item.querySelector('.estudio-ano').value.trim(),
+                    spotify: item.querySelector('.estudio-spotify').value.trim(),
+                    ig: item.querySelector('.estudio-ig').value.trim(),
+                    youtube: item.querySelector('.estudio-youtube').value.trim()
                 })).filter(e => e.titulo);
 
                 const equipamiento = Array.from(document.querySelectorAll('.equipo-item')).map(item => ({
