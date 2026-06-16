@@ -64,12 +64,15 @@
 
         <div class="bg-[#141414] border border-zinc-800 rounded-3xl p-8 shadow-2xl">
 
+            <!-- PASO 1 CON EL NUEVO ROL DE ESTUDIO -->
             <div class="step activo slide-up" id="step-1">
                 <h2 class="text-xl font-black mb-1">¿Qué haces en la música?</h2>
                 <p class="text-zinc-500 text-sm mb-6">Elige tu rol principal.</p>
 
+                <!-- Scroll activado para que quepan las 5 opciones cómodamente -->
                 <div class="max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar">
                     <div class="flex flex-col gap-3" id="tipos-container">
+                        
                         <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="fan" onclick="seleccionarTipo('fan')">
                             <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎧</div>
                             <div>
@@ -77,6 +80,7 @@
                                 <p class="text-zinc-500 text-xs">Descubre artistas y debate</p>
                             </div>
                         </div>
+                        
                         <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="artista" onclick="seleccionarTipo('artista')">
                             <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎤</div>
                             <div>
@@ -84,6 +88,7 @@
                                 <p class="text-zinc-500 text-xs">Sube música y adelantos</p>
                             </div>
                         </div>
+                        
                         <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="banda" onclick="seleccionarTipo('banda')">
                             <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎸</div>
                             <div>
@@ -91,32 +96,31 @@
                                 <p class="text-zinc-500 text-xs">Gestión grupal de música</p>
                             </div>
                         </div>
+                        
                         <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="compositor" onclick="seleccionarTipo('compositor')">
                             <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎼</div>
                             <div>
-                                <p class="font-bold text-sm">Compositor</p>
+                                <p class="font-bold text-sm">Compositor / Beatmaker</p>
                                 <p class="text-zinc-500 text-xs">Publica beats y colabora</p>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- ESTUDIO DE GRABACIÓN DIRECTO EN REGISTRO -->
-                    <div class="mt-6 p-4 bg-[#1c1c1c] border border-zinc-800 rounded-xl">
-                        <label class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider block">🎙️ Tu Estudio de Grabación (Opcional)</label>
-                        <p class="text-[10px] text-zinc-500 mb-3">¿Tienes un home studio o un spot profesional? Agrégalo aquí.</p>
-                        <div class="space-y-3">
-                            <input type="text" id="reg-estudio-titulo" class="input-field py-2 text-sm" placeholder="Nombre (Ej: La Cueva Records)">
-                            <div class="grid grid-cols-2 gap-3">
-                                <input type="text" id="reg-estudio-inst" class="input-field py-2 text-sm" placeholder="Ubicación (Ej: Hualpén)">
-                                <input type="text" id="reg-estudio-ano" class="input-field py-2 text-sm" placeholder="Servicio (Ej: Mezcla y Máster)">
+                        <!-- NUEVO ROL: ESTUDIO DE GRABACIÓN -->
+                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="estudio" onclick="seleccionarTipo('estudio')">
+                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎙️</div>
+                            <div>
+                                <p class="font-bold text-sm">Estudio de Grabación</p>
+                                <p class="text-zinc-500 text-xs">Ofrece mezcla, master y spots</p>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
                 <button class="btn-primary mt-6" id="btn-paso1" onclick="irPaso2()" disabled>Continuar →</button>
             </div>
 
+            <!-- PASO 2 -->
             <div class="step slide-up" id="step-2">
                 <button onclick="irPaso1()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
                 <h2 class="text-xl font-black mb-1">Credenciales</h2>
@@ -132,6 +136,7 @@
                 <button class="btn-primary mt-5" onclick="irPaso3()">Continuar →</button>
             </div>
 
+            <!-- PASO 3 -->
             <div class="step slide-up" id="step-3">
                 <button onclick="irPaso2()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
                 <h2 class="text-xl font-black mb-1">Configura tu perfil</h2>
@@ -139,8 +144,9 @@
 
                 <div class="flex flex-col gap-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
                     <input type="text" id="reg-username" class="input-field" placeholder="@usuario (sin espacios)" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
-                    <input type="text" id="reg-nombre" class="input-field" placeholder="Nombre completo o banda" maxlength="50">
+                    <input type="text" id="reg-nombre" class="input-field" placeholder="Nombre (Artístico o del Estudio)" maxlength="50">
 
+                    <!-- SECCIÓN ESTILO -->
                     <div class="grid grid-cols-2 gap-3 mt-1 mb-1">
                         <div>
                             <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Color de Acento</label>
@@ -158,11 +164,11 @@
                     </div>
 
                     <div>
-                        <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre y apellido legal" maxlength="80">
-                        <p class="text-[10px] text-zinc-500 mt-1.5 px-1">🔒 No será visible en tu perfil público.</p>
+                        <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre del responsable legal" maxlength="80">
+                        <p class="text-[10px] text-zinc-500 mt-1.5 px-1">🔒 No será visible en el perfil público.</p>
                     </div>
 
-                    <textarea id="reg-bio" class="input-field resize-none" rows="3" placeholder="Tu bio..." maxlength="160"></textarea>
+                    <textarea id="reg-bio" class="input-field resize-none" rows="3" placeholder="Información, ubicación, biografía..." maxlength="160"></textarea>
                     
                     <div id="seccion-generos" class="hidden">
                         <p class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider">Géneros (selecciona hasta 5)</p>
@@ -174,6 +180,7 @@
                 <button class="btn-primary mt-5" id="btn-registrar" onclick="registrar()">Crear mi cuenta</button>
             </div>
 
+            <!-- ÉXITO -->
             <div class="step slide-up text-center py-4" id="step-exito">
                 <div class="text-5xl mb-4">✨</div>
                 <h2 class="text-xl font-black mb-2">¡Bienvenido a la comunidad!</h2>
@@ -200,6 +207,7 @@
         document.getElementById('btn-paso1').disabled = false;
 
         const seccion = document.getElementById('seccion-generos');
+        // A los estudios también les sirve elegir géneros para mostrar qué graban más
         if (tipo !== 'fan') {
             seccion.classList.remove('hidden');
             renderGeneros();
@@ -248,13 +256,6 @@
         const color = document.getElementById('reg-color').value;
         const fuente = document.getElementById('reg-fuente').value;
         
-        // Estudios de grabación
-        const estTit = document.getElementById('reg-estudio-titulo').value.trim();
-        const estInst = document.getElementById('reg-estudio-inst').value.trim();
-        const estAno = document.getElementById('reg-estudio-ano').value.trim();
-        
-        const estudiosArray = estTit ? [{ titulo: estTit, institucion: estInst, ano: estAno }] : [];
-        
         if (!user || !nom) return mostrarError(err, 'Username y nombre son obligatorios.');
 
         btn.disabled = true; 
@@ -279,7 +280,7 @@
                     bio: bio, 
                     generos: generosSeleccionados, 
                     nombre_legal: nombreLegal || null,
-                    estudios: estudiosArray,
+                    estudios: [],
                     equipamiento: [],
                     links_custom: [],
                     color_acento: color,
