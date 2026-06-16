@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
+        
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
         .btn-primary { background: #7c3aed; color: #fff; transition: all 0.2s; }
@@ -34,6 +35,11 @@
             border: 1px solid #27272a; transition: all 0.3s ease;
         }
         .feature-card:hover { border-color: #52525b; transform: translateY(-5px); }
+
+        .user-card { transition: all 0.3s ease; }
+        .user-card:hover { border-color: var(--usr-color) !important; box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--usr-color) 20%, transparent); transform: translateY(-3px); }
+        .user-card:hover h4 { color: var(--usr-color) !important; }
+        .user-card:hover .avatar-ring { box-shadow: 0 0 0 2px var(--usr-color); }
     </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col relative z-0">
@@ -109,6 +115,15 @@
             <div id="grid-compositores" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
+        <!-- SECCIÓN DE ESTUDIOS DE GRABACIÓN -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-6 text-white border-b border-blue-900/50 pb-2 flex items-center gap-2">
+                <span class="text-blue-500">🎙️</span> Estudios de Grabación
+            </h3>
+            <p class="text-sm text-zinc-500 mb-4">Encuentra los mejores spots y home studios para grabar, mezclar y masterizar tus próximos temas.</p>
+            <div id="grid-estudios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
         <div class="mb-12">
             <h3 class="text-xl font-bold mb-6 text-white border-b border-emerald-900/50 pb-2 flex items-center gap-2">
                 <span class="text-emerald-500">🎧</span> Fans Destacados
@@ -119,22 +134,36 @@
 
     <!-- CARACTERÍSTICAS -->
     <div class="w-full border-t border-zinc-800 bg-[#121212] pt-16 pb-20">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+        <div class="max-w-6xl mx-auto px-4 text-center mb-10">
+            <h2 class="text-3xl font-black text-white">¿Por qué unirte al ecosistema?</h2>
+        </div>
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+            
             <div class="feature-card rounded-2xl p-8 text-left">
                 <div class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-2xl mb-6">🎧</div>
                 <h3 class="text-xl font-black mb-3">Para los Fans</h3>
                 <p class="text-zinc-400 text-sm leading-relaxed">Descubre nueva música antes que nadie. Sigue a tus artistas favoritos e interactúa en el feed.</p>
             </div>
+            
             <div class="feature-card rounded-2xl p-8 text-left">
                 <div class="w-12 h-12 bg-purple-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-purple-800/50">🎤</div>
                 <h3 class="text-xl font-black mb-3 text-white">Para Artistas</h3>
                 <p class="text-zinc-400 text-sm leading-relaxed">Arma tu portafolio, sube tus canciones, conecta con tu audiencia y encuentra colaboradores.</p>
             </div>
+            
             <div class="feature-card rounded-2xl p-8 text-left">
                 <div class="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-red-800/50">🎼</div>
                 <h3 class="text-xl font-black mb-3">Para Compositores</h3>
                 <p class="text-zinc-400 text-sm leading-relaxed">¿Tienes letras o beats? Haz "Match" directamente con cantantes que buscan tu estilo.</p>
             </div>
+
+            <!-- RECUADRO DE ESTUDIOS -->
+            <div class="feature-card rounded-2xl p-8 text-left">
+                <div class="w-12 h-12 bg-blue-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-blue-800/50">🎙️</div>
+                <h3 class="text-xl font-black mb-3 text-white">Promociona tu Estudio</h3>
+                <p class="text-zinc-400 text-sm leading-relaxed">Si tienes un home studio o un espacio pro, agrégalo a tu perfil para que los artistas de la zona reserven sus sesiones contigo.</p>
+            </div>
+
         </div>
     </div>
 
@@ -173,55 +202,70 @@
             const { data: perfiles, error } = await client.from('perfiles').select('*').order('id', { ascending: false }).limit(50);
             if (error) return;
 
-            const renderCards = (lista, containerId, borderHoverColor = 'hover:border-purple-500/50') => {
+            const renderCards = (lista, containerId, defaultColor = '#7c3aed') => {
                 const container = document.getElementById(containerId);
                 if (lista.length === 0) {
                     container.innerHTML = '<p class="text-zinc-600 text-sm col-span-full">Aún no hay registros en esta categoría.</p>';
                     return;
                 }
                 const mostrar = lista.slice(0, 6); 
-                container.innerHTML = mostrar.map(u => `
-                    <a href="visor.html?id=${u.id}" class="bg-[#141414] border border-zinc-800 ${borderHoverColor} hover:shadow-lg transition-all duration-300 p-5 rounded-2xl flex items-center gap-4 group cursor-pointer block">
-                        <div class="w-16 h-16 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-2 ring-zinc-700 group-hover:ring-purple-500 transition-all">
+                container.innerHTML = mostrar.map(u => {
+                    const acento = u.color_acento || defaultColor;
+                    const fuente = u.fuente_nombre || 'Inter';
+
+                    let infoExtra = '';
+                    if (u.estudios && u.estudios.length > 0 && u.estudios[0].titulo) {
+                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎙️ ${u.estudios[0].titulo}</p>`;
+                    } else if (u.equipamiento && u.equipamiento.length > 0 && u.equipamiento[0].categoria) {
+                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎛️ ${u.equipamiento[0].categoria}: ${u.equipamiento[0].detalle}</p>`;
+                    } else if (u.track_destacado) {
+                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">⭐ Track Destacado</p>`;
+                    }
+
+                    return `
+                    <a href="visor.html?id=${u.id}" style="--usr-color: ${acento};" class="user-card relative bg-[#141414] border border-zinc-800 p-5 rounded-2xl flex items-center gap-4 group cursor-pointer block z-0 overflow-hidden">
+                        
+                        ${u.banner_url ? `<div class="absolute inset-0 opacity-10 group-hover:opacity-30 transition-opacity -z-10" style="background-image: url('${u.banner_url}'); background-size: cover; background-position: center;"></div>` : ''}
+
+                        <div class="avatar-ring w-16 h-16 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-2 ring-zinc-700 transition-all">
                             ${u.avatar_url ? `<img src="${u.avatar_url}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-xl">👤</div>'}
                         </div>
-                        <div class="overflow-hidden text-left flex-1">
-                            <h4 class="font-bold text-white truncate group-hover:text-purple-400 transition-colors">${u.nombre_display || '@' + u.username}</h4>
+                        <div class="overflow-hidden text-left flex-1 relative z-10">
+                            <h4 class="font-bold text-white truncate transition-colors" style="font-family: ${fuente};">${u.nombre_display || '@' + u.username}</h4>
                             <p class="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">${u.bio || 'Músico en la plataforma...'}</p>
+                            ${infoExtra}
                         </div>
                     </a>
-                `).join('');
+                    `;
+                }).join('');
             };
 
             renderCards(perfiles.filter(u => u.tipo === 'artista'), 'grid-artistas');
             renderCards(perfiles.filter(u => u.tipo === 'banda'), 'grid-bandas');
             renderCards(perfiles.filter(u => u.tipo === 'compositor'), 'grid-compositores');
-            renderCards(perfiles.filter(u => u.tipo === 'fan'), 'grid-fans', 'hover:border-emerald-500/50');
+            renderCards(perfiles.filter(u => u.tipo === 'fan'), 'grid-fans', '#10b981'); 
+
+            // FILTRAR POR LA GENTE QUE TIENE ESTUDIOS DE GRABACIÓN
+            const conEstudios = perfiles.filter(u => u.estudios && u.estudios.length > 0 && u.estudios[0].titulo);
+            renderCards(conEstudios, 'grid-estudios', '#3b82f6');
         }
 
         verificarSesion();
         cargarDirectorioRoles();
     </script>
-    <!-- BARRA DE NAVEGACIÓN MÓVIL ESTILO APP (Solo visible en celulares) -->
+
     <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
-        
-        <!-- Botón Muro -->
         <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
             <span class="text-2xl mb-0.5">🌍</span>
             <span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
         </a>
-        
-        <!-- BOTÓN RADAR GIGANTE FLOTANTE -->
         <a href="radar.html" class="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 bg-gradient-to-tr from-pink-600 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(236,72,153,0.5)] border-[5px] border-[#0e0e0e] hover:scale-105 active:scale-95 transition-all">
             <span class="text-3xl drop-shadow-lg">📡</span>
         </a>
-        
-        <!-- Botón Perfil -->
         <a href="profile.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
             <span class="text-2xl mb-0.5">👤</span>
             <span class="text-[9px] font-black uppercase tracking-widest">Perfil</span>
         </a>
-        
     </div>
 </body>
 </html>
