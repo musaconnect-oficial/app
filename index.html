@@ -10,32 +10,30 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
         
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-
         .btn-primary { background: #7c3aed; color: #fff; transition: all 0.2s; }
         .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 0 20px rgba(124,58,237,0.4); }
         
         .btn-secondary { background: #141414; border: 1px solid #3f3f46; color: #fff; transition: all 0.2s; }
         .btn-secondary:hover { background: #27272a; border-color: #52525b; transform: translateY(-2px); }
-
+        
         .hero-glow {
             position: absolute; width: 600px; height: 600px;
             background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, rgba(0,0,0,0) 70%);
             top: -200px; left: 50%; transform: translateX(-50%); z-index: -1; pointer-events: none;
         }
-
+        
         .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
         .delay-1 { animation-delay: 0.1s; }
         .delay-2 { animation-delay: 0.2s; }
         .delay-3 { animation-delay: 0.3s; }
-
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-
+        
         .feature-card {
             background: linear-gradient(180deg, #141414 0%, #0e0e0e 100%);
             border: 1px solid #27272a; transition: all 0.3s ease;
         }
         .feature-card:hover { border-color: #52525b; transform: translateY(-5px); }
-
+        
         .user-card { transition: all 0.3s ease; }
         .user-card:hover { border-color: var(--usr-color) !important; box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--usr-color) 20%, transparent); transform: translateY(-3px); }
         .user-card:hover h4 { color: var(--usr-color) !important; }
@@ -43,21 +41,18 @@
     </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col relative z-0">
-
     <div class="hero-glow"></div>
-
+    
     <!-- NAVBAR -->
     <header class="border-b border-zinc-800/50 bg-[#0e0e0e]/80 backdrop-blur sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <a href="index.html" class="flex items-center gap-2">
                 <h1 class="text-xl font-black tracking-tight">MUSA<span class="text-purple-600">CONNECT</span></h1>
             </a>
-            
             <nav class="hidden md:flex gap-6 text-sm font-bold text-zinc-400">
-                <a href="feed.html" class="hover:text-white transition-colors flex items-center gap-1">🌍 Muro Global</a>
+                <a href="feed.html" class="hover:text-white transition-colors flex items-center gap-1">🌎 Muro Global</a>
                 <a href="radar.html" class="text-pink-500/80 hover:text-pink-400 transition-colors flex items-center gap-1 drop-shadow-[0_0_8px_rgba(236,72,153,0.3)]">📡 Radar Match</a>
             </nav>
-
             <div id="nav-actions" class="flex items-center gap-3">
                 <div class="w-20 h-8 bg-zinc-900 animate-pulse rounded-full"></div>
             </div>
@@ -80,10 +75,10 @@
             
             <div class="fade-in-up delay-3 flex flex-col items-center justify-center gap-4 mb-20 w-full max-w-sm mx-auto">
                 <a id="cta-principal" href="register.html" class="btn-primary w-full px-8 py-4 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(124,58,237,0.3)] flex justify-center items-center gap-2">
-                    Únete a la comunidad →
+                    🚀 Únete a la comunidad
                 </a>
                 <a href="feed.html" class="btn-secondary w-full px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2">
-                    🌍 Explorar Muro Global
+                    🌎 Explorar Muro Global
                 </a>
                 <div id="cta-login-box" class="mt-2 w-full text-center">
                     <p class="text-sm text-zinc-400">¿Ya tienes una cuenta?</p>
@@ -111,14 +106,14 @@
         </div>
 
         <div class="mb-12">
-            <h3 class="text-xl font-bold mb-6 text-white border-b border-zinc-800 pb-2">🎼 Compositores</h3>
+            <h3 class="text-xl font-bold mb-6 text-white border-b border-zinc-800 pb-2">🎹 Compositores</h3>
             <div id="grid-compositores" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
         <!-- SECCIÓN DE ESTUDIOS DE GRABACIÓN -->
         <div class="mb-12">
             <h3 class="text-xl font-bold mb-6 text-white border-b border-blue-900/50 pb-2 flex items-center gap-2">
-                <span class="text-blue-500">🎙️</span> Estudios de Grabación
+                <span class="text-blue-500">🎧</span> Estudios de Grabación
             </h3>
             <p class="text-sm text-zinc-500 mb-4">Encuentra los mejores spots y home studios para grabar, mezclar y masterizar tus próximos temas.</p>
             <div id="grid-estudios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -126,7 +121,7 @@
 
         <div class="mb-12">
             <h3 class="text-xl font-bold mb-6 text-white border-b border-emerald-900/50 pb-2 flex items-center gap-2">
-                <span class="text-emerald-500">🎧</span> Fans Destacados
+                <span class="text-emerald-500">🔥</span> Fans Destacados
             </h3>
             <div id="grid-fans" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
@@ -152,18 +147,17 @@
             </div>
             
             <div class="feature-card rounded-2xl p-8 text-left">
-                <div class="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-red-800/50">🎼</div>
+                <div class="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-red-800/50">🎹</div>
                 <h3 class="text-xl font-black mb-3">Para Compositores</h3>
                 <p class="text-zinc-400 text-sm leading-relaxed">¿Tienes letras o beats? Haz "Match" directamente con cantantes que buscan tu estilo.</p>
             </div>
 
             <!-- RECUADRO DE ESTUDIOS -->
             <div class="feature-card rounded-2xl p-8 text-left">
-                <div class="w-12 h-12 bg-blue-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-blue-800/50">🎙️</div>
+                <div class="w-12 h-12 bg-blue-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-blue-800/50">🎛️</div>
                 <h3 class="text-xl font-black mb-3 text-white">Promociona tu Estudio</h3>
                 <p class="text-zinc-400 text-sm leading-relaxed">Si tienes un home studio o un espacio pro, agrégalo a tu perfil para que los artistas de la zona reserven sus sesiones contigo.</p>
             </div>
-
         </div>
     </div>
 
@@ -184,7 +178,7 @@
             const navActions = document.getElementById('nav-actions');
             const ctaPrincipal = document.getElementById('cta-principal');
             const ctaLoginBox = document.getElementById('cta-login-box');
-
+            
             if (session) {
                 navActions.innerHTML = `<a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors border border-zinc-700">Mi Perfil</a>`;
                 ctaPrincipal.textContent = "Ir a mi panel de artista";
@@ -208,28 +202,31 @@
                     container.innerHTML = '<p class="text-zinc-600 text-sm col-span-full">Aún no hay registros en esta categoría.</p>';
                     return;
                 }
-                const mostrar = lista.slice(0, 6); 
+                
+                const mostrar = lista.slice(0, 6);
+                
                 container.innerHTML = mostrar.map(u => {
                     const acento = u.color_acento || defaultColor;
                     const fuente = u.fuente_nombre || 'Inter';
-
                     let infoExtra = '';
+                    
                     if (u.estudios && u.estudios.length > 0 && u.estudios[0].titulo) {
-                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎙️ ${u.estudios[0].titulo}</p>`;
+                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎓 ${u.estudios[0].titulo}</p>`;
                     } else if (u.equipamiento && u.equipamiento.length > 0 && u.equipamiento[0].categoria) {
                         infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎛️ ${u.equipamiento[0].categoria}: ${u.equipamiento[0].detalle}</p>`;
                     } else if (u.track_destacado) {
                         infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">⭐ Track Destacado</p>`;
                     }
-
+                    
+                    // ACÁ ESTÁ EL CAMBIO CLAVE: visor.html?u=${u.username}
                     return `
-                    <a href="visor.html?id=${u.id}" style="--usr-color: ${acento};" class="user-card relative bg-[#141414] border border-zinc-800 p-5 rounded-2xl flex items-center gap-4 group cursor-pointer block z-0 overflow-hidden">
-                        
+                    <a href="visor.html?u=${u.username}" style="--usr-color: ${acento};" class="user-card relative bg-[#141414] border border-zinc-800 p-5 rounded-2xl flex items-center gap-4 group cursor-pointer block z-0 overflow-hidden">
                         ${u.banner_url ? `<div class="absolute inset-0 opacity-10 group-hover:opacity-30 transition-opacity -z-10" style="background-image: url('${u.banner_url}'); background-size: cover; background-position: center;"></div>` : ''}
-
+                        
                         <div class="avatar-ring w-16 h-16 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-2 ring-zinc-700 transition-all">
                             ${u.avatar_url ? `<img src="${u.avatar_url}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-xl">👤</div>'}
                         </div>
+                        
                         <div class="overflow-hidden text-left flex-1 relative z-10">
                             <h4 class="font-bold text-white truncate transition-colors" style="font-family: ${fuente};">${u.nombre_display || '@' + u.username}</h4>
                             <p class="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">${u.bio || 'Músico en la plataforma...'}</p>
@@ -256,7 +253,7 @@
 
     <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
         <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
-            <span class="text-2xl mb-0.5">🌍</span>
+            <span class="text-2xl mb-0.5">🌎</span>
             <span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
         </a>
         <a href="radar.html" class="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 bg-gradient-to-tr from-pink-600 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(236,72,153,0.5)] border-[5px] border-[#0e0e0e] hover:scale-105 active:scale-95 transition-all">
