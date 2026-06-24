@@ -7,67 +7,72 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         
         body { font-family: 'Inter', sans-serif; }
+        
         .input-field {
             width: 100%; background: #1c1c1c; border: 1px solid #27272a;
             color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 13px;
         }
-        .input-field:focus { outline: none; border-color: var(--acento, #7c3aed); }
+        .input-field:focus { outline: none; border-color: var(--color-primario, #7c3aed); }
+        
         .fade-in { animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { 
+            from { opacity:0; transform:translateY(10px); } 
+            to { opacity:1; transform:translateY(0); } 
+        }
+        
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
         
         .waveform { display: flex; align-items: flex-end; height: 15px; gap: 2px; }
-        .waveform div { width: 3px; background: var(--acento, #06b6d4); animation: wave 1s infinite ease-in-out; border-radius: 2px;}
+        .waveform div { width: 3px; background: #06b6d4; animation: wave 1s infinite ease-in-out; border-radius: 2px;}
         .waveform div:nth-child(1) { animation-delay: 0.1s; }
         .waveform div:nth-child(2) { animation-delay: 0.3s; }
         .waveform div:nth-child(3) { animation-delay: 0.0s; }
         .waveform div:nth-child(4) { animation-delay: 0.2s; }
-        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 15px; } }
-
-        .border-acento { border-color: var(--acento, #7c3aed) !important; }
-        .text-acento { color: var(--acento, #7c3aed) !important; }
-        .bg-acento { background-color: var(--acento, #7c3aed) !important; }
-        .bg-acento-transparente { background-color: color-mix(in srgb, var(--acento, #7c3aed) 20%, transparent) !important; }
+        
+        @keyframes wave { 
+            0%, 100% { height: 4px; } 
+            50% { height: 15px; } 
+        }
     </style>
 </head>
 <body class="bg-[#121212] text-white min-h-screen pb-20">
 
     <header class="border-b border-zinc-800/50 bg-[#121212]/80 backdrop-blur sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">← Volver al Menú</a>
+            <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">⬅ Volver al Menú</a>
             <div class="flex items-center gap-3">
                 <a href="radar.html" class="text-pink-500 hover:text-pink-400 text-xs font-bold transition-colors hidden sm:flex items-center gap-1 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]">📡 Radar</a>
                 <a href="feed.html" class="text-zinc-400 hover:text-white text-xs font-bold transition-colors hidden sm:block mr-2">Muro Global</a>
-                <a href="editar-perfil.html" id="btn-editar-header" class="bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-lg">Editar perfil</a>
+                <a href="editar-perfil.html" id="btn-editar-header" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-lg">Editar perfil</a>
                 <button onclick="cerrarSesion()" class="text-red-500 hover:text-red-400 text-xs font-bold px-3 transition-colors">Salir</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto pt-8 px-4">
-        
-        <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-8 relative border-b-4 border-acento">
-            <div id="profile-banner" class="h-32 md:h-56 bg-zinc-900 relative transition-all duration-700"></div>
+        <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-8 relative">
+            <div id="profile-banner" class="h-32 md:h-48 bg-gradient-to-r from-purple-900/60 to-[#0e0e0e] relative transition-all duration-700"></div>
             
             <div class="px-6 md:px-10 pb-8 relative">
                 <div id="profile-avatar" class="absolute -top-12 md:-top-16 w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-800 border-4 border-[#141414] overflow-hidden flex items-center justify-center text-4xl shadow-xl">
-                    <span class="animate-pulse">⏳</span>
+                    <span class="animate-pulse">👤</span>
                 </div>
                 
                 <div class="pt-16 md:pt-20 flex flex-col md:flex-row md:justify-between md:items-start gap-6">
                     <div>
-                        <h1 id="profile-name" class="text-3xl md:text-5xl font-black tracking-tight" style="transition: font-family 0.3s;">Cargando...</h1>
+                        <h1 id="profile-name" class="text-2xl md:text-4xl font-black tracking-tight">Cargando...</h1>
                         <p id="profile-username" class="text-zinc-500 text-sm font-medium mt-1">@...</p>
-                        <div id="profile-tags" class="flex flex-wrap items-center gap-2 mt-3">
-                            <span id="profile-role" class="inline-block text-[10px] font-black uppercase tracking-wider bg-acento-transparente text-acento border-acento px-2.5 py-1 rounded-md border">...</span>
+                        <div class="flex items-center gap-2 mt-3">
+                            <span id="profile-role" class="inline-block text-[10px] font-black uppercase tracking-wider bg-purple-900/20 text-purple-400 border-purple-900/50 px-2.5 py-1 rounded-md border">...</span>
+                            <button onclick="copiarLinkInstagram()" class="bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-md border border-zinc-700 transition-colors flex items-center gap-1 shadow-lg ml-2 cursor-pointer">🔗 Copiar Link para Bio</button>
                         </div>
                     </div>
-                    <div id="profile-links" class="flex flex-wrap gap-2"></div>
+                    <div id="profile-links" class="flex flex-wrap gap-3"></div>
                 </div>
                 <p id="profile-bio" class="text-zinc-300 text-sm mt-6 border-t border-zinc-800/60 pt-4 leading-relaxed">Aún no hay biografía configurada.</p>
             </div>
@@ -76,19 +81,19 @@
         <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-12 shadow-lg">
             <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-4 text-center">Tus Herramientas</h3>
             <div id="botones-control" class="flex flex-wrap gap-4 mb-6"></div>
-
+            
             <div id="panel-fragmento" class="hidden bg-[#141414] p-5 rounded-xl border border-zinc-800 fade-in">
                 <input type="text" id="input-titulo-cancion" placeholder="Título del fragmento" class="input-field mb-3">
                 <input type="text" id="input-embed-cancion" placeholder="Pega aquí el código embed de Spotify o YouTube" class="input-field mb-3">
                 <button onclick="publicarCancion()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg transition-colors">Publicar Fragmento</button>
             </div>
-
+            
             <div id="panel-preview" class="hidden bg-[#141414] p-5 rounded-xl border border-zinc-800 fade-in">
                 <input type="text" id="input-titulo-preview" placeholder="Título del video (Max 1 min)" class="input-field mb-3">
                 <input type="file" id="input-file-preview" accept="video/mp4" class="input-field mb-3 text-zinc-400 p-2">
                 <button onclick="publicarPreview()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg transition-colors">Subir Preview</button>
             </div>
-
+            
             <div id="panel-evento" class="hidden bg-[#141414] p-5 rounded-xl border border-zinc-800 fade-in">
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <input type="text" id="input-fecha-evento" placeholder="Ej: 24 Octubre" class="input-field">
@@ -98,48 +103,40 @@
                 <input type="text" id="input-tickets-evento" placeholder="Link de entradas (Opcional)" class="input-field mb-4">
                 <button onclick="publicarEvento()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-lg transition-colors">Agregar Evento</button>
             </div>
-
-            <div id="panel-beat" class="hidden bg-[#141414] p-5 rounded-xl border border-acento fade-in">
+            
+            <div id="panel-beat" class="hidden bg-[#141414] p-5 rounded-xl border border-cyan-900/50 fade-in">
                 <input type="text" id="input-titulo-beat" placeholder="Nombre del Beat" class="input-field mb-3">
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <input type="number" id="input-bpm-beat" placeholder="BPM (Ej: 140)" class="input-field">
                     <input type="text" id="input-etiqueta-beat" placeholder="Etiqueta (Ej: Uso Libre / $50)" class="input-field">
                 </div>
                 <input type="file" id="input-file-beat" accept="audio/mp3, audio/wav" class="input-field mb-3 text-zinc-400 p-2">
-                <button onclick="publicarBeat()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg transition-colors bg-acento">Subir al Catálogo</button>
+                <button onclick="publicarBeat()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg transition-colors">Subir al Catálogo</button>
+            </div>
+            
+            <div id="panel-integrante" class="hidden bg-[#141414] p-5 rounded-xl border border-red-900/50 fade-in">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <input type="text" id="input-nombre-int" placeholder="Nombre del integrante" class="input-field">
+                    <input type="text" id="input-rol-int" placeholder="Rol (Ej: Baterista, Vocalista)" class="input-field">
+                </div>
+                <button onclick="agregarIntegrante()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg transition-colors">Agregar a la Alineación</button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-10">
-                
-                <div id="seccion-destacado" class="block">
-                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">⭐ Lanzamiento Destacado</h2>
-                    <div id="contenedor-destacado" class="rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-[#0a0a0a]">
-                        <p class="text-zinc-600 text-xs italic p-4" id="destacado-vacio">No has fijado ningún track destacado.</p>
-                    </div>
-                </div>
-
-                <div id="seccion-roster-estudio" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-blue-900/50 pb-2 text-blue-400 flex items-center justify-between">
-                        <span class="flex items-center gap-2">🎙️ Roster de Artistas</span>
-                    </h2>
-                    <div id="contenedor-roster" class="grid grid-cols-1 gap-6"></div>
-                </div>
-
                 <div id="seccion-musica" class="hidden space-y-10">
                     <div>
                         <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 flex items-center gap-2">🎵 Fragmentos Oficiales</h2>
                         <div id="contenedor-canciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-acento flex items-center gap-2">🎬 Mis Adelantos</h2>
+                        <h2 class="text-xl font-bold mb-6 border-b border-purple-800 pb-2 text-purple-400 flex items-center gap-2">🎬 Adelantos (1 Min)</h2>
                         <div id="contenedor-previews" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
                 </div>
-
                 <div id="seccion-beats" class="hidden">
-                    <h2 class="text-xl font-black mb-6 border-b border-zinc-800 pb-2 text-acento flex items-center justify-between">
+                    <h2 class="text-xl font-black mb-6 border-b border-cyan-800/50 pb-2 text-cyan-400 flex items-center justify-between">
                         <span class="flex items-center gap-2">🎹 Catálogo de Instrumentales</span>
                         <div class="waveform"><div></div><div></div><div></div><div></div></div>
                     </h2>
@@ -147,59 +144,17 @@
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA -->
             <div class="space-y-10">
-
-                <!-- TARJETA INSTAGRAM DIRECTA EN EL PERFIL -->
-                <div id="seccion-instagram-directo" class="block">
-                    <h2 class="text-xl font-bold mb-4 border-b border-pink-900/50 pb-2 text-pink-500 flex items-center gap-2">📸 En Instagram</h2>
-                    
-                    <!-- Estado 1: Formulario bonito -->
-                    <div id="ig-form-card" class="bg-gradient-to-br from-[#1a0b1c] to-[#0e0e0e] border border-pink-900/50 rounded-2xl p-6 shadow-[0_0_20px_rgba(236,72,153,0.1)] transition-all fade-in">
-                        <div class="flex items-center gap-4 mb-5">
-                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-2xl shadow-lg shrink-0">📸</div>
-                            <div>
-                                <h3 class="font-black text-white text-lg leading-tight">Post IG</h3>
-                                <p class="text-[11px] text-zinc-400 mt-1">Sube tu reel, flyer o foto más reciente.</p>
-                            </div>
-                        </div>
-                        <input type="text" id="input-ig-post-directo" placeholder="Ej: https://www.instagram.com/p/..." class="w-full bg-[#0a0a0a] border border-pink-900/30 text-white rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-pink-500 mb-4 shadow-inner">
-                        <button onclick="publicarInstagramDirecto()" class="w-full bg-white text-black hover:bg-zinc-200 font-black tracking-widest uppercase text-xs py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] active:scale-[0.98]">Fijar en perfil</button>
-                    </div>
-
-                    <!-- Estado 2: Post cargado -->
-                    <div id="ig-post-mostrado" class="hidden bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative fade-in">
-                        <button onclick="borrarInstagramDirecto()" class="absolute top-3 right-3 bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest z-10 shadow-lg border border-red-800 transition-colors">🗑️ Quitar</button>
-                        <div id="contenedor-ig-directo" class="w-full flex justify-center"></div>
-                    </div>
-                </div>
-
-                <div id="seccion-estudios" class="block">
-                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎓 Formación</h2>
-                    <div id="contenedor-estudios" class="flex flex-col gap-3">
-                        <p class="text-zinc-600 text-xs italic" id="estudios-vacio">Aún no hay estudios registrados.</p>
-                    </div>
-                </div>
-
-                <div id="seccion-equipamiento" class="block">
-                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎛️ Setup / Equipo</h2>
-                    <div id="contenedor-equipamiento" class="flex flex-wrap gap-2">
-                        <p class="text-zinc-600 text-xs italic" id="equipamiento-vacio">Aún no has agregado equipamiento.</p>
-                    </div>
-                </div>
-
                 <div id="seccion-integrantes" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-red-500 flex items-center gap-2">🎸 Alineación Oficial</h2>
-                    <div id="contenedor-integrantes" class="flex flex-col gap-4"></div>
+                    <h2 class="text-xl font-bold mb-6 border-b border-red-900/50 pb-2 text-red-500 flex items-center gap-2">👥 Alineación Oficial</h2>
+                    <div id="contenedor-integrantes" class="flex flex-col gap-2"></div>
                 </div>
-
                 <div id="seccion-eventos" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-orange-400 flex items-center gap-2">🎟️ Próximos Eventos</h2>
+                    <h2 class="text-xl font-bold mb-6 border-b border-orange-900/50 pb-2 text-orange-400 flex items-center gap-2">🎟 Próximos Shows</h2>
                     <div id="contenedor-eventos" class="flex flex-col gap-3"></div>
                 </div>
             </div>
         </div>
-
     </main>
 
     <script>
@@ -209,171 +164,66 @@
         
         let miUsuarioId = null;
         let miTipoPerfil = null;
+        let misIntegrantes = [];
+        let miUsername = null;
 
         function mostrarPanel(panelId) {
-            ['panel-fragmento', 'panel-preview', 'panel-evento', 'panel-beat'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-            const target = document.getElementById(panelId);
-            if (target) target.classList.remove('hidden');
+            ['panel-fragmento', 'panel-preview', 'panel-evento', 'panel-beat', 'panel-integrante'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(panelId).classList.remove('hidden');
         }
 
         async function initPerfil() {
             const { data: { user } } = await client.auth.getUser();
             if (!user) { window.location.href = 'login.html'; return; }
-            miUsuarioId = user.id;
-
+            
             const { data: perfil } = await client.from('perfiles').select('*').eq('id', user.id).single();
             if (perfil) {
+                miUsuarioId = user.id;
                 miTipoPerfil = perfil.tipo;
+                miUsername = perfil.username;
                 
-                if (perfil.color_acento) document.documentElement.style.setProperty('--acento', perfil.color_acento);
-                if (perfil.fuente_nombre) document.getElementById('profile-name').style.fontFamily = perfil.fuente_nombre;
-                
-                const avatarC = document.getElementById('profile-avatar');
-                avatarC.classList.remove('rounded-full', 'rounded-2xl');
-                avatarC.classList.add(perfil.forma_avatar || 'rounded-full');
-
                 document.getElementById('profile-name').textContent = perfil.nombre_display || "Sin Nombre";
                 document.getElementById('profile-username').textContent = "@" + perfil.username;
                 document.getElementById('profile-role').textContent = perfil.tipo || "Usuario";
                 document.getElementById('profile-bio').textContent = perfil.bio || "Sin biografía.";
+                
                 if (perfil.avatar_url) document.getElementById('profile-avatar').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
                 
-                if (perfil.estado_vibe) {
-                    const vibeHtml = `<span class="inline-block text-[11px] font-bold text-zinc-300 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full shadow-lg">${perfil.estado_vibe}</span>`;
-                    document.getElementById('profile-tags').innerHTML += vibeHtml;
-                }
-
-                if (perfil.influencias && perfil.influencias.length > 0) {
-                    const infHtml = `
-                        <div class="mt-4 pt-4 border-t border-zinc-800/60 fade-in">
-                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">Influencias:</p>
-                            <div class="flex flex-wrap gap-2">
-                                ${perfil.influencias.map(inf => `<span class="bg-[#1c1c1c] text-zinc-300 text-[10px] px-2.5 py-1 rounded-md border border-zinc-800">${inf}</span>`).join('')}
-                            </div>
-                        </div>`;
-                    document.getElementById('profile-bio').insertAdjacentHTML('afterend', infHtml);
-                }
-
+                misIntegrantes = perfil.integrantes_banda || [];
                 const banner = document.getElementById('profile-banner');
-                if (perfil.banner_url) {
-                    banner.innerHTML = `<img src="${perfil.banner_url}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">`;
-                }
-
-                if (perfil.track_destacado) {
-                    document.getElementById('destacado-vacio').style.display = 'none';
-                    document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
-                }
-
-                // MOSTRAR TARJETA INSTAGRAM
-                if (perfil.post_instagram) {
-                    document.getElementById('ig-form-card').classList.add('hidden');
-                    document.getElementById('ig-post-mostrado').classList.remove('hidden');
-                    document.getElementById('contenedor-ig-directo').innerHTML = perfil.post_instagram;
-                } else {
-                    document.getElementById('ig-form-card').classList.remove('hidden');
-                    document.getElementById('ig-post-mostrado').classList.add('hidden');
-                }
-
-                if (perfil.estudios && perfil.estudios.length > 0) {
-                    document.getElementById('estudios-vacio').style.display = 'none';
-                    document.getElementById('contenedor-estudios').innerHTML += perfil.estudios.map(est => `
-                        <div class="bg-[#1a1a1a] p-3 rounded-xl border border-zinc-800 border-l-4 border-acento fade-in">
-                            <h4 class="font-black text-white text-sm">${est.titulo}</h4>
-                            <div class="flex items-center justify-between mt-1">
-                                <p class="text-[11px] text-zinc-400 font-bold">${est.institucion}</p>
-                                <span class="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">${est.ano}</span>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                if (perfil.equipamiento && perfil.equipamiento.length > 0) {
-                    document.getElementById('equipamiento-vacio').style.display = 'none';
-                    document.getElementById('contenedor-equipamiento').innerHTML += perfil.equipamiento.map(eq => `
-                        <div class="bg-[#141414] px-3 py-2 rounded-lg border border-zinc-800 text-sm fade-in w-full">
-                            <span class="text-zinc-500 text-xs font-bold uppercase mr-2">${eq.categoria}:</span>
-                            <span class="text-white font-bold">${eq.detalle}</span>
-                        </div>
-                    `).join('');
-                }
-
+                const rolBadge = document.getElementById('profile-role');
+                const btnEditar = document.getElementById('btn-editar-header');
                 const controles = document.getElementById('botones-control');
-
+                
                 if (miTipoPerfil === 'compositor') {
+                    banner.className = "h-32 md:h-48 bg-gradient-to-r from-cyan-900/60 to-[#0e0e0e] relative";
+                    rolBadge.className = "inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-cyan-400 bg-cyan-900/20 px-2.5 py-1 rounded-md border border-cyan-900/50";
+                    btnEditar.className = "bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(6,182,212,0.4)]";
+                    
                     controles.innerHTML = `
-                        <button onclick="mostrarPanel('panel-beat')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1 shadow-lg"><span class="text-2xl">🎹</span> Subir Beat</button>
-                        <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎬</span> Preview Visual</button>
+                        <button onclick="mostrarPanel('panel-beat')" class="flex-1 min-w-[150px] bg-[#141414] border border-cyan-900/50 hover:border-cyan-500 text-cyan-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2 shadow-lg"><span class="text-2xl">🎹</span> Subir Beat</button>
+                        <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[150px] bg-[#141414] border border-purple-900/50 hover:border-purple-500 text-purple-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎬</span> Preview Visual</button>
                     `;
                     document.getElementById('seccion-beats').classList.remove('hidden');
                     cargarBeats(); cargarPreviews();
-
-                } else if (miTipoPerfil === 'estudio') {
-                    controles.innerHTML = `
-                        <button onclick="window.location.href='editar-perfil.html'" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1 shadow-lg"><span class="text-2xl">👥</span> Roster</button>
-                        <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">📅</span> Eventos</button>
-                    `;
-                    document.getElementById('seccion-roster-estudio').classList.remove('hidden');
-                    document.getElementById('seccion-eventos').classList.remove('hidden');
-                    
-                    const contRoster = document.getElementById('contenedor-roster');
-                    const integrantes = perfil.integrantes || [];
-                    if (integrantes.length > 0) {
-                        contRoster.innerHTML = integrantes.map(int => `
-                            <div class="bg-[#0a0a0a] border border-zinc-800 p-5 rounded-2xl flex flex-col md:flex-row gap-5 hover:border-acento transition-colors fade-in">
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h4 class="font-black text-white text-lg">${int.nombre}</h4>
-                                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-3">${int.rol}</p>
-                                        </div>
-                                        ${int.musa_username ? `<a href="visor.html?id=${int.musa_username}" class="bg-purple-900/30 text-purple-400 hover:text-white text-[10px] px-2 py-1 rounded font-bold border border-purple-800/50 transition-colors">🔗 Ver Perfil</a>` : ''}
-                                    </div>
-                                </div>
-                                ${int.embed ? `<div class="w-full md:w-1/2 rounded-xl overflow-hidden opacity-90">${int.embed}</div>` : ''}
-                            </div>
-                        `).join('');
-                    } else {
-                        contRoster.innerHTML = '<p class="text-zinc-600 text-sm">Aún no hay artistas agregados al estudio.</p>';
-                    }
-                    cargarEventos();
-
                 } else if (miTipoPerfil === 'banda') {
+                    banner.className = "h-32 md:h-48 bg-gradient-to-r from-red-900/60 to-[#0e0e0e] relative";
+                    rolBadge.className = "inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-red-500 bg-red-900/20 px-2.5 py-1 rounded-md border border-red-900/50";
+                    btnEditar.className = "bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]";
                     controles.innerHTML = `
-                        <button onclick="window.location.href='editar-perfil.html'" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">👥</span> Alineación</button>
-                        <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎵</span> Spotify</button>
-                        <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎟️</span> Tour</button>
+                        <button onclick="mostrarPanel('panel-integrante')" class="flex-1 min-w-[150px] bg-[#141414] border border-red-900/50 hover:border-red-500 text-red-500 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">👥</span> Alineación</button>
+                        <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[150px] bg-[#141414] border border-green-900/50 hover:border-green-500 text-green-500 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎵</span> Spotify</button>
+                        <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[150px] bg-[#141414] border border-orange-900/50 hover:border-orange-500 text-orange-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎟</span> Tour</button>
                     `;
                     document.getElementById('seccion-musica').classList.remove('hidden');
                     document.getElementById('seccion-integrantes').classList.remove('hidden');
                     document.getElementById('seccion-eventos').classList.remove('hidden');
-                    
-                    const contInt = document.getElementById('contenedor-integrantes');
-                    const integrantes = perfil.integrantes || [];
-                    if (integrantes.length > 0) {
-                        contInt.innerHTML = integrantes.map(int => `
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border-l-4 border-acento fade-in">
-                                <h4 class="font-black text-white text-sm">${int.nombre}</h4>
-                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">${int.rol}</p>
-                                <div class="flex gap-2 mt-2">
-                                    ${int.musa_username ? `<a href="visor.html?id=${int.musa_username}" class="text-[10px] text-purple-400 font-bold hover:text-white">🔗 Perfil MusaConnect</a>` : ''}
-                                </div>
-                                ${int.embed ? `<div class="mt-3 rounded-lg overflow-hidden opacity-90">${int.embed}</div>` : ''}
-                            </div>
-                        `).join('');
-                    } else {
-                        contInt.innerHTML = '<p class="text-zinc-600 text-xs">Sin alineación registrada.</p>';
-                    }
-                    
-                    cargarLanzamientos(); cargarEventos();
-
+                    cargarLanzamientos(); renderIntegrantes(); cargarEventos();
                 } else {
                     controles.innerHTML = `
-                        <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎵</span> Spotify</button>
-                        <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎬</span> Preview</button>
-                        <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[130px] bg-[#141414] border border-zinc-800 hover:border-acento text-acento p-3 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-1"><span class="text-2xl">🎟️</span> Evento</button>
+                        <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[150px] bg-[#141414] border border-green-900/50 hover:border-green-500 text-green-500 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎵</span> Spotify</button>
+                        <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[150px] bg-[#141414] border border-purple-900/50 hover:border-purple-500 text-purple-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎬</span> Preview</button>
+                        <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[150px] bg-[#141414] border border-orange-900/50 hover:border-orange-500 text-orange-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎟</span> Evento</button>
                     `;
                     document.getElementById('seccion-musica').classList.remove('hidden');
                     document.getElementById('seccion-eventos').classList.remove('hidden');
@@ -382,90 +232,24 @@
             }
         }
 
-        window.publicarInstagramDirecto = async function() {
-            let igPost = document.getElementById('input-ig-post-directo').value.trim();
-            if (!igPost) return;
-            
-            const btn = event.target;
-            btn.textContent = "Cargando..."; btn.disabled = true;
-
-            if (igPost && !igPost.includes('<iframe') && !igPost.includes('<blockquote')) {
-                if (igPost.includes('instagram.com')) {
-                    let cleanUrl = igPost.split('?')[0];
-                    if (!cleanUrl.endsWith('/')) cleanUrl += '/';
-                    igPost = `<iframe src="${cleanUrl}embed" class="w-full h-[450px] rounded-xl border border-zinc-800" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
-                }
-            }
-
-            const { error } = await client.from('perfiles').update({ post_instagram: igPost }).eq('id', miUsuarioId);
-            if (!error) {
-                document.getElementById('ig-form-card').classList.add('hidden');
-                document.getElementById('ig-post-mostrado').classList.remove('hidden');
-                document.getElementById('contenedor-ig-directo').innerHTML = igPost;
-                document.getElementById('input-ig-post-directo').value = '';
-            }
-            btn.textContent = "Fijar en perfil"; btn.disabled = false;
-        }
-
-        window.borrarInstagramDirecto = async function() {
-            if(confirm("¿Quitar este post de tu perfil?")) {
-                await client.from('perfiles').update({ post_instagram: null }).eq('id', miUsuarioId);
-                document.getElementById('ig-post-mostrado').classList.add('hidden');
-                document.getElementById('contenedor-ig-directo').innerHTML = '';
-                document.getElementById('ig-form-card').classList.remove('hidden');
-            }
-        }
-
         async function cargarBeats() {
             const { data: beats } = await client.from('beats').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-beats');
             if (beats && beats.length > 0) {
                 cont.innerHTML = beats.map(b => `
-                    <div class="bg-[#0a0a0a] border border-zinc-800 p-4 rounded-2xl flex flex-col gap-3 group hover:border-acento transition-colors fade-in">
+                    <div class="bg-[#0a0a0a] border border-cyan-900/30 p-4 rounded-2xl flex flex-col gap-3 group hover:border-cyan-500/60 transition-all fade-in">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-acento-transparente rounded-full flex items-center justify-center text-acento">🎹</div>
-                                <div><h4 class="font-black text-white text-sm">${b.titulo}</h4><p class="text-[10px] text-zinc-500 uppercase tracking-widest">${b.bpm ? b.bpm + ' BPM • ' : ''}<span class="text-acento font-bold">${b.etiqueta || 'Catálogo'}</span></p></div>
+                                <div class="w-10 h-10 bg-cyan-900/20 rounded-full flex items-center justify-center text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]">🎹</div>
+                                <div><h4 class="font-black text-white text-sm">${b.titulo}</h4><p class="text-[10px] text-zinc-500 uppercase tracking-widest">${b.bpm ? b.bpm + ' BPM | ' : ''}<span class="text-cyan-500 font-bold">${b.etiqueta || 'Catálogo'}</span></p></div>
                             </div>
-                            <button onclick="borrarBeat(${b.id})" class="text-red-500 hover:text-red-400 bg-red-900/20 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-xs">🗑️</button>
+                            <button onclick="borrarBeat(${b.id})" class="text-red-500 hover:text-red-400 bg-red-900/20 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-xs">🗑</button>
                         </div>
                         <audio controls controlsList="nodownload" class="w-full h-8 mt-1 custom-audio" src="${b.url_audio}"></audio>
                     </div>
                 `).join('');
-            } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">Sube tu primer beat para abrir la tienda.</p>'; }
-        }
-
-        async function cargarLanzamientos() {
-            const { data: canciones } = await client.from('canciones').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
-            const cont = document.getElementById('contenedor-canciones');
-            if (canciones && canciones.length > 0) {
-                cont.innerHTML = canciones.map(c => `
-                    <div class="bg-[#0a0a0a] border border-zinc-800 p-3 rounded-2xl hover:border-acento transition-colors relative group">
-                        <div class="px-2 pb-2 pt-1 flex justify-between items-center"><h3 class="font-black text-white text-sm truncate pr-2">${c.titulo}</h3><button onclick="borrarCancion(${c.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑️</button></div>
-                        <div class="rounded-xl overflow-hidden opacity-90">${c.enlace_embed}</div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        async function cargarPreviews() {
-            const { data: previews } = await client.from('previews').select('*').eq('usuario_id', miUsuarioId).order('fecha', { ascending: false });
-            const cont = document.getElementById('contenedor-previews');
-            if (previews && previews.length > 0) {
-                cont.innerHTML = previews.map(p => `
-                    <div class="bg-[#0a0a0a] border border-zinc-800 p-4 rounded-2xl flex flex-col group hover:border-acento transition-colors">
-                        <div class="flex justify-between mb-3"><h3 class="font-black text-white text-sm"><span class="text-acento">🎬</span> ${p.titulo}</h3><button onclick="borrarPreview(${p.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑️</button></div>
-                        <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800" src="${p.url_media}"></video>
-                    </div>
-                `).join('');
-            }
-        }
-
-        async function cargarEventos() {
-            const { data: eventos } = await client.from('eventos').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
-            const cont = document.getElementById('contenedor-eventos');
-            if (eventos && eventos.length > 0) {
-                cont.innerHTML = eventos.map(e => `<div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl flex items-center justify-between hover:border-orange-500 transition-colors group"><div><div class="flex items-center gap-2"><span class="text-orange-400 font-black text-sm">${e.fecha}</span><span class="text-[9px] text-zinc-500 border border-zinc-700 px-1.5 rounded">${e.ciudad}</span></div><p class="text-white font-bold text-sm">${e.lugar}</p></div><button onclick="borrarEvento(${e.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑️</button></div>`).join('');
+            } else { 
+                cont.innerHTML = '<p class="text-zinc-600 text-sm">Sube tu primer beat para abrir la tienda.</p>'; 
             }
         }
 
@@ -474,25 +258,119 @@
             const bpm = document.getElementById('input-bpm-beat').value.trim();
             const etiqueta = document.getElementById('input-etiqueta-beat').value.trim();
             const file = document.getElementById('input-file-beat').files[0];
+            
             if(!titulo || !file) return alert("Falta el archivo o el título del beat.");
+            
             const btn = event.target; btn.textContent = "Procesando..."; btn.disabled = true;
             const filePath = `${miUsuarioId}-${Date.now()}.${file.name.split('.').pop()}`;
+            
             await client.storage.from('beats').upload(filePath, file);
             const { data: { publicUrl } } = client.storage.from('beats').getPublicUrl(filePath);
+            
             await client.from('beats').insert([{ usuario_id: miUsuarioId, titulo, bpm, etiqueta, url_audio: publicUrl }]);
+            
             ['input-titulo-beat', 'input-bpm-beat', 'input-etiqueta-beat', 'input-file-beat'].forEach(id => document.getElementById(id).value = '');
-            btn.textContent = "Subir al Catálogo"; btn.disabled = false; cargarBeats();
+            btn.textContent = "Subir al Catálogo"; btn.disabled = false; 
+            cargarBeats();
         }
 
-        window.borrarBeat = async function(id) { if(confirm("¿Eliminar este beat de tu catálogo?")) { await client.from('beats').delete().eq('id', id); cargarBeats(); } }
+        window.borrarBeat = async function(id) { 
+            if(confirm("¿Eliminar este beat de tu catálogo?")) { 
+                await client.from('beats').delete().eq('id', id); 
+                cargarBeats(); 
+            } 
+        }
+
+        window.agregarIntegrante = async function() {
+            const nombre = document.getElementById('input-nombre-int').value.trim();
+            const rol = document.getElementById('input-rol-int').value.trim();
+            
+            if(!nombre || !rol) return alert("Llena ambos campos.");
+            
+            misIntegrantes.push({ nombre, rol });
+            const { error } = await client.from('perfiles').update({ integrantes_banda: misIntegrantes }).eq('id', miUsuarioId);
+            
+            if(!error) { 
+                document.getElementById('input-nombre-int').value = ''; 
+                document.getElementById('input-rol-int').value = ''; 
+                renderIntegrantes(); 
+            }
+        }
+
+        window.quitarIntegrante = async function(index) {
+            misIntegrantes.splice(index, 1);
+            await client.from('perfiles').update({ integrantes_banda: misIntegrantes }).eq('id', miUsuarioId); 
+            renderIntegrantes();
+        }
+
+        function renderIntegrantes() {
+            const cont = document.getElementById('contenedor-integrantes');
+            if (misIntegrantes.length > 0) {
+                cont.innerHTML = misIntegrantes.map((int, i) => `
+                    <div class="bg-[#1a1a1a] border border-red-900/30 p-3 rounded-xl flex items-center justify-between group fade-in">
+                        <div><h4 class="font-black text-white text-sm">${int.nombre}</h4><p class="text-[10px] text-red-400 font-bold uppercase tracking-widest">${int.rol}</p></div>
+                        <button onclick="quitarIntegrante(${i})" class="text-red-500 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">✖</button>
+                    </div>
+                `).join('');
+            } else { 
+                cont.innerHTML = '<p class="text-zinc-600 text-xs">Agrega a los miembros de tu banda.</p>'; 
+            }
+        }
+
+        async function cargarLanzamientos() {
+            const { data: canciones } = await client.from('canciones').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
+            const cont = document.getElementById('contenedor-canciones');
+            if (canciones && canciones.length > 0) {
+                cont.innerHTML = canciones.map(c => `
+                    <div class="bg-[#0a0a0a] border border-green-500/20 p-3 rounded-2xl hover:border-green-500/60 transition-all duration-300 relative group">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-600 to-green-400 rounded-t-2xl opacity-80"></div>
+                        <div class="px-2 pb-2 pt-1 flex justify-between items-center"><h3 class="font-black text-white text-sm truncate pr-2">${c.titulo}</h3><button onclick="borrarCancion(${c.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
+                        <div class="rounded-xl overflow-hidden">${c.enlace_embed}</div>
+                    </div>
+                `).join('');
+            }
+        }
 
         window.publicarCancion = async function() {
-            const t = document.getElementById('input-titulo-cancion').value.trim(), e = document.getElementById('input-embed-cancion').value.trim();
+            const t = document.getElementById('input-titulo-cancion').value.trim(), 
+                  e = document.getElementById('input-embed-cancion').value.trim();
             if(!t || !e) return;
             await client.from('canciones').insert([{ usuario_id: miUsuarioId, titulo: t, enlace_embed: e }]);
-            document.getElementById('input-titulo-cancion').value = ''; document.getElementById('input-embed-cancion').value = ''; cargarLanzamientos();
+            document.getElementById('input-titulo-cancion').value = ''; 
+            document.getElementById('input-embed-cancion').value = ''; 
+            cargarLanzamientos();
         }
-        window.borrarCancion = async function(id) { if(confirm("Borrar fragmento?")) { await client.from('canciones').delete().eq('id', id); cargarLanzamientos(); } }
+
+        window.borrarCancion = async function(id) { 
+            if(confirm("¿Borrar fragmento?")) { 
+                await client.from('canciones').delete().eq('id', id); 
+                cargarLanzamientos(); 
+            } 
+        }
+
+        async function cargarPreviews() {
+            const { data: previews } = await client.from('previews').select('*').eq('usuario_id', miUsuarioId).order('fecha', { ascending: false });
+            const { data: comentarios } = await client.from('comentarios_previews').select('*').order('fecha', { ascending: true });
+            const cont = document.getElementById('contenedor-previews');
+            if (previews && previews.length > 0) {
+                cont.innerHTML = previews.map(p => {
+                    const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `
+                        <div class="bg-[#141414] p-2 rounded-lg mb-1">
+                            <p class="text-[10px] font-black text-purple-400">${c.autor_nombre}</p>
+                            <p class="text-xs text-zinc-300">${c.mensaje}</p>
+                        </div>
+                    `).join('');
+                    
+                    return `
+                        <div class="bg-[#0a0a0a] border border-purple-800/50 p-4 rounded-2xl flex flex-col group">
+                            <div class="flex justify-between mb-3"><h3 class="font-black text-white text-sm"><span class="text-purple-500">▶</span> ${p.titulo}</h3><button onclick="borrarPreview(${p.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
+                            <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" src="${p.url_media}"></video>
+                            <div class="mt-auto border-t border-zinc-800/60 pt-3"><div class="max-h-40 overflow-y-auto mb-3">${commentsHtml}</div></div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
 
         window.publicarPreview = async function() {
             const file = document.getElementById('input-file-preview').files[0];
@@ -504,31 +382,68 @@
             await client.from('previews').insert([{ usuario_id: miUsuarioId, titulo, url_media: publicUrl }]);
             cargarPreviews();
         }
-        window.borrarPreview = async function(id) { if(confirm("Borrar video?")) { await client.from('previews').delete().eq('id', id); cargarPreviews(); } }
+
+        window.borrarPreview = async function(id) { 
+            if(confirm("¿Borrar video?")) { 
+                await client.from('previews').delete().eq('id', id); 
+                cargarPreviews(); 
+            } 
+        }
+
+        async function cargarEventos() {
+            const { data: eventos } = await client.from('eventos').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
+            const cont = document.getElementById('contenedor-eventos');
+            if (eventos && eventos.length > 0) {
+                cont.innerHTML = eventos.map(e => `
+                    <div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl flex items-center justify-between hover:border-orange-500/50 transition-colors group">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-orange-400 font-black text-sm">${e.fecha}</span>
+                                <span class="text-[9px] text-zinc-500 border border-zinc-700 px-1.5 rounded">${e.ciudad}</span>
+                            </div>
+                            <p class="text-white font-bold text-sm">${e.lugar}</p>
+                        </div>
+                        <button onclick="borrarEvento(${e.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button>
+                    </div>
+                `).join('');
+            }
+        }
 
         window.publicarEvento = async function() {
-            const f=document.getElementById('input-fecha-evento').value, c=document.getElementById('input-ciudad-evento').value, l=document.getElementById('input-lugar-evento').value, t=document.getElementById('input-tickets-evento').value;
-            if(!f||!c||!l) return;
+            const f = document.getElementById('input-fecha-evento').value, 
+                  c = document.getElementById('input-ciudad-evento').value, 
+                  l = document.getElementById('input-lugar-evento').value, 
+                  t = document.getElementById('input-tickets-evento').value;
+            if(!f || !c || !l) return;
             await client.from('eventos').insert([{ usuario_id: miUsuarioId, fecha: f, ciudad: c, lugar: l, link_tickets: t }]);
             cargarEventos();
         }
-        window.borrarEvento = async function(id) { if(confirm("Borrar evento?")) { await client.from('eventos').delete().eq('id', id); cargarEventos(); } }
 
-        window.cerrarSesion = async function() { await client.auth.signOut(); window.location.href = 'index.html'; }
+        window.borrarEvento = async function(id) { 
+            if(confirm("¿Borrar evento?")) { 
+                await client.from('eventos').delete().eq('id', id); 
+                cargarEventos(); 
+            } 
+        }
+
+        window.cerrarSesion = async function() { 
+            await client.auth.signOut(); 
+            window.location.href = 'index.html'; 
+        }
+
+        window.copiarLinkInstagram = function() {
+            if (!miUsername) return;
+            const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const url = `${baseUrl}/visor.html?u=${miUsername}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("¡Link copiado! Ya puedes pegarlo en tu biografía de Instagram.");
+            }).catch(err => {
+                console.error("Error al copiar: ", err);
+                alert("Copia tu link manualmente: " + url);
+            });
+        }
 
         initPerfil();
     </script>
-    
-    <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
-        <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
-            <span class="text-2xl mb-0.5">🌍</span><span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
-        </a>
-        <a href="radar.html" class="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 bg-gradient-to-tr from-pink-600 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(236,72,153,0.5)] border-[5px] border-[#0e0e0e] hover:scale-105 active:scale-95 transition-all">
-            <span class="text-3xl drop-shadow-lg">📡</span>
-        </a>
-        <a href="profile.html" class="flex flex-col items-center text-white transition-colors">
-            <span class="text-2xl mb-0.5">👤</span><span class="text-[9px] font-black uppercase tracking-widest">Perfil</span>
-        </a>
-    </div>
 </body>
 </html>

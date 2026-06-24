@@ -11,7 +11,10 @@
         
         body { font-family: 'Inter', sans-serif; }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { 
+            from { opacity:0; transform:translateY(10px); } 
+            to { opacity:1; transform:translateY(0); } 
+        }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
@@ -22,8 +25,12 @@
         .waveform div:nth-child(2) { animation-delay: 0.3s; }
         .waveform div:nth-child(3) { animation-delay: 0.0s; }
         .waveform div:nth-child(4) { animation-delay: 0.2s; }
-        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 15px; } }
-
+        
+        @keyframes wave { 
+            0%, 100% { height: 4px; } 
+            50% { height: 15px; } 
+        }
+        
         .border-acento { border-color: var(--acento, #7c3aed) !important; }
         .text-acento { color: var(--acento, #7c3aed) !important; }
         .bg-acento { background-color: var(--acento, #7c3aed) !important; }
@@ -34,7 +41,7 @@
 
     <header class="border-b border-zinc-800/50 bg-[#121212]/80 backdrop-blur sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">← Volver al Menú</a>
+            <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">⬅ Volver al Menú</a>
             <div id="visor-nav-actions">
                 <div class="w-28 h-8 bg-zinc-900 animate-pulse rounded-full"></div>
             </div>
@@ -42,22 +49,19 @@
     </header>
 
     <main class="max-w-6xl mx-auto pt-8 px-4">
-        
         <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-12 relative border-b-4 border-acento">
             <div id="visor-banner" class="h-32 md:h-56 bg-zinc-900 relative transition-all duration-700"></div>
             
             <div class="px-6 md:px-10 pb-8 relative">
                 <div id="visor-avatar" class="absolute -top-12 md:-top-16 w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-800 border-4 border-[#141414] overflow-hidden flex items-center justify-center text-4xl shadow-xl">
-                    <span class="animate-pulse">⏳</span>
+                    <span class="animate-pulse">👤</span>
                 </div>
                 
                 <div class="pt-16 md:pt-20 flex flex-col md:flex-row md:justify-between md:items-start gap-6">
                     <div>
                         <h1 id="visor-name" class="text-3xl md:text-5xl font-black tracking-tight" style="transition: font-family 0.3s;">Cargando...</h1>
                         <p id="visor-username" class="text-zinc-500 text-sm font-medium mt-1">@...</p>
-                        <div id="visor-tags" class="flex flex-wrap items-center gap-2 mt-3">
-                            <span id="visor-role" class="inline-block text-[10px] font-black uppercase tracking-wider text-acento bg-acento-transparente px-2.5 py-1 rounded-md border border-acento">...</span>
-                        </div>
+                        <span id="visor-role" class="inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-acento bg-acento-transparente px-2.5 py-1 rounded-md border border-acento">...</span>
                     </div>
                     
                     <div class="flex items-center gap-3">
@@ -71,17 +75,9 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-10">
-                
                 <div id="seccion-destacado" class="hidden">
-                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">⭐ Lanzamiento Destacado</h2>
+                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🔥 Lanzamiento Destacado</h2>
                     <div id="contenedor-destacado" class="rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-[#0a0a0a]"></div>
-                </div>
-
-                <div id="seccion-roster-estudio" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-blue-900/50 pb-2 text-blue-400 flex items-center justify-between">
-                        <span class="flex items-center gap-2">🎙️ Roster de Artistas</span>
-                    </h2>
-                    <div id="contenedor-roster" class="grid grid-cols-1 gap-6"></div>
                 </div>
 
                 <div id="seccion-musica" class="hidden space-y-10">
@@ -110,16 +106,14 @@
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA -->
             <div class="space-y-10">
-                
                 <div id="seccion-estudios" class="hidden">
                     <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎓 Formación</h2>
                     <div id="contenedor-estudios" class="flex flex-col gap-3"></div>
                 </div>
 
                 <div id="seccion-equipamiento" class="hidden">
-                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎛️ Setup / Equipo</h2>
+                    <h2 class="text-xl font-bold mb-4 border-b border-zinc-800 pb-2 flex items-center gap-2">🎛 Setup / Equipo</h2>
                     <div id="contenedor-equipamiento" class="flex flex-wrap gap-2"></div>
                 </div>
 
@@ -129,23 +123,16 @@
                 </div>
 
                 <div id="seccion-integrantes" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-red-500 flex items-center gap-2">🎸 Alineación Oficial</h2>
+                    <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-red-500 flex items-center gap-2">👥 Alineación Oficial</h2>
                     <div id="contenedor-integrantes" class="flex flex-col gap-2"></div>
                 </div>
 
-                <!-- NUEVO: SECCIÓN DE INSTAGRAM -->
-                <div id="seccion-instagram" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-pink-900/50 pb-2 text-pink-500 flex items-center gap-2">📸 En Instagram</h2>
-                    <div id="contenedor-instagram" class="w-full flex justify-center bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-zinc-800"></div>
-                </div>
-
                 <div id="seccion-eventos" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-orange-400 flex items-center gap-2">🎟️ Próximos Shows</h2>
+                    <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 text-orange-400 flex items-center gap-2">🎟 Próximos Shows</h2>
                     <div id="contenedor-eventos" class="flex flex-col gap-3"></div>
                 </div>
             </div>
         </div>
-
     </main>
 
     <script>
@@ -154,25 +141,37 @@
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         const urlParams = new URLSearchParams(window.location.search);
-        const targetId = urlParams.get('id');
+        let targetId = urlParams.get('id');
+        const targetUsername = urlParams.get('u');
         let miUsuarioId = null;
         let estoySiguiendo = false;
         let perfilVisitadoTipo = null;
 
         async function cargarPerfilPublico() {
-            if (!targetId) { window.location.href = 'index.html'; return; }
-
-            const { data: perfil } = await client.from('perfiles').select('*').eq('id', targetId).single();
+            if (!targetId && !targetUsername) { window.location.href = 'index.html'; return; }
+            
+            let query = client.from('perfiles').select('*');
+            if (targetId) {
+                query = query.eq('id', targetId);
+            } else if (targetUsername) {
+                query = query.eq('username', targetUsername);
+            }
+            
+            const { data: perfil } = await query.single();
+            
             if (perfil) {
+                targetId = perfil.id; // Clave para que las demás funciones de abajo usen el ID correcto
                 perfilVisitadoTipo = perfil.tipo;
                 
-                if (perfil.color_acento) document.documentElement.style.setProperty('--acento', perfil.color_acento);
-                if (perfil.fuente_nombre) document.getElementById('visor-name').style.fontFamily = perfil.fuente_nombre;
-
-                const avatarC = document.getElementById('visor-avatar');
-                avatarC.classList.remove('rounded-full', 'rounded-2xl');
-                avatarC.classList.add(perfil.forma_avatar || 'rounded-full');
-
+                // 1. INYECCIÓN DE ESTILOS PERSONALIZADOS
+                if (perfil.color_acento) {
+                    document.documentElement.style.setProperty('--acento', perfil.color_acento);
+                }
+                if (perfil.fuente_nombre) {
+                    document.getElementById('visor-name').style.fontFamily = perfil.fuente_nombre;
+                }
+                
+                // 2. DATOS BÁSICOS E IMÁGENES
                 document.getElementById('visor-name').textContent = perfil.nombre_display || "Sin Nombre";
                 document.getElementById('visor-username').textContent = "@" + perfil.username;
                 document.getElementById('visor-role').textContent = perfil.tipo || "Usuario";
@@ -180,22 +179,6 @@
                 
                 if (perfil.avatar_url) document.getElementById('visor-avatar').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
                 
-                if (perfil.estado_vibe) {
-                    const vibeHtml = `<span class="inline-block text-[11px] font-bold text-zinc-300 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full shadow-lg">${perfil.estado_vibe}</span>`;
-                    document.getElementById('visor-tags').innerHTML += vibeHtml;
-                }
-
-                if (perfil.influencias && perfil.influencias.length > 0) {
-                    const infHtml = `
-                        <div class="mt-4 pt-4 border-t border-zinc-800/60 fade-in">
-                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">Influencias:</p>
-                            <div class="flex flex-wrap gap-2">
-                                ${perfil.influencias.map(inf => `<span class="bg-[#1c1c1c] text-zinc-300 text-[10px] px-2.5 py-1 rounded-md border border-zinc-800">${inf}</span>`).join('')}
-                            </div>
-                        </div>`;
-                    document.getElementById('visor-bio').insertAdjacentHTML('afterend', infHtml);
-                }
-
                 const banner = document.getElementById('visor-banner');
                 if (perfil.banner_url) {
                     banner.innerHTML = `<img src="${perfil.banner_url}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">`;
@@ -203,18 +186,14 @@
                 } else {
                     banner.className = "h-32 md:h-56 bg-gradient-to-r from-zinc-900 to-[#0e0e0e] relative";
                 }
-
+                
+                // 3. TRACK DESTACADO
                 if (perfil.track_destacado) {
                     document.getElementById('seccion-destacado').classList.remove('hidden');
                     document.getElementById('contenedor-destacado').innerHTML = perfil.track_destacado;
                 }
-
-                // MOSTRAR POST DE INSTAGRAM GLOBAL
-                if (perfil.post_instagram) {
-                    document.getElementById('seccion-instagram').classList.remove('hidden');
-                    document.getElementById('contenedor-instagram').innerHTML = perfil.post_instagram;
-                }
-
+                
+                // 4. FORMACIÓN Y ESTUDIOS
                 if (perfil.estudios && perfil.estudios.length > 0) {
                     document.getElementById('seccion-estudios').classList.remove('hidden');
                     document.getElementById('contenedor-estudios').innerHTML = perfil.estudios.map(est => `
@@ -227,7 +206,8 @@
                         </div>
                     `).join('');
                 }
-
+                
+                // 5. EQUIPAMIENTO
                 if (perfil.equipamiento && perfil.equipamiento.length > 0) {
                     document.getElementById('seccion-equipamiento').classList.remove('hidden');
                     document.getElementById('contenedor-equipamiento').innerHTML = perfil.equipamiento.map(eq => `
@@ -237,72 +217,47 @@
                         </div>
                     `).join('');
                 }
-
+                
+                // 6. REDES SOCIALES PRINCIPALES
                 let linksHtml = '';
                 if (perfil.link_instagram) linksHtml += `<a href="${perfil.link_instagram}" target="_blank" class="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105">📸 IG</a>`;
-                if (perfil.link_spotify) linksHtml += `<a href="${perfil.link_spotify}" target="_blank" class="bg-[#1DB954] text-black px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105">🎵 Spotify</a>`;
-                if (perfil.link_youtube) linksHtml += `<a href="${perfil.link_youtube}" target="_blank" class="bg-[#FF0000] text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105">▶️ YouTube</a>`;
+                if (perfil.link_spotify) linksHtml += `<a href="${perfil.link_spotify}" target="_blank" class="bg-[#1DB954] text-black px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105">🎧 Spotify</a>`;
+                if (perfil.link_youtube) linksHtml += `<a href="${perfil.link_youtube}" target="_blank" class="bg-[#FF0000] text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105">▶ YouTube</a>`;
                 if (perfil.link_stream) linksHtml += `<a href="${perfil.link_stream}" target="_blank" class="bg-purple-600 text-white px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-transform hover:scale-105 animate-pulse">🔴 EN VIVO</a>`;
                 document.getElementById('visor-links-sociales').innerHTML = linksHtml;
-
+                
+                // 7. ENLACES EXTRA (LINKTREE)
                 if (perfil.links_custom && perfil.links_custom.length > 0) {
                     document.getElementById('seccion-links-extra').classList.remove('hidden');
                     document.getElementById('contenedor-links-extra').innerHTML = perfil.links_custom.map(link => `
                         <a href="${link.url}" target="_blank" class="flex items-center justify-between bg-[#1c1c1c] hover:bg-zinc-800 p-3 rounded-xl border border-zinc-800 transition-colors group fade-in">
                             <span class="text-sm font-bold text-white group-hover:text-acento transition-colors">${link.titulo}</span>
-                            <span class="text-zinc-500">→</span>
+                            <span class="text-zinc-500">↗</span>
                         </a>
                     `).join('');
                 }
-
+                
+                // 8. LÓGICA DE ROLES
                 if (perfil.tipo === 'compositor') {
                     document.getElementById('seccion-beats').classList.remove('hidden');
                     cargarCatalogoBeats();
-                } else if (perfil.tipo === 'estudio') {
-                    document.getElementById('seccion-roster-estudio').classList.remove('hidden');
-                    document.getElementById('seccion-eventos').classList.remove('hidden');
-                    
-                    const contRoster = document.getElementById('contenedor-roster');
-                    const integrantes = perfil.integrantes || [];
-                    if (integrantes.length > 0) {
-                        contRoster.innerHTML = integrantes.map(int => `
-                            <div class="bg-[#0a0a0a] border border-zinc-800 p-5 rounded-2xl flex flex-col md:flex-row gap-5 hover:border-acento transition-colors fade-in">
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h4 class="font-black text-white text-lg">${int.nombre}</h4>
-                                            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-3">${int.rol}</p>
-                                        </div>
-                                        ${int.musa_username ? `<a href="visor.html?id=${int.musa_username}" class="bg-purple-900/30 text-purple-400 hover:text-white text-[10px] px-2 py-1 rounded font-bold border border-purple-800/50 transition-colors">🔗 Ver Perfil</a>` : ''}
-                                    </div>
-                                </div>
-                                ${int.embed ? `<div class="w-full md:w-1/2 rounded-xl overflow-hidden opacity-90">${int.embed}</div>` : ''}
-                            </div>
-                        `).join('');
-                    } else {
-                        contRoster.innerHTML = '<p class="text-zinc-600 text-sm">Aún no hay artistas agregados al estudio.</p>';
-                    }
-                    cargarEventos();
-
                 } else if (perfil.tipo === 'banda') {
                     document.getElementById('seccion-musica').classList.remove('hidden');
                     document.getElementById('seccion-integrantes').classList.remove('hidden');
                     document.getElementById('seccion-eventos').classList.remove('hidden');
                     
                     const contInt = document.getElementById('contenedor-integrantes');
-                    const integrantes = perfil.integrantes || [];
+                    const integrantes = perfil.integrantes_banda || [];
                     if (integrantes.length > 0) {
                         contInt.innerHTML = integrantes.map(int => `
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border-l-4 border-acento fade-in">
+                            <div class="bg-[#1a1a1a] border-l-4 border-acento p-3 rounded-r-xl fade-in">
                                 <h4 class="font-black text-white text-sm">${int.nombre}</h4>
-                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">${int.rol}</p>
-                                <div class="flex gap-2 mt-2">
-                                    ${int.musa_username ? `<a href="visor.html?id=${int.musa_username}" class="text-[10px] text-purple-400 font-bold hover:text-white">🔗 Perfil MusaConnect</a>` : ''}
-                                </div>
-                                ${int.embed ? `<div class="mt-3 rounded-lg overflow-hidden opacity-90">${int.embed}</div>` : ''}
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest">${int.rol}</p>
                             </div>
                         `).join('');
-                    } else { contInt.innerHTML = '<p class="text-zinc-600 text-xs">Sin alineación pública.</p>'; }
+                    } else { 
+                        contInt.innerHTML = '<p class="text-zinc-600 text-xs">Sin alineación pública.</p>'; 
+                    }
                     
                     cargarCanciones(); cargarEventos();
                 } else {
@@ -320,31 +275,51 @@
                 cont.innerHTML = beats.map(b => `
                     <div class="bg-[#0a0a0a] border border-zinc-800 p-5 rounded-2xl flex flex-col gap-3 fade-in shadow-lg hover:border-acento transition-colors">
                         <div class="flex items-center gap-4 border-b border-zinc-800/60 pb-3">
-                            <div class="w-12 h-12 bg-acento-transparente rounded-full flex items-center justify-center text-acento text-xl">🎹</div>
+                            <div class="w-12 h-12 bg-acento-transparente rounded-full flex items-center justify-center text-acento text-xl">🎵</div>
                             <div>
                                 <h4 class="font-black text-white text-lg leading-tight">${b.titulo}</h4>
-                                <p class="text-[11px] text-zinc-500 uppercase tracking-widest mt-1">${b.bpm ? b.bpm + ' BPM • ' : ''}<span class="text-acento font-bold bg-acento-transparente px-2 py-0.5 rounded border border-acento">${b.etiqueta || 'Catálogo'}</span></p>
+                                <p class="text-[11px] text-zinc-500 uppercase tracking-widest mt-1">${b.bpm ? b.bpm + ' BPM | ' : ''}<span class="text-acento font-bold bg-acento-transparente px-2 py-0.5 rounded border border-acento">${b.etiqueta || 'Catálogo'}</span></p>
                             </div>
                         </div>
                         <audio controls controlsList="nodownload" class="w-full h-10 mt-1" src="${b.url_audio}"></audio>
                     </div>
                 `).join('');
-            } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">El catálogo está vacío actualmente.</p>'; }
+            } else { 
+                cont.innerHTML = '<p class="text-zinc-600 text-sm">El catálogo está vacío actualmente.</p>'; 
+            }
         }
 
         async function cargarCanciones() {
             const { data: canciones } = await client.from('canciones').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-canciones');
             if (canciones && canciones.length > 0) {
-                cont.innerHTML = canciones.map(c => `<div class="bg-[#0a0a0a] border border-zinc-800 p-3 rounded-2xl relative hover:border-acento transition-colors"><div class="px-2 pb-2 pt-1"><h3 class="font-black text-white text-sm truncate">${c.titulo}</h3></div><div class="rounded-xl overflow-hidden opacity-90">${c.enlace_embed}</div></div>`).join('');
-            } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">Sin fragmentos públicos.</p>'; }
+                cont.innerHTML = canciones.map(c => `
+                    <div class="bg-[#0a0a0a] border border-zinc-800 p-3 rounded-2xl relative hover:border-acento transition-colors">
+                        <div class="px-2 pb-2 pt-1"><h3 class="font-black text-white text-sm truncate">${c.titulo}</h3></div>
+                        <div class="rounded-xl overflow-hidden opacity-90">${c.enlace_embed}</div>
+                    </div>
+                `).join('');
+            } else { 
+                cont.innerHTML = '<p class="text-zinc-600 text-sm">Sin fragmentos públicos.</p>'; 
+            }
         }
 
         async function cargarEventos() {
             const { data: eventos } = await client.from('eventos').select('*').eq('usuario_id', targetId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-eventos');
             if (eventos && eventos.length > 0) {
-                cont.innerHTML = eventos.map(e => `<div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl hover:border-orange-500 transition-colors"><div><div class="flex items-center gap-2 mb-1"><span class="text-orange-400 font-black text-sm">${e.fecha}</span><span class="text-[9px] text-zinc-500 uppercase border border-zinc-700 px-1.5 rounded">${e.ciudad}</span></div><p class="text-white font-bold text-sm">${e.lugar}</p>${e.link_tickets ? `<a href="${e.link_tickets}" target="_blank" class="text-orange-500 text-[10px] uppercase font-black mt-2 inline-block">🎟️ Entradas</a>` : ''}</div></div>`).join('');
+                cont.innerHTML = eventos.map(e => `
+                    <div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl hover:border-orange-500 transition-colors">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-orange-400 font-black text-sm">${e.fecha}</span>
+                                <span class="text-[9px] text-zinc-500 uppercase border border-zinc-700 px-1.5 rounded">${e.ciudad}</span>
+                            </div>
+                            <p class="text-white font-bold text-sm">${e.lugar}</p>
+                            ${e.link_tickets ? `<a href="${e.link_tickets}" target="_blank" class="text-orange-500 text-[10px] uppercase font-black mt-2 inline-block">🔗 Entradas</a>` : ''}
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
@@ -352,34 +327,40 @@
             const { data: { session } } = await client.auth.getSession();
             const navActions = document.getElementById('visor-nav-actions');
             const btnSeguir = document.getElementById('btn-seguir');
-
+            
             if (session) {
                 miUsuarioId = session.user.id;
                 navActions.innerHTML = `
                     <a href="radar.html" class="text-pink-500 hover:text-pink-400 text-xs font-bold transition-colors hidden sm:inline-flex items-center gap-1 mr-4 drop-shadow-[0_0_5px_rgba(236,72,153,0.4)]">📡 Radar</a>
                     <a href="profile.html" class="bg-zinc-800 text-white text-xs font-bold px-5 py-2 rounded-full border border-zinc-700">Mi Perfil</a>
                 `;
-
+                
                 if (miUsuarioId !== targetId) {
                     btnSeguir.classList.remove('hidden');
                     const { data: existente } = await client.from('seguidores').select('id').eq('seguidor_id', miUsuarioId).eq('seguido_id', targetId).maybeSingle();
                     estoySiguiendo = !!existente;
                     actualizarBotonSeguir();
-                } else { estoySiguiendo = true; }
-
+                } else { 
+                    estoySiguiendo = true; 
+                }
+                
                 if (estoySiguiendo) mostrarVideosDesbloqueados();
             } else {
                 navActions.innerHTML = `<a href="register.html" class="bg-purple-600 text-white text-xs font-bold px-5 py-2 rounded-full shadow-lg">Crear perfil</a>`;
-                btnSeguir.classList.remove('hidden'); btnSeguir.textContent = "Seguir"; btnSeguir.onclick = () => window.location.href = 'register.html';
+                btnSeguir.classList.remove('hidden'); 
+                btnSeguir.textContent = "Seguir"; 
+                btnSeguir.onclick = () => window.location.href = 'register.html';
             }
         }
 
         function actualizarBotonSeguir() {
             const btn = document.getElementById('btn-seguir');
             if (estoySiguiendo) {
-                btn.textContent = "Siguiendo"; btn.className = "bg-zinc-800 border border-zinc-700 hover:border-red-500 hover:text-red-400 text-white font-black uppercase text-xs px-6 py-2.5 rounded-full transition-colors";
+                btn.textContent = "Siguiendo"; 
+                btn.className = "bg-zinc-800 border border-zinc-700 hover:border-red-500 hover:text-red-400 text-white font-black uppercase text-xs px-6 py-2.5 rounded-full transition-colors";
             } else {
-                btn.textContent = "Seguir"; btn.className = "bg-white hover:bg-zinc-200 text-black font-black uppercase text-xs px-6 py-2.5 rounded-full transition-colors shadow-lg";
+                btn.textContent = "Seguir"; 
+                btn.className = "bg-white hover:bg-zinc-200 text-black font-black uppercase text-xs px-6 py-2.5 rounded-full transition-colors shadow-lg";
             }
         }
 
@@ -392,7 +373,8 @@
                 const { error } = await client.from('seguidores').insert([{ seguidor_id: miUsuarioId, seguido_id: targetId }]);
                 if (!error) { estoySiguiendo = true; mostrarVideosDesbloqueados(); }
             }
-            btn.disabled = false; actualizarBotonSeguir();
+            btn.disabled = false; 
+            actualizarBotonSeguir();
         }
 
         function ocultarVideos() {
@@ -405,26 +387,54 @@
             if (perfilVisitadoTipo === 'compositor') return; 
             document.getElementById('adelantos-box').classList.add('hidden');
             document.getElementById('contenedor-previews').classList.remove('hidden');
-
+            
             const { data: previews } = await client.from('previews').select('*').eq('usuario_id', targetId).order('fecha', { ascending: false });
             const { data: comentarios } = await client.from('comentarios_previews').select('*').order('fecha', { ascending: true });
             
             const cont = document.getElementById('contenedor-previews');
             if (previews && previews.length > 0) {
                 cont.innerHTML = previews.map(p => {
-                    const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `<div class="bg-[#141414] p-2.5 rounded-lg mb-1.5"><p class="text-[10px] font-black text-acento mb-0.5">${c.autor_nombre}</p><p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p></div>`).join('');
-                    return `<div class="bg-[#0a0a0a] border border-zinc-800 p-4 rounded-2xl shadow-lg fade-in flex flex-col hover:border-acento transition-colors"><h3 class="font-black text-white text-sm truncate mb-3"><span class="text-acento">🎬</span> ${p.titulo}</h3><video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" src="${p.url_media}"></video><div class="mt-auto border-t border-zinc-800/60 pt-3"><div class="max-h-40 overflow-y-auto mb-3">${commentsHtml}</div><div class="flex gap-2"><input type="text" id="input-comentario-${p.id}" placeholder="Tu comentario..." class="flex-1 bg-[#1c1c1c] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none"><button onclick="comentarPreviewVisor(${p.id})" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg border border-zinc-700">Enviar</button></div></div></div>`;
+                    const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `
+                        <div class="bg-[#141414] p-2.5 rounded-lg mb-1.5">
+                            <p class="text-[10px] font-black text-acento mb-0.5">${c.autor_nombre}</p>
+                            <p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p>
+                        </div>
+                    `).join('');
+                    
+                    return `
+                        <div class="bg-[#0a0a0a] border border-zinc-800 p-4 rounded-2xl shadow-lg fade-in flex flex-col hover:border-acento transition-colors">
+                            <h3 class="font-black text-white text-sm truncate mb-3"><span class="text-acento">▶</span> ${p.titulo}</h3>
+                            <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" src="${p.url_media}"></video>
+                            <div class="mt-auto border-t border-zinc-800/60 pt-3">
+                                <div class="max-h-40 overflow-y-auto mb-3">${commentsHtml}</div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="input-comentario-${p.id}" placeholder="Tu comentario..." class="flex-1 bg-[#1c1c1c] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none">
+                                    <button onclick="comentarPreviewVisor(${p.id})" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg border border-zinc-700">Enviar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }).join('');
-            } else { cont.innerHTML = '<p class="text-zinc-600 text-sm">Este artista aún no ha subido adelantos.</p>'; }
+            } else { 
+                cont.innerHTML = '<p class="text-zinc-600 text-sm">Este artista aún no ha subido adelantos.</p>'; 
+            }
         }
 
         window.comentarPreviewVisor = async function(previewId) {
             if (!miUsuarioId) return alert("Debes iniciar sesión.");
             const input = document.getElementById(`input-comentario-${previewId}`);
             if (!input.value.trim()) return;
+            
             const { data: miPerfil } = await client.from('perfiles').select('nombre_display, username').eq('id', miUsuarioId).single();
-            await client.from('comentarios_previews').insert([{ preview_id: previewId, usuario_id: miUsuarioId, autor_nombre: miPerfil.nombre_display || miPerfil.username, mensaje: input.value.trim() }]);
-            input.value = ''; mostrarVideosDesbloqueados(); 
+            await client.from('comentarios_previews').insert([{ 
+                preview_id: previewId, 
+                usuario_id: miUsuarioId, 
+                autor_nombre: miPerfil.nombre_display || miPerfil.username, 
+                mensaje: input.value.trim() 
+            }]);
+            
+            input.value = ''; 
+            mostrarVideosDesbloqueados(); 
         }
 
         cargarPerfilPublico();

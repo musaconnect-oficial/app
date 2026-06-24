@@ -126,12 +126,12 @@
                 <button type="button" onclick="agregarInputEquipo('', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Equipo</button>
             </div>
 
-            <!-- ESTUDIO / COLECTIVO / BANDA -->
+            <!-- ESTUDIO / COLECTIVO -->
             <div class="pt-4 border-t border-zinc-800/60">
-                <label class="text-xs font-bold text-zinc-400 block mb-1">🎙️ Roster o Alineación</label>
-                <p class="text-[10px] text-zinc-500 mb-3">Agrega a los artistas de tu estudio o integrantes de tu banda con su perfil y un fragmento.</p>
+                <label class="text-xs font-bold text-zinc-400 block mb-1">🎙️ Estudio / Colectivo</label>
+                <p class="text-[10px] text-zinc-500 mb-3">Agrega los integrantes de tu estudio o colectivo musical.</p>
                 <div id="contenedor-integrantes" class="space-y-3 mb-3"></div>
-                <button type="button" onclick="agregarIntegrante()" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Artista / Integrante</button>
+                <button type="button" onclick="agregarIntegrante()" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Integrante</button>
             </div>
 
             <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4 font-bold text-center"></div>
@@ -190,9 +190,7 @@
                 if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
                 if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano, e.musa_username || ''));
                 if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
-                if (perfil.integrantes) {
-                    perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || '', i.embed || ''));
-                }
+                if (perfil.integrantes) perfil.integrantes.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || ''));
             }
         }
 
@@ -228,40 +226,24 @@
             document.getElementById('contenedor-estudios').appendChild(div);
         }
 
-        // VERSIÓN SEGURA: Inyecta los valores sin que se rompa el HTML
-        window.agregarIntegrante = function(nombre = '', rol = '', musa = '', embed = '') {
+        window.agregarIntegrante = function(nombre = '', rol = '', musa = '') {
             const div = document.createElement('div');
             div.className = 'integrante-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 space-y-2';
-            
             div.innerHTML = `
                 <div class="flex gap-2 items-start">
-                    <div class="flex-1 space-y-2">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" placeholder="Nombre del artista" class="input-field col-span-2 text-xs integrante-nombre">
-                            <input type="text" placeholder="Rol (Ej: Cantante, Productor)" class="input-field col-span-2 text-xs integrante-rol">
-                        </div>
-                        <div class="border-t border-zinc-700/50 pt-2">
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 MusaConnect</span>
-                                    <input type="text" placeholder="@usuario o link" class="input-field text-xs integrante-musa" onblur="this.value = limpiarUsername(this.value)">
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] text-zinc-400 w-16 shrink-0 font-bold">🎵 Fragmento</span>
-                                    <input type="text" placeholder="Código Embed (Spotify/YouTube)" class="input-field text-xs integrante-embed">
-                                </div>
+                    <div class="flex-1 grid grid-cols-2 gap-2">
+                        <input type="text" placeholder="Nombre del integrante" value="${nombre}" class="input-field col-span-2 text-xs integrante-nombre">
+                        <input type="text" placeholder="Rol (Ej: Productor)" value="${rol}" class="input-field col-span-2 text-xs integrante-rol">
+                        <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
+                            <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil de MusaConnect</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 Usuario</span>
+                                <input type="text" placeholder="@usuario o link de su perfil" value="${musa}" class="input-field text-xs integrante-musa" onblur="this.value = limpiarUsername(this.value)">
                             </div>
                         </div>
                     </div>
                     <button type="button" onclick="this.closest('.integrante-item').remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>
                 </div>`;
-                
-            // Asignamos los valores de forma directa para evitar el choque de comillas
-            div.querySelector('.integrante-nombre').value = nombre;
-            div.querySelector('.integrante-rol').value = rol;
-            div.querySelector('.integrante-musa').value = musa;
-            div.querySelector('.integrante-embed').value = embed;
-
             document.getElementById('contenedor-integrantes').appendChild(div);
         }
 
@@ -330,8 +312,7 @@
                 const integrantes = Array.from(document.querySelectorAll('.integrante-item')).map(item => ({
                     nombre: item.querySelector('.integrante-nombre').value.trim(),
                     rol: item.querySelector('.integrante-rol').value.trim(),
-                    musa_username: limpiarUsername(item.querySelector('.integrante-musa').value),
-                    embed: item.querySelector('.integrante-embed').value.trim()
+                    musa_username: limpiarUsername(item.querySelector('.integrante-musa').value)
                 })).filter(i => i.nombre);
 
                 const { error } = await client.from('perfiles').update({
