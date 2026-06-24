@@ -8,14 +8,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        
         body { font-family: 'Inter', sans-serif; background-color: #0e0e0e; }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { 
+            from { opacity:0; transform:translateY(10px); } 
+            to { opacity:1; transform:translateY(0); } 
+        }
+        
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        
         .like-anim { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        @keyframes pop { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.3); } 
+            100% { transform: scale(1); } 
+        }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col pb-20">
@@ -24,7 +34,7 @@
     <header class="border-b border-zinc-800/80 bg-[#0e0e0e]/90 backdrop-blur sticky top-0 z-50">
         <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
             <a href="index.html" class="flex items-center gap-2 text-white hover:text-purple-400 transition-colors font-bold text-sm">
-                ← Portada
+                ⬅ Portada
             </a>
             <h1 class="font-black tracking-widest uppercase text-sm">Muro <span class="text-purple-500">Global</span></h1>
             
@@ -50,12 +60,12 @@
                     
                     <div id="preview-container" class="hidden mb-3 relative inline-block">
                         <img id="img-preview" src="" class="max-h-40 rounded-xl border border-zinc-700 object-cover">
-                        <button onclick="quitarImagen()" class="absolute top-2 right-2 bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-500 transition-colors">✕</button>
+                        <button onclick="quitarImagen()" class="absolute top-2 right-2 bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-500 transition-colors">✖</button>
                     </div>
-
+                    
                     <div class="flex items-center justify-between border-t border-zinc-800/60 pt-3">
                         <label class="cursor-pointer text-zinc-400 hover:text-purple-400 transition-colors flex items-center gap-1.5 text-xs font-bold">
-                            <span class="text-lg">📸</span> Adjuntar foto
+                            <span class="text-lg">📷</span> Adjuntar foto
                             <input type="file" id="input-post-imagen" accept="image/jpeg, image/png, image/webp" class="hidden" onchange="previsualizarImagen(this)">
                         </label>
                         <button id="btn-publicar" onclick="publicarPost()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-6 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(147,51,234,0.3)]">
@@ -69,7 +79,6 @@
         <div id="contenedor-posts" class="flex flex-col gap-5">
             <div class="text-center text-zinc-500 text-sm py-10 animate-pulse">Cargando el ecosistema...</div>
         </div>
-
     </main>
 
     <script>
@@ -105,6 +114,7 @@
         function previsualizarImagen(input) {
             const file = input.files[0];
             if (!file) return;
+            
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
@@ -117,11 +127,17 @@
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 1080; const MAX_HEIGHT = 1080;
                     let width = img.width; let height = img.height;
-                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
-                    else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+                    
+                    if (width > height) { 
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } 
+                    } else { 
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } 
+                    }
+                    
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
+                    
                     canvas.toBlob((blob) => {
                         archivoComprimido = new File([blob], file.name.split('.')[0] + ".jpg", { type: 'image/jpeg' });
                     }, 'image/jpeg', 0.7);
@@ -139,16 +155,16 @@
             if (!texto) return '';
             let html = texto.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             html = html.replace(/\n/g, '<br>');
-
+            
             const spotifyRegex = /https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist)\/([a-zA-Z0-9]+)(?:\S*)?/g;
             html = html.replace(spotifyRegex, (match, tipo, id) => `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(29,185,84,0.1)]"><iframe src="https://open.spotify.com/embed/${tipo}/${id}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>`);
-
+            
             const soundcloudRegex = /(https:\/\/soundcloud\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(?:\S*)?/g;
             html = html.replace(soundcloudRegex, (match, url) => `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.15)]"><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%237c3aed&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe></div>`);
-
+            
             const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?/gi;
             html = html.replace(youtubeRegex, '<div class="aspect-video w-full rounded-xl overflow-hidden mt-3 border border-red-900/30 shadow-[0_0_15px_rgba(220,38,38,0.1)]"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>');
-
+            
             return html;
         }
 
@@ -162,9 +178,10 @@
             const btn = document.getElementById('btn-publicar');
             const textoRaw = document.getElementById('input-post-texto').value.trim();
             if (!textoRaw && !archivoComprimido) return alert("Escribe algo o sube una foto.");
+            
             btn.disabled = true; btn.textContent = "Subiendo...";
-
             let imageUrlSubida = null;
+            
             if (archivoComprimido) {
                 const filePath = `${miUsuarioId}-${Date.now()}.jpg`;
                 const { error: uploadError } = await client.storage.from('feed_images').upload(filePath, archivoComprimido);
@@ -173,12 +190,13 @@
                     imageUrlSubida = publicUrl;
                 }
             }
-
+            
             const { error } = await client.from('posts').insert([{ usuario_id: miUsuarioId, contenido: textoRaw, imagen_url: imageUrlSubida }]);
+            
             btn.disabled = false; btn.textContent = "Publicar";
-
-            if (error) alert("Error: " + error.message);
-            else {
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
                 document.getElementById('input-post-texto').value = '';
                 quitarImagen();
                 cargarPosts(); 
@@ -190,34 +208,35 @@
             const { data: perfilesData } = await client.from('perfiles').select('id, nombre_display, username, avatar_url, tipo');
             const { data: likesDBData } = await client.from('likes_posts').select('*');
             const { data: comentariosDBData } = await client.from('comentarios_posts').select('*').order('fecha', { ascending: true });
-
+            
             const posts = postsData || [];
             const perfiles = perfilesData || [];
             const likesDB = likesDBData || [];
             const comentariosDB = comentariosDBData || [];
-
+            
             perfiles.forEach(p => { perfilesCache[p.id] = p; });
-
             const cont = document.getElementById('contenedor-posts');
+            
             if (posts.length === 0) {
                 cont.innerHTML = '<div class="text-center text-zinc-500 text-sm py-10">El muro está vacío o hubo un error. ¡Sé el primero en publicar!</div>';
                 return;
             }
-
+            
             cont.innerHTML = posts.map(post => {
                 const autor = perfilesCache[post.usuario_id] || { nombre_display: 'Usuario', username: 'desconocido', avatar_url: '', tipo: 'usuario' };
                 const contenidoMagico = procesarTextoConEmbeds(post.contenido);
                 const imagenHtml = post.imagen_url ? `<div class="mt-3 rounded-2xl overflow-hidden border border-zinc-800"><img src="${post.imagen_url}" class="w-full h-auto max-h-[600px] object-cover"></div>` : '';
-                const botonBorrar = (post.usuario_id === miUsuarioId) ? `<button onclick="borrarPost(${post.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/10 hover:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">🗑️</button>` : '';
-
+                const botonBorrar = (post.usuario_id === miUsuarioId) ? `<button onclick="borrarPost(${post.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/10 hover:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">🗑</button>` : '';
+                
                 const likesDelPost = likesDB.filter(l => l.post_id === post.id);
                 const totalLikes = likesDelPost.length;
                 const yoLeDiLike = miUsuarioId ? likesDelPost.some(l => l.usuario_id === miUsuarioId) : false;
                 const corazon = yoLeDiLike ? '❤️' : '🤍';
                 const colorLike = yoLeDiLike ? 'text-red-500' : 'text-zinc-400';
-
+                
                 const comentariosDelPost = comentariosDB.filter(c => c.post_id === post.id);
                 const totalComentarios = comentariosDelPost.length;
+                
                 const comentariosHtml = comentariosDelPost.map(c => `
                     <div class="bg-[#1a1a1a] p-3 rounded-lg border border-zinc-800/50 mb-2">
                         <div class="flex justify-between items-start mb-1">
@@ -227,11 +246,12 @@
                         <p class="text-xs text-zinc-300 leading-snug">${c.mensaje}</p>
                     </div>
                 `).join('');
-
+                
+                // ACÁ ESTÁ EL CAMBIO CLAVE: visor.html?u=${autor.username}
                 return `
                 <div class="bg-[#141414] border border-zinc-800/80 rounded-2xl p-4 md:p-5 fade-in group hover:border-zinc-700 transition-colors shadow-lg">
                     <div class="flex justify-between items-start mb-3">
-                        <a href="visor.html?id=${post.usuario_id}" class="flex gap-3 items-center group/autor cursor-pointer">
+                        <a href="visor.html?u=${autor.username}" class="flex gap-3 items-center group/autor cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-zinc-800 shrink-0 overflow-hidden ring-1 ring-zinc-700 group-hover/autor:ring-purple-500 transition-colors">
                                 ${autor.avatar_url ? `<img src="${autor.avatar_url}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center w-full h-full text-sm">👤</span>`}
                             </div>
@@ -241,7 +261,7 @@
                                     <span class="text-[8px] bg-zinc-800 border border-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded uppercase tracking-widest">${autor.tipo}</span>
                                 </h4>
                                 <p class="text-zinc-500 text-[11px] font-medium">
-                                    @${autor.username} • 📅 ${formatearFechaExacta(post.fecha)}
+                                    @${autor.username} • ${formatearFechaExacta(post.fecha)}
                                 </p>
                             </div>
                         </a>
@@ -250,7 +270,7 @@
                     
                     <div class="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap ml-0 md:ml-13">${contenidoMagico}</div>
                     <div class="ml-0 md:ml-13">${imagenHtml}</div>
-
+                    
                     <div class="flex items-center gap-6 mt-4 ml-0 md:ml-13 border-t border-zinc-800/60 pt-3">
                         <button onclick="darLike(${post.id}, this)" class="flex items-center gap-1.5 hover:text-red-500 transition-colors text-xs font-bold ${colorLike} focus:outline-none">
                             <span class="icon-corazon">${corazon}</span> <span class="contador-likes">${totalLikes}</span>
@@ -259,7 +279,7 @@
                             <span>💬</span> <span>${totalComentarios}</span> Responder
                         </button>
                     </div>
-
+                    
                     <div id="caja-comentarios-${post.id}" class="hidden ml-0 md:ml-13 mt-4 bg-[#0a0a0a] rounded-xl p-3 md:p-4 border border-zinc-800/50 shadow-inner">
                         <div id="lista-comentarios-${post.id}" class="max-h-48 overflow-y-auto mb-3 pr-2">
                             ${comentariosHtml || '<p class="text-xs text-zinc-600 italic mb-2">Sé el primero en responder a este hilo.</p>'}
@@ -269,7 +289,6 @@
                             <button onclick="enviarComentario(${post.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shadow-[0_0_10px_rgba(147,51,234,0.3)]">Enviar</button>
                         </div>
                     </div>
-
                 </div>
                 `;
             }).join('');
@@ -277,12 +296,13 @@
 
         window.darLike = async function(postId, btnElement) {
             if (!miUsuarioId) return alert("Debes iniciar sesión para dar me gusta.");
+            
             const iconSpan = btnElement.querySelector('.icon-corazon');
             const countSpan = btnElement.querySelector('.contador-likes');
             let likesActuales = parseInt(countSpan.innerText);
             
             const { data: existente } = await client.from('likes_posts').select('id').eq('post_id', postId).eq('usuario_id', miUsuarioId).maybeSingle();
-
+            
             if (existente) {
                 await client.from('likes_posts').delete().eq('id', existente.id);
                 iconSpan.innerText = '🤍'; countSpan.innerText = likesActuales - 1;
@@ -306,7 +326,7 @@
             const input = document.getElementById(`input-comentario-${postId}`);
             const mensaje = input.value.trim();
             if (!mensaje) return;
-
+            
             await client.from('comentarios_posts').insert([{ post_id: postId, usuario_id: miUsuarioId, autor_nombre: miNombreDeUsuario, mensaje: mensaje }]);
             input.value = ''; cargarPosts(); 
         }
@@ -319,26 +339,21 @@
 
         initFeed();
     </script>
+
     <!-- BARRA DE NAVEGACIÓN MÓVIL ESTILO APP (Solo visible en celulares) -->
     <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
-        
-        <!-- Botón Muro -->
         <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
-            <span class="text-2xl mb-0.5">🌍</span>
+            <span class="text-2xl mb-0.5">🌎</span>
             <span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
         </a>
-        
-        <!-- BOTÓN RADAR GIGANTE FLOTANTE -->
         <a href="radar.html" class="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 bg-gradient-to-tr from-pink-600 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(236,72,153,0.5)] border-[5px] border-[#0e0e0e] hover:scale-105 active:scale-95 transition-all">
             <span class="text-3xl drop-shadow-lg">📡</span>
         </a>
-        
-        <!-- Botón Perfil -->
         <a href="profile.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
             <span class="text-2xl mb-0.5">👤</span>
             <span class="text-[9px] font-black uppercase tracking-widest">Perfil</span>
         </a>
-        
     </div>
+
 </body>
 </html>
