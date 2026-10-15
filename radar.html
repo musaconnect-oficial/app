@@ -49,6 +49,7 @@
             </a>
             <h1 class="font-black tracking-widest uppercase text-sm">Radar <span class="text-pink-500">Musa</span></h1>
             <div class="flex gap-2">
+                <a href="chat.html" id="chat-link" title="Chats" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">💬<span id="chat-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
                 <a href="notificaciones.html" id="campana" title="Notificaciones" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">🔔<span id="campana-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
                 <a href="feed.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700 hidden sm:block">Muro</a>
                 <a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Mi Perfil</a>
@@ -145,6 +146,20 @@
         </div>
     </div>
 
+    <!-- MODAL: INTERESADOS EN MI ANUNCIO -->
+    <div id="modal-interesados" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-[#141414] border border-pink-900/50 rounded-2xl max-w-lg w-full shadow-2xl fade-in overflow-hidden">
+            <div class="px-6 py-4 border-b border-zinc-800 flex justify-between items-center bg-[#0a0a0a]">
+                <h3 class="text-lg font-black text-white flex items-center gap-2">👥 Interesados</h3>
+                <button onclick="document.getElementById('modal-interesados').classList.add('hidden')" class="text-zinc-500 hover:text-white text-xl leading-none transition-colors">✕</button>
+            </div>
+            <div class="p-6">
+                <p class="text-zinc-500 text-xs mb-4">Si aceptas a alguien, se abre un chat privado solo entre ustedes dos.</p>
+                <div id="lista-interesados" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
@@ -189,14 +204,33 @@
 
             const iconos = { 'Productor': '🎹', 'Vocalista': '🎤', 'Musico': '🎸', 'Colaboracion': '🤝' };
 
+            // Postulaciones que puedo ver: las mías y las que llegaron a mis anuncios
+            let aplicaciones = [];
+            if (miUsuarioId) {
+                const { data } = await client.from('radar_aplicaciones').select('id, anuncio_id, postulante_id, estado');
+                aplicaciones = data || [];
+            }
+            const textoEstado = { pendiente: '⏳ Ya postulaste · esperando respuesta', aceptada: '✅ ¡Te aceptaron! Revisa tus chats', rechazada: 'Esta vez no se dio' };
+
             cont.innerHTML = anuncios.map(a => {
                 const autor = perfilesCache[a.usuario_id] || { nombre_display: 'Usuario', username: 'desconocido', avatar_url: '' };
                 const esMio = (a.usuario_id === miUsuarioId);
+                const miPostulacion = aplicaciones.find(ap => ap.anuncio_id === a.id && ap.postulante_id === miUsuarioId);
 
-                // Si es mío, botón de borrar. Si no, botón de "Me interesa"
-                const botonAccion = esMio 
-                    ? `<button onclick="borrarAnuncio(${Number(a.id)})" class="w-full bg-red-900/20 text-red-500 hover:bg-red-900/40 text-xs font-bold py-2.5 rounded-lg transition-colors border border-red-900/50 mt-4">🗑️ Eliminar mi anuncio</button>`
-                    : `<button onclick="abrirInteres(${Number(a.id)}, this.dataset.username)" data-username="${esc(autor.username)}" class="w-full bg-zinc-800 hover:bg-pink-600 text-white hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] text-xs font-bold py-2.5 rounded-lg transition-all border border-zinc-700 hover:border-pink-500 mt-4">👉 Me Interesa</button>`;
+                // Si es mío: ver interesados y borrar. Si ya postulé: mi estado. Si no: "Me interesa"
+                let botonAccion;
+                if (esMio) {
+                    const nInteresados = aplicaciones.filter(ap => ap.anuncio_id === a.id).length;
+                    botonAccion = `
+                        <button onclick="verInteresados(${Number(a.id)})" class="w-full bg-pink-600/20 text-pink-400 hover:bg-pink-600 hover:text-white text-xs font-bold py-2.5 rounded-lg transition-colors border border-pink-900/50 mt-4">👥 Ver interesados (${nInteresados})</button>
+                        <button onclick="borrarAnuncio(${Number(a.id)})" class="w-full bg-red-900/20 text-red-500 hover:bg-red-900/40 text-xs font-bold py-2.5 rounded-lg transition-colors border border-red-900/50 mt-2">🗑️ Eliminar mi anuncio</button>`;
+                } else if (miPostulacion) {
+                    botonAccion = miPostulacion.estado === 'aceptada'
+                        ? `<a href="chat.html?u=${encodeURIComponent(a.usuario_id)}" class="block text-center w-full bg-green-900/20 text-green-400 hover:bg-green-700 hover:text-white text-xs font-bold py-2.5 rounded-lg transition-colors border border-green-900/50 mt-4">💬 Abrir chat</a>`
+                        : `<p class="text-center text-zinc-500 text-xs font-bold py-2.5 mt-4 border border-zinc-800 rounded-lg">${esc(textoEstado[miPostulacion.estado] || '')}</p>`;
+                } else {
+                    botonAccion = `<button onclick="abrirInteres(${Number(a.id)}, this.dataset.username)" data-username="${esc(autor.username)}" class="w-full bg-zinc-800 hover:bg-pink-600 text-white hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] text-xs font-bold py-2.5 rounded-lg transition-all border border-zinc-700 hover:border-pink-500 mt-4">👉 Me Interesa</button>`;
+                }
 
                 return `
                 <div class="bg-[#141414] rounded-2xl p-5 card-match flex flex-col h-full fade-in relative overflow-hidden group">
@@ -287,8 +321,61 @@
                 else alert("Error: " + error.message);
             } else {
                 document.getElementById('modal-interes').classList.add('hidden');
-                alert("¡Señal enviada con éxito! Le avisamos al autor del anuncio con una notificación.");
+                alert("¡Señal enviada con éxito! Le avisamos al autor del anuncio. Si te acepta, se abre un chat privado.");
+                cargarRadar();
             }
+        }
+
+        // --- INTERESADOS EN MIS ANUNCIOS ---
+        window.verInteresados = async function(anuncioId) {
+            const lista = document.getElementById('lista-interesados');
+            lista.innerHTML = '<p class="text-zinc-500 text-sm text-center py-6">Cargando...</p>';
+            document.getElementById('modal-interesados').classList.remove('hidden');
+
+            const { data, error } = await client.from('radar_aplicaciones')
+                .select('id, postulante_id, mensaje, estado, fecha')
+                .eq('anuncio_id', anuncioId)
+                .order('fecha', { ascending: false });
+            if (error) { lista.innerHTML = ''; return alert("Error: " + error.message); }
+            if (!data || data.length === 0) {
+                lista.innerHTML = '<p class="text-zinc-500 text-sm text-center py-6">Todavía nadie se ha interesado. ¡Paciencia!</p>';
+                return;
+            }
+
+            lista.innerHTML = data.map(ap => {
+                const p = perfilesCache[ap.postulante_id] || { nombre_display: 'Usuario', username: 'desconocido', avatar_url: '' };
+                let acciones;
+                if (ap.estado === 'aceptada') {
+                    acciones = `<a href="chat.html?u=${encodeURIComponent(ap.postulante_id)}" class="flex-1 text-center bg-green-700 hover:bg-green-600 text-white text-xs font-bold py-2 rounded-lg transition-colors">💬 Abrir chat</a>`;
+                } else {
+                    acciones = `
+                        <button onclick="responderInteres(${Number(ap.id)}, 'aceptada', ${Number(anuncioId)})" class="flex-1 bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold py-2 rounded-lg transition-colors">✅ Aceptar y chatear</button>
+                        ${ap.estado === 'pendiente'
+                            ? `<button onclick="responderInteres(${Number(ap.id)}, 'rechazada', ${Number(anuncioId)})" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Rechazar</button>`
+                            : `<span class="text-zinc-600 text-xs font-bold px-2 self-center">Rechazado</span>`}`;
+                }
+                return `
+                    <div class="bg-[#1c1c1c] border border-zinc-800 rounded-xl p-4">
+                        <a href="visor.html?id=${encodeURIComponent(ap.postulante_id)}" class="flex items-center gap-3 mb-2 group">
+                            <div class="w-9 h-9 rounded-full bg-zinc-800 overflow-hidden shrink-0">
+                                ${safeUrl(p.avatar_url) ? `<img src="${safeUrl(p.avatar_url)}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center w-full h-full text-sm">👤</span>`}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="font-bold text-sm text-white group-hover:text-pink-400 truncate">${esc(p.nombre_display)}</p>
+                                <p class="text-zinc-500 text-[11px]">@${esc(p.username)} · ${tiempoTranscurrido(ap.fecha)}</p>
+                            </div>
+                        </a>
+                        <p class="text-sm text-zinc-300 bg-[#141414] border border-zinc-800 rounded-lg p-3 mb-3 italic">"${esc(ap.mensaje)}"</p>
+                        <div class="flex gap-2">${acciones}</div>
+                    </div>`;
+            }).join('');
+        }
+
+        window.responderInteres = async function(aplicacionId, estado, anuncioId) {
+            const { error } = await client.from('radar_aplicaciones').update({ estado }).eq('id', aplicacionId);
+            if (error) return alert("Error: " + error.message);
+            verInteresados(anuncioId);
+            cargarRadar();
         }
 
         initRadar();

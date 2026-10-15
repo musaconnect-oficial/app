@@ -73,7 +73,7 @@
                         <div class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-lg flex-shrink-0">${icono}</div>
                         <div class="flex-1">
                             <p class="text-sm text-zinc-300 leading-snug">${esc(n.mensaje)}</p>
-                            <span class="text-[10px] text-zinc-600 font-bold">${fecha}${link ? ' · Ver perfil →' : ''}</span>
+                            <span class="text-[10px] text-zinc-600 font-bold">${fecha}${link ? (n.link.startsWith('chat.html') ? ' · Abrir chat →' : ' · Ver perfil →') : ''}</span>
                         </div>
                     </div>`;
                 return link
