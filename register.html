@@ -6,6 +6,7 @@
     <title>Únete | MusaConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/seguridad.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -217,12 +218,13 @@
     }
 
     function renderGeneros() {
-        document.getElementById('generos-lista').innerHTML = GENEROS.map(g => `
-            <button onclick="toggleGenero('${g}', this)" class="px-3 py-1 rounded-full text-xs font-bold border border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-purple-500 transition-all">${g}</button>
+        document.getElementById('generos-lista').innerHTML = GENEROS.map((g, i) => `
+            <button onclick="toggleGenero(${i}, this)" class="px-3 py-1 rounded-full text-xs font-bold border border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-purple-500 transition-all">${esc(g)}</button>
         `).join('');
     }
 
-    function toggleGenero(g, el) {
+    function toggleGenero(i, el) {
+        const g = GENEROS[i];
         if (generosSeleccionados.includes(g)) {
             generosSeleccionados = generosSeleccionados.filter(x => x !== g);
             el.classList.remove('border-purple-500','text-white','bg-purple-900/20');
@@ -261,33 +263,29 @@
         btn.disabled = true; 
         btn.textContent = 'Procesando...';
         
+        // Todo el perfil viaja en los metadatos: el trigger handle_new_user lo guarda
+        // aunque no haya sesión (confirmación por email). El nombre legal va a
+        // perfiles_privados y el trigger lo quita de los metadatos.
         const { error } = await client.auth.signUp({
             email: document.getElementById('reg-email').value,
             password: document.getElementById('reg-password').value,
-            options: { data: { username: user, nombre_display: nom, tipo: tipoSeleccionado } }
+            options: { data: {
+                username: user,
+                nombre_display: nom,
+                tipo: tipoSeleccionado,
+                bio: bio,
+                generos: generosSeleccionados,
+                color_acento: color,
+                fuente_nombre: fuente,
+                nombre_legal: nombreLegal || null
+            } }
         });
 
         if (error) {
-            btn.disabled = false; 
+            btn.disabled = false;
             btn.textContent = 'Crear cuenta';
             return mostrarError(err, error.message);
         }
-
-        setTimeout(async () => {
-            const { data: { user: supabaseUser } } = await client.auth.getUser();
-            if (supabaseUser) {
-                await client.from('perfiles').update({ 
-                    bio: bio, 
-                    generos: generosSeleccionados, 
-                    nombre_legal: nombreLegal || null,
-                    estudios: [],
-                    equipamiento: [],
-                    links_custom: [],
-                    color_acento: color,
-                    fuente_nombre: fuente
-                }).eq('id', supabaseUser.id);
-            }
-        }, 1500);
 
         mostrarPaso('exito');
     }

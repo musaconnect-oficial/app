@@ -6,6 +6,7 @@
     <title>Panel de Creadores | MusaConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/seguridad.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         
@@ -154,14 +155,15 @@
             const btn = document.getElementById('btn-post');
             
             if (!texto && !media) return mostrarMensaje(msgBox, 'Debes escribir algo o poner una URL multimedia.', false);
-            
+            if (media && !safeUrl(media)) return mostrarMensaje(msgBox, 'La URL multimedia debe empezar por http:// o https://', false);
+
             btn.disabled = true;
             btn.textContent = "Publicando...";
-            
-            const { error } = await client.from('feed_posts').insert([{
-                autor_id: usuarioActual.id,
-                texto: texto,
-                media_url: media
+
+            const { error } = await client.from('posts').insert([{
+                usuario_id: usuarioActual.id,
+                contenido: texto,
+                imagen_url: media || null
             }]);
             
             btn.disabled = false;
@@ -189,7 +191,7 @@
             btn.textContent = "Guardando...";
             
             const { error } = await client.from('canciones').insert([{
-                artista_id: usuarioActual.id,
+                usuario_id: usuarioActual.id,
                 titulo: titulo,
                 enlace_embed: embed
             }]);
@@ -211,8 +213,8 @@
             const lista = document.getElementById('lista-mis-canciones');
             const { data: canciones } = await client.from('canciones')
                 .select('*')
-                .eq('artista_id', usuarioActual.id)
-                .order('creado_en', { ascending: false });
+                .eq('usuario_id', usuarioActual.id)
+                .order('fecha', { ascending: false });
                 
             if (!canciones || canciones.length === 0) {
                 lista.innerHTML = '<p class="text-zinc-600 text-sm">Aún no has subido canciones.</p>';
@@ -222,10 +224,10 @@
             lista.innerHTML = canciones.map(c => `
                 <div class="bg-[#1c1c1c] border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
                     <div class="truncate pr-4">
-                        <p class="font-bold text-sm text-white truncate">${c.titulo}</p>
+                        <p class="font-bold text-sm text-white truncate">${esc(c.titulo)}</p>
                         <p class="text-xs text-zinc-500 truncate">${c.enlace_embed ? 'Con enlace multimedia' : 'Sin enlace'}</p>
                     </div>
-                    <button onclick="eliminarCancion(${c.id})" class="text-zinc-600 hover:text-red-500 transition-colors">
+                    <button onclick="eliminarCancion(${Number(c.id)})" class="text-zinc-600 hover:text-red-500 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     </button>
                 </div>
@@ -259,15 +261,15 @@
                 
                 if(remitente) {
                     html += `
-                    <div class="bg-[#141414] border border-zinc-800 rounded-xl p-5 fade-in" id="req-${sol.id}">
+                    <div class="bg-[#141414] border border-zinc-800 rounded-xl p-5 fade-in" id="req-${Number(sol.id)}">
                         <div class="flex items-center gap-2 mb-3">
-                            <span class="text-xs font-black px-2 py-1 bg-zinc-800 rounded text-zinc-300 uppercase">${remitente.tipo}</span>
-                            <a href="visor.html?u=${remitente.username}" target="_blank" class="font-bold text-white hover:text-red-400 transition-colors">${remitente.nombre_display}</a>
+                            <span class="text-xs font-black px-2 py-1 bg-zinc-800 rounded text-zinc-300 uppercase">${esc(remitente.tipo)}</span>
+                            <a href="visor.html?u=${encodeURIComponent(remitente.username)}" target="_blank" class="font-bold text-white hover:text-red-400 transition-colors">${esc(remitente.nombre_display)}</a>
                         </div>
-                        <p class="text-sm text-zinc-400 mb-4 bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 italic">"${sol.mensaje}"</p>
+                        <p class="text-sm text-zinc-400 mb-4 bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 italic">"${esc(sol.mensaje)}"</p>
                         <div class="flex gap-2">
-                            <button onclick="responderMatch(${sol.id}, 'aceptado')" class="btn-match-accept flex-1">Aceptar Colaboración</button>
-                            <button onclick="responderMatch(${sol.id}, 'rechazado')" class="btn-match-reject px-4">Declinar</button>
+                            <button onclick="responderMatch(${Number(sol.id)}, 'aceptado')" class="btn-match-accept flex-1">Aceptar Colaboración</button>
+                            <button onclick="responderMatch(${Number(sol.id)}, 'rechazado')" class="btn-match-reject px-4">Declinar</button>
                         </div>
                     </div>`;
                 }

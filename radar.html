@@ -6,6 +6,8 @@
     <title>Radar de Colaboraciones | MusaConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; overflow-x: hidden; }
@@ -47,6 +49,7 @@
             </a>
             <h1 class="font-black tracking-widest uppercase text-sm">Radar <span class="text-pink-500">Musa</span></h1>
             <div class="flex gap-2">
+                <a href="notificaciones.html" id="campana" title="Notificaciones" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">🔔<span id="campana-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
                 <a href="feed.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700 hidden sm:block">Muro</a>
                 <a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Mi Perfil</a>
             </div>
@@ -146,6 +149,7 @@
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        actualizarCampana(client);
         
         let miUsuarioId = null;
         let perfilesCache = {}; 
@@ -191,20 +195,20 @@
 
                 // Si es mío, botón de borrar. Si no, botón de "Me interesa"
                 const botonAccion = esMio 
-                    ? `<button onclick="borrarAnuncio(${a.id})" class="w-full bg-red-900/20 text-red-500 hover:bg-red-900/40 text-xs font-bold py-2.5 rounded-lg transition-colors border border-red-900/50 mt-4">🗑️ Eliminar mi anuncio</button>`
-                    : `<button onclick="abrirInteres(${a.id}, '${autor.username}')" class="w-full bg-zinc-800 hover:bg-pink-600 text-white hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] text-xs font-bold py-2.5 rounded-lg transition-all border border-zinc-700 hover:border-pink-500 mt-4">👉 Me Interesa</button>`;
+                    ? `<button onclick="borrarAnuncio(${Number(a.id)})" class="w-full bg-red-900/20 text-red-500 hover:bg-red-900/40 text-xs font-bold py-2.5 rounded-lg transition-colors border border-red-900/50 mt-4">🗑️ Eliminar mi anuncio</button>`
+                    : `<button onclick="abrirInteres(${Number(a.id)}, this.dataset.username)" data-username="${esc(autor.username)}" class="w-full bg-zinc-800 hover:bg-pink-600 text-white hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] text-xs font-bold py-2.5 rounded-lg transition-all border border-zinc-700 hover:border-pink-500 mt-4">👉 Me Interesa</button>`;
 
                 return `
                 <div class="bg-[#141414] rounded-2xl p-5 card-match flex flex-col h-full fade-in relative overflow-hidden group">
                     <div class="absolute top-0 right-0 w-16 h-16 bg-pink-600/10 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-500"></div>
                     
                     <div class="flex items-center gap-3 mb-4">
-                        <a href="visor.html?id=${a.usuario_id}" class="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-1 ring-zinc-700 group-hover:ring-pink-500 transition-colors">
-                            ${autor.avatar_url ? `<img src="${autor.avatar_url}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center w-full h-full text-sm">👤</span>`}
+                        <a href="visor.html?id=${encodeURIComponent(a.usuario_id)}" class="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-1 ring-zinc-700 group-hover:ring-pink-500 transition-colors">
+                            ${safeUrl(autor.avatar_url) ? `<img src="${safeUrl(autor.avatar_url)}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center w-full h-full text-sm">👤</span>`}
                         </a>
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-white text-sm truncate flex items-center gap-1">
-                                <a href="visor.html?id=${a.usuario_id}" class="hover:underline hover:text-pink-400">${autor.nombre_display}</a>
+                                <a href="visor.html?id=${encodeURIComponent(a.usuario_id)}" class="hover:underline hover:text-pink-400">${esc(autor.nombre_display)}</a>
                             </h4>
                             <p class="text-zinc-500 text-[10px] uppercase tracking-widest">${tiempoTranscurrido(a.fecha)}</p>
                         </div>
@@ -212,13 +216,13 @@
 
                     <div class="mb-3">
                         <span class="inline-flex items-center gap-1.5 bg-[#1a1a1a] border border-zinc-800 text-zinc-300 px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest mb-2">
-                            ${iconos[a.tipo_busqueda] || '📡'} Buscando: ${a.tipo_busqueda}
+                            ${iconos[a.tipo_busqueda] || '📡'} Buscando: ${esc(a.tipo_busqueda)}
                         </span>
-                        <h3 class="text-lg font-black text-white leading-tight mb-1 group-hover:text-pink-400 transition-colors">${a.titulo}</h3>
-                        <p class="text-xs text-pink-500 font-bold bg-pink-900/10 inline-block px-2 py-0.5 rounded border border-pink-900/30">🎵 ${a.genero}</p>
+                        <h3 class="text-lg font-black text-white leading-tight mb-1 group-hover:text-pink-400 transition-colors">${esc(a.titulo)}</h3>
+                        <p class="text-xs text-pink-500 font-bold bg-pink-900/10 inline-block px-2 py-0.5 rounded border border-pink-900/30">🎵 ${esc(a.genero)}</p>
                     </div>
 
-                    <p class="text-zinc-400 text-sm leading-relaxed mb-4 flex-1">${a.descripcion}</p>
+                    <p class="text-zinc-400 text-sm leading-relaxed mb-4 flex-1">${esc(a.descripcion)}</p>
 
                     <div class="mt-auto pt-4 border-t border-zinc-800/60">
                         ${botonAccion}
@@ -283,7 +287,7 @@
                 else alert("Error: " + error.message);
             } else {
                 document.getElementById('modal-interes').classList.add('hidden');
-                alert("¡Señal enviada con éxito! Revisa tu bandeja de mensajes más tarde.");
+                alert("¡Señal enviada con éxito! Le avisamos al autor del anuncio con una notificación.");
             }
         }
 

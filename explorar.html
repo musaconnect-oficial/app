@@ -6,6 +6,7 @@
     <title>Explorar | MusaConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/seguridad.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         
@@ -61,16 +62,16 @@
             
             grid.innerHTML = perfiles.map(p => {
                 let badgeClass = p.tipo === 'artista' ? 'badge-artista' : (p.tipo === 'banda' ? 'badge-banda' : 'badge-compositor');
-                let inicial = p.nombre_display.charAt(0).toUpperCase();
-                let avatar = p.avatar_url ? `<img src="${p.avatar_url}" class="w-16 h-16 rounded-full object-cover">` : `<div class="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center text-2xl font-black">${inicial}</div>`;
-                let generos = (p.generos || []).slice(0,3).map(g => `<span class="text-[10px] font-bold text-zinc-400 bg-zinc-900 px-2 py-1 rounded border border-zinc-800">${g}</span>`).join('');
-                
+                let inicial = esc((p.nombre_display || '?').charAt(0).toUpperCase());
+                let avatar = safeUrl(p.avatar_url) ? `<img src="${safeUrl(p.avatar_url)}" class="w-16 h-16 rounded-full object-cover">` : `<div class="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center text-2xl font-black">${inicial}</div>`;
+                let generos = (p.generos || []).slice(0,3).map(g => `<span class="text-[10px] font-bold text-zinc-400 bg-zinc-900 px-2 py-1 rounded border border-zinc-800">${esc(g)}</span>`).join('');
+
                 return `
-                <a href="visor.html?u=${p.username}" class="card-perfil p-5 rounded-2xl flex flex-col items-center text-center">
+                <a href="visor.html?u=${encodeURIComponent(p.username)}" class="card-perfil p-5 rounded-2xl flex flex-col items-center text-center">
                     <div class="mb-3">${avatar}</div>
-                    <span class="badge ${badgeClass} mb-2">${p.tipo}</span>
-                    <h3 class="font-bold text-lg mb-1">${p.nombre_display}</h3>
-                    <p class="text-zinc-500 text-xs mb-3">@${p.username}</p>
+                    <span class="badge ${badgeClass} mb-2">${esc(p.tipo)}</span>
+                    <h3 class="font-bold text-lg mb-1">${esc(p.nombre_display)}</h3>
+                    <p class="text-zinc-500 text-xs mb-3">@${esc(p.username)}</p>
                     <div class="flex flex-wrap gap-1 justify-center mb-4">${generos}</div>
                     <button class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded-lg transition-colors">Ver Perfil</button>
                 </a>`;

@@ -6,6 +6,7 @@
     <title>MusaConnect | La comunidad de música independiente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/seguridad.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
         
@@ -210,29 +211,29 @@
                 }
                 const mostrar = lista.slice(0, 6); 
                 container.innerHTML = mostrar.map(u => {
-                    const acento = u.color_acento || defaultColor;
-                    const fuente = u.fuente_nombre || 'Inter';
+                    const acento = safeColor(u.color_acento, defaultColor);
+                    const fuente = esc(safeFont(u.fuente_nombre));
 
                     let infoExtra = '';
                     if (u.estudios && u.estudios.length > 0 && u.estudios[0].titulo) {
-                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎙️ ${u.estudios[0].titulo}</p>`;
+                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎙️ ${esc(u.estudios[0].titulo)}</p>`;
                     } else if (u.equipamiento && u.equipamiento.length > 0 && u.equipamiento[0].categoria) {
-                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎛️ ${u.equipamiento[0].categoria}: ${u.equipamiento[0].detalle}</p>`;
+                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎛️ ${esc(u.equipamiento[0].categoria)}: ${esc(u.equipamiento[0].detalle)}</p>`;
                     } else if (u.track_destacado) {
                         infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">⭐ Track Destacado</p>`;
                     }
 
                     return `
-                    <a href="visor.html?id=${u.id}" style="--usr-color: ${acento};" class="user-card relative bg-[#141414] border border-zinc-800 p-5 rounded-2xl flex items-center gap-4 group cursor-pointer block z-0 overflow-hidden">
-                        
-                        ${u.banner_url ? `<div class="absolute inset-0 opacity-10 group-hover:opacity-30 transition-opacity -z-10" style="background-image: url('${u.banner_url}'); background-size: cover; background-position: center;"></div>` : ''}
+                    <a href="visor.html?id=${encodeURIComponent(u.id)}" style="--usr-color: ${acento};" class="user-card relative bg-[#141414] border border-zinc-800 p-5 rounded-2xl flex items-center gap-4 group cursor-pointer block z-0 overflow-hidden">
+
+                        ${safeUrl(u.banner_url) ? `<div class="absolute inset-0 opacity-10 group-hover:opacity-30 transition-opacity -z-10" style="background-image: url(&quot;${safeUrl(u.banner_url)}&quot;); background-size: cover; background-position: center;"></div>` : ''}
 
                         <div class="avatar-ring w-16 h-16 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-2 ring-zinc-700 transition-all">
-                            ${u.avatar_url ? `<img src="${u.avatar_url}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-xl">👤</div>'}
+                            ${safeUrl(u.avatar_url) ? `<img src="${safeUrl(u.avatar_url)}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-xl">👤</div>'}
                         </div>
                         <div class="overflow-hidden text-left flex-1 relative z-10">
-                            <h4 class="font-bold text-white truncate transition-colors" style="font-family: ${fuente};">${u.nombre_display || '@' + u.username}</h4>
-                            <p class="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">${u.bio || 'Músico en la plataforma...'}</p>
+                            <h4 class="font-bold text-white truncate transition-colors" style="font-family: ${fuente};">${esc(u.nombre_display || '@' + u.username)}</h4>
+                            <p class="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">${esc(u.bio || 'Músico en la plataforma...')}</p>
                             ${infoExtra}
                         </div>
                     </a>

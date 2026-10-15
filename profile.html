@@ -6,6 +6,8 @@
     <title>Mi Perfil | MusaConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         
@@ -46,6 +48,7 @@
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">⬅ Volver al Menú</a>
             <div class="flex items-center gap-3">
+                <a href="notificaciones.html" id="campana" title="Notificaciones" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">🔔<span id="campana-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
                 <a href="radar.html" class="text-pink-500 hover:text-pink-400 text-xs font-bold transition-colors hidden sm:flex items-center gap-1 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]">📡 Radar</a>
                 <a href="feed.html" class="text-zinc-400 hover:text-white text-xs font-bold transition-colors hidden sm:block mr-2">Muro Global</a>
                 <a href="editar-perfil.html" id="btn-editar-header" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-lg">Editar perfil</a>
@@ -161,6 +164,7 @@
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        actualizarCampana(client);
         
         let miUsuarioId = null;
         let miTipoPerfil = null;
@@ -187,7 +191,7 @@
                 document.getElementById('profile-role').textContent = perfil.tipo || "Usuario";
                 document.getElementById('profile-bio').textContent = perfil.bio || "Sin biografía.";
                 
-                if (perfil.avatar_url) document.getElementById('profile-avatar').innerHTML = `<img src="${perfil.avatar_url}" class="w-full h-full object-cover">`;
+                if (safeUrl(perfil.avatar_url)) document.getElementById('profile-avatar').innerHTML = `<img src="${safeUrl(perfil.avatar_url)}" class="w-full h-full object-cover">`;
                 
                 misIntegrantes = perfil.integrantes_banda || [];
                 const banner = document.getElementById('profile-banner');
@@ -241,11 +245,11 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-cyan-900/20 rounded-full flex items-center justify-center text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]">🎹</div>
-                                <div><h4 class="font-black text-white text-sm">${b.titulo}</h4><p class="text-[10px] text-zinc-500 uppercase tracking-widest">${b.bpm ? b.bpm + ' BPM | ' : ''}<span class="text-cyan-500 font-bold">${b.etiqueta || 'Catálogo'}</span></p></div>
+                                <div><h4 class="font-black text-white text-sm">${esc(b.titulo)}</h4><p class="text-[10px] text-zinc-500 uppercase tracking-widest">${b.bpm ? esc(b.bpm) + ' BPM | ' : ''}<span class="text-cyan-500 font-bold">${esc(b.etiqueta || 'Catálogo')}</span></p></div>
                             </div>
-                            <button onclick="borrarBeat(${b.id})" class="text-red-500 hover:text-red-400 bg-red-900/20 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-xs">🗑</button>
+                            <button onclick="borrarBeat(${Number(b.id)})" class="text-red-500 hover:text-red-400 bg-red-900/20 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-xs">🗑</button>
                         </div>
-                        <audio controls controlsList="nodownload" class="w-full h-8 mt-1 custom-audio" src="${b.url_audio}"></audio>
+                        <audio controls controlsList="nodownload" class="w-full h-8 mt-1 custom-audio" src="${safeUrl(b.url_audio)}"></audio>
                     </div>
                 `).join('');
             } else { 
@@ -262,15 +266,18 @@
             if(!titulo || !file) return alert("Falta el archivo o el título del beat.");
             
             const btn = event.target; btn.textContent = "Procesando..."; btn.disabled = true;
+            const restaurarBoton = () => { btn.textContent = "Subir al Catálogo"; btn.disabled = false; };
             const filePath = `${miUsuarioId}-${Date.now()}.${file.name.split('.').pop()}`;
-            
-            await client.storage.from('beats').upload(filePath, file);
+
+            const { error: uploadError } = await client.storage.from('beats').upload(filePath, file);
+            if (uploadError) { restaurarBoton(); return alert("No se pudo subir el audio: " + uploadError.message); }
             const { data: { publicUrl } } = client.storage.from('beats').getPublicUrl(filePath);
-            
-            await client.from('beats').insert([{ usuario_id: miUsuarioId, titulo, bpm, etiqueta, url_audio: publicUrl }]);
-            
+
+            const { error } = await client.from('beats').insert([{ usuario_id: miUsuarioId, titulo, bpm, etiqueta, url_audio: publicUrl }]);
+            if (error) { restaurarBoton(); return alert("No se pudo guardar el beat: " + error.message); }
+
             ['input-titulo-beat', 'input-bpm-beat', 'input-etiqueta-beat', 'input-file-beat'].forEach(id => document.getElementById(id).value = '');
-            btn.textContent = "Subir al Catálogo"; btn.disabled = false; 
+            restaurarBoton();
             cargarBeats();
         }
 
@@ -308,7 +315,7 @@
             if (misIntegrantes.length > 0) {
                 cont.innerHTML = misIntegrantes.map((int, i) => `
                     <div class="bg-[#1a1a1a] border border-red-900/30 p-3 rounded-xl flex items-center justify-between group fade-in">
-                        <div><h4 class="font-black text-white text-sm">${int.nombre}</h4><p class="text-[10px] text-red-400 font-bold uppercase tracking-widest">${int.rol}</p></div>
+                        <div><h4 class="font-black text-white text-sm">${esc(int.nombre)}</h4><p class="text-[10px] text-red-400 font-bold uppercase tracking-widest">${esc(int.rol)}</p></div>
                         <button onclick="quitarIntegrante(${i})" class="text-red-500 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">✖</button>
                     </div>
                 `).join('');
@@ -324,8 +331,8 @@
                 cont.innerHTML = canciones.map(c => `
                     <div class="bg-[#0a0a0a] border border-green-500/20 p-3 rounded-2xl hover:border-green-500/60 transition-all duration-300 relative group">
                         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-600 to-green-400 rounded-t-2xl opacity-80"></div>
-                        <div class="px-2 pb-2 pt-1 flex justify-between items-center"><h3 class="font-black text-white text-sm truncate pr-2">${c.titulo}</h3><button onclick="borrarCancion(${c.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
-                        <div class="rounded-xl overflow-hidden">${c.enlace_embed}</div>
+                        <div class="px-2 pb-2 pt-1 flex justify-between items-center"><h3 class="font-black text-white text-sm truncate pr-2">${esc(c.titulo)}</h3><button onclick="borrarCancion(${Number(c.id)})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
+                        <div class="rounded-xl overflow-hidden">${embedSeguro(c.enlace_embed)}</div>
                     </div>
                 `).join('');
             }
@@ -356,15 +363,15 @@
                 cont.innerHTML = previews.map(p => {
                     const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `
                         <div class="bg-[#141414] p-2 rounded-lg mb-1">
-                            <p class="text-[10px] font-black text-purple-400">${c.autor_nombre}</p>
-                            <p class="text-xs text-zinc-300">${c.mensaje}</p>
+                            <p class="text-[10px] font-black text-purple-400">${esc(c.autor_nombre)}</p>
+                            <p class="text-xs text-zinc-300">${esc(c.mensaje)}</p>
                         </div>
                     `).join('');
                     
                     return `
                         <div class="bg-[#0a0a0a] border border-purple-800/50 p-4 rounded-2xl flex flex-col group">
-                            <div class="flex justify-between mb-3"><h3 class="font-black text-white text-sm"><span class="text-purple-500">▶</span> ${p.titulo}</h3><button onclick="borrarPreview(${p.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
-                            <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" src="${p.url_media}"></video>
+                            <div class="flex justify-between mb-3"><h3 class="font-black text-white text-sm"><span class="text-purple-500">▶</span> ${esc(p.titulo)}</h3><button onclick="borrarPreview(${Number(p.id)})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
+                            <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" src="${safeUrl(p.url_media)}"></video>
                             <div class="mt-auto border-t border-zinc-800/60 pt-3"><div class="max-h-40 overflow-y-auto mb-3">${commentsHtml}</div></div>
                         </div>
                     `;
@@ -377,9 +384,11 @@
             const titulo = document.getElementById('input-titulo-preview').value.trim();
             if(!titulo || !file) return;
             const filePath = `${miUsuarioId}-${Date.now()}.mp4`;
-            await client.storage.from('previews').upload(filePath, file);
+            const { error: uploadError } = await client.storage.from('previews').upload(filePath, file);
+            if (uploadError) return alert("No se pudo subir el video: " + uploadError.message);
             const { data: { publicUrl } } = client.storage.from('previews').getPublicUrl(filePath);
-            await client.from('previews').insert([{ usuario_id: miUsuarioId, titulo, url_media: publicUrl }]);
+            const { error } = await client.from('previews').insert([{ usuario_id: miUsuarioId, titulo, url_media: publicUrl }]);
+            if (error) return alert("No se pudo guardar el preview: " + error.message);
             cargarPreviews();
         }
 
@@ -398,12 +407,12 @@
                     <div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl flex items-center justify-between hover:border-orange-500/50 transition-colors group">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="text-orange-400 font-black text-sm">${e.fecha}</span>
-                                <span class="text-[9px] text-zinc-500 border border-zinc-700 px-1.5 rounded">${e.ciudad}</span>
+                                <span class="text-orange-400 font-black text-sm">${esc(e.fecha)}</span>
+                                <span class="text-[9px] text-zinc-500 border border-zinc-700 px-1.5 rounded">${esc(e.ciudad)}</span>
                             </div>
-                            <p class="text-white font-bold text-sm">${e.lugar}</p>
+                            <p class="text-white font-bold text-sm">${esc(e.lugar)}</p>
                         </div>
-                        <button onclick="borrarEvento(${e.id})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button>
+                        <button onclick="borrarEvento(${Number(e.id)})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button>
                     </div>
                 `).join('');
             }

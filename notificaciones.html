@@ -6,6 +6,7 @@
     <title>Notificaciones | MusaConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/seguridad.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -66,16 +67,18 @@
             lista.innerHTML = notis.map(n => {
                 const icono = n.tipo === 'like' ? '❤️' : (n.tipo === 'match' ? '🤝' : '💬');
                 const fecha = new Date(n.created_at).toLocaleDateString('es-PE', { day:'numeric', month:'short' });
-                return `
-                <div class="noti-card p-4 ${n.leida ? '' : 'no-leida'}">
+                const link = safeUrl(n.link);
+                const contenido = `
                     <div class="flex gap-4 items-center">
                         <div class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-lg flex-shrink-0">${icono}</div>
                         <div class="flex-1">
-                            <p class="text-sm text-zinc-300 leading-snug">${n.mensaje}</p>
-                            <span class="text-[10px] text-zinc-600 font-bold">${fecha}</span>
+                            <p class="text-sm text-zinc-300 leading-snug">${esc(n.mensaje)}</p>
+                            <span class="text-[10px] text-zinc-600 font-bold">${fecha}${link ? ' · Ver perfil →' : ''}</span>
                         </div>
-                    </div>
-                </div>`;
+                    </div>`;
+                return link
+                    ? `<a href="${link}" class="noti-card block p-4 ${n.leida ? '' : 'no-leida'}">${contenido}</a>`
+                    : `<div class="noti-card p-4 ${n.leida ? '' : 'no-leida'}">${contenido}</div>`;
             }).join('');
         }
 
