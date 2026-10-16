@@ -8,38 +8,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
     <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
+    <meta name="theme-color" content="#08070b">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
-        .fade-in { animation: fadeIn 0.25s ease forwards; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
         .conv-item.activa { background: rgba(236,72,153,0.08); border-left-color: #ec4899; }
     </style>
 </head>
-<body class="text-white h-screen flex flex-col overflow-hidden">
+<body class="h-[100dvh] flex flex-col overflow-hidden">
 
-    <!-- HEADER -->
-    <header class="border-b border-zinc-800/80 bg-[#0a0a0a]/90 backdrop-blur shrink-0">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="radar.html" class="flex items-center gap-2 text-white hover:text-pink-400 transition-colors font-bold text-sm">← Radar</a>
-            <h1 class="font-black tracking-widest uppercase text-sm">Chats <span class="text-pink-500">Match</span></h1>
-            <div class="flex items-center gap-2">
-                <a href="notificaciones.html" id="campana" title="Notificaciones" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">🔔<span id="campana-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
-                <a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Mi Perfil</a>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-1 min-h-0 w-full max-w-6xl mx-auto md:px-4 md:py-4">
-        <div class="h-full md:grid md:grid-cols-[300px_1fr] md:border md:border-zinc-800 md:rounded-2xl overflow-hidden bg-[#111]">
+    <main class="flex-1 min-h-0 w-full max-w-6xl mx-auto md:px-4 md:py-5">
+        <div class="h-full md:grid md:grid-cols-[320px_1fr] md:border md:border-white/10 md:rounded-3xl overflow-hidden bg-[rgba(20,18,27,.72)] backdrop-blur-xl">
 
             <!-- LISTA DE CONVERSACIONES -->
-            <aside id="panel-lista" class="h-full flex flex-col border-r border-zinc-800 min-h-0">
-                <div class="px-4 py-3 border-b border-zinc-800">
-                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Tus matches</p>
+            <aside id="panel-lista" class="h-full flex flex-col border-r border-white/5 min-h-0">
+                <div class="px-5 py-4 border-b border-white/5">
+                    <h1 class="mc-display text-2xl font-extrabold">Chats <span class="mc-grad-text">match</span></h1>
+                    <p class="text-[11px] text-zinc-500 mt-0.5">Solo con quienes hiciste match en el Radar</p>
                 </div>
                 <div id="lista-conversaciones" class="flex-1 overflow-y-auto">
                     <p class="text-zinc-600 text-sm text-center py-10 animate-pulse">Cargando...</p>
@@ -55,7 +40,7 @@
                 </div>
 
                 <div id="chat-abierto" class="hidden flex-1 flex-col min-h-0">
-                    <div class="px-4 py-3 border-b border-zinc-800 flex items-center gap-3 shrink-0">
+                    <div class="px-4 py-3 border-b border-white/5 flex items-center gap-3 shrink-0">
                         <button onclick="volverALista()" class="md:hidden text-zinc-400 hover:text-white text-lg pr-1">←</button>
                         <a id="chat-perfil-link" href="#" class="flex items-center gap-3 min-w-0 group">
                             <div id="chat-avatar" class="w-9 h-9 rounded-full bg-zinc-800 overflow-hidden shrink-0"></div>
@@ -68,9 +53,11 @@
 
                     <div id="lista-mensajes" class="flex-1 overflow-y-auto px-4 py-4 space-y-2"></div>
 
-                    <form onsubmit="enviarMensaje(event)" class="p-3 border-t border-zinc-800 flex gap-2 shrink-0">
-                        <input id="input-mensaje" type="text" maxlength="1000" autocomplete="off" placeholder="Escribe un mensaje..." class="flex-1 bg-[#1c1c1c] border border-zinc-800 rounded-full px-4 py-2.5 text-sm text-white outline-none focus:border-pink-500 transition-colors">
-                        <button id="btn-enviar" type="submit" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-5 rounded-full text-sm transition-colors shadow-[0_0_10px_rgba(236,72,153,0.3)]">Enviar</button>
+                    <form onsubmit="enviarMensaje(event)" class="p-3 border-t border-white/5 flex gap-2 shrink-0">
+                        <input id="input-mensaje" type="text" maxlength="1000" autocomplete="off" placeholder="Escribe un mensaje…" class="mc-input !rounded-full flex-1">
+                        <button id="btn-enviar" type="submit" class="mc-btn !px-5" aria-label="Enviar">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+                        </button>
                     </form>
                 </div>
             </section>
@@ -81,7 +68,7 @@
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-        actualizarCampana(client);
+        MusaUI.montar(client, { activo: 'chats' });
 
         let miId = null;
         let conversaciones = [];   // [{ match, otro, ultimo, noLeidos }]
@@ -112,7 +99,7 @@
 
             const otros = [...new Set((matches || []).map(m => m.usuario_a === miId ? m.usuario_b : m.usuario_a))];
             if (otros.length) {
-                const { data: ps } = await client.from('perfiles').select('id, nombre_display, username, avatar_url').in('id', otros);
+                const { data: ps } = await client.from('perfiles').select('id, nombre_display, username, avatar_url, color_acento, forma_avatar').in('id', otros);
                 (ps || []).forEach(p => { perfiles[p.id] = p; });
             }
 
@@ -156,9 +143,7 @@
                 const vistaPrevia = c.ultimo ? (c.ultimo.autor_id === miId ? 'Tú: ' : '') + c.ultimo.texto : 'Nuevo match · ¡Salúdense!';
                 return `
                     <button onclick="abrirChat(${Number(c.match.id)})" class="conv-item ${c.match.id === chatActual ? 'activa' : ''} w-full text-left px-4 py-3 flex items-center gap-3 border-l-2 border-transparent hover:bg-zinc-900/60 transition-colors">
-                        <div class="w-11 h-11 rounded-full bg-zinc-800 overflow-hidden shrink-0">
-                            ${safeUrl(p.avatar_url) ? `<img src="${safeUrl(p.avatar_url)}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center w-full h-full">👤</span>`}
-                        </div>
+                        ${MusaUI.avatarHtml(p, 'w-11 h-11 text-base', 'rounded-full')}
                         <div class="flex-1 min-w-0">
                             <p class="font-bold text-sm text-white truncate">${esc(p.nombre_display)}</p>
                             <p class="text-xs truncate ${c.noLeidos ? 'text-white font-bold' : 'text-zinc-500'}">${esc(vistaPrevia)}</p>
@@ -178,9 +163,7 @@
             document.getElementById('chat-nombre').textContent = p.nombre_display;
             document.getElementById('chat-titulo').textContent = conv.match.titulo ? 'Match por: ' + conv.match.titulo : '@' + p.username;
             document.getElementById('chat-perfil-link').href = 'visor.html?id=' + encodeURIComponent(conv.otro);
-            document.getElementById('chat-avatar').innerHTML = safeUrl(p.avatar_url)
-                ? `<img src="${safeUrl(p.avatar_url)}" class="w-full h-full object-cover">`
-                : `<span class="flex items-center justify-center w-full h-full text-sm">👤</span>`;
+            document.getElementById('chat-avatar').innerHTML = MusaUI.avatarHtml(p, 'w-full h-full text-sm', 'rounded-full');
 
             document.getElementById('chat-vacio').classList.add('hidden');
             document.getElementById('chat-abierto').classList.remove('hidden');
@@ -226,7 +209,7 @@
             const lista = document.getElementById('lista-mensajes');
             lista.insertAdjacentHTML('beforeend', `
                 <div class="flex ${mio ? 'justify-end' : 'justify-start'} fade-in">
-                    <div class="max-w-[80%] px-3.5 py-2 rounded-2xl ${mio ? 'bg-pink-600 text-white rounded-br-sm' : 'bg-[#1f1f1f] text-zinc-200 border border-zinc-800 rounded-bl-sm'}">
+                    <div class="max-w-[80%] px-3.5 py-2 rounded-2xl ${mio ? 'text-white rounded-br-sm shadow-[0_8px_20px_-10px_rgba(236,72,153,.7)]' : 'bg-white/[.06] text-zinc-200 border border-white/5 rounded-bl-sm'}" ${mio ? 'style="background:var(--mc-grad)"' : ''}>
                         <p class="text-sm whitespace-pre-wrap break-words">${esc(m.texto)}</p>
                         <p class="text-[9px] mt-1 ${mio ? 'text-pink-200' : 'text-zinc-500'} text-right">${esc(hora)}</p>
                     </div>

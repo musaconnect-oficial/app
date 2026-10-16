@@ -3,258 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil | MusaConnect</title>
+    <title>Mi perfil | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
     <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; }
-        
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
-            color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 13px;
-        }
-        .input-field:focus { outline: none; border-color: var(--color-primario, #7c3aed); }
-        
-        .fade-in { animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { 
-            from { opacity:0; transform:translateY(10px); } 
-            to { opacity:1; transform:translateY(0); } 
-        }
-        
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
-        
-        .waveform { display: flex; align-items: flex-end; height: 15px; gap: 2px; }
-        .waveform div { width: 3px; background: #06b6d4; animation: wave 1s infinite ease-in-out; border-radius: 2px;}
-        .waveform div:nth-child(1) { animation-delay: 0.1s; }
-        .waveform div:nth-child(2) { animation-delay: 0.3s; }
-        .waveform div:nth-child(3) { animation-delay: 0.0s; }
-        .waveform div:nth-child(4) { animation-delay: 0.2s; }
-        
-        @keyframes wave { 
-            0%, 100% { height: 4px; } 
-            50% { height: 15px; } 
-        }
+        .bg-acento-transparente { background-color: color-mix(in srgb, var(--acento) 16%, transparent) !important; }
+        .text-acento { color: var(--acento) !important; }
+        .herramienta { transition: all .3s var(--mc-ease); }
+        .herramienta:hover, .herramienta.activa { transform: translateY(-3px); border-color: color-mix(in srgb, var(--acento) 60%, transparent); background: color-mix(in srgb, var(--acento) 10%, transparent); }
+        .stat b { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; line-height: 1; }
+        .paso-check { transition: all .2s; }
+        .paso-check:hover { background: rgba(255,255,255,.05); }
     </style>
 </head>
-<body class="bg-[#121212] text-white min-h-screen pb-20">
+<body class="min-h-screen">
 
-    <header class="border-b border-zinc-800/50 bg-[#121212]/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">⬅ Volver al Menú</a>
-            <div class="flex items-center gap-3">
-                <a href="chat.html" id="chat-link" title="Chats" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">💬<span id="chat-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
-                <a href="notificaciones.html" id="campana" title="Notificaciones" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">🔔<span id="campana-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
-                <a href="radar.html" class="text-pink-500 hover:text-pink-400 text-xs font-bold transition-colors hidden sm:flex items-center gap-1 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]">📡 Radar</a>
-                <a href="feed.html" class="text-zinc-400 hover:text-white text-xs font-bold transition-colors hidden sm:block mr-2">Muro Global</a>
-                <a href="editar-perfil.html" id="btn-editar-header" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-lg">Editar perfil</a>
-                <button onclick="cerrarSesion()" class="text-red-500 hover:text-red-400 text-xs font-bold px-3 transition-colors">Salir</button>
-            </div>
-        </div>
-    </header>
+    <main class="pb-16">
+        <!-- ===== HERO ===== -->
+        <section class="relative">
+            <div id="profile-banner" class="h-44 md:h-72 relative overflow-hidden bg-zinc-900"><div class="absolute inset-0 mc-skel !rounded-none"></div></div>
+            <div class="absolute inset-x-0 top-0 h-44 md:h-72 pointer-events-none" style="background:linear-gradient(180deg, rgba(8,7,11,.1), rgba(8,7,11,.35) 50%, var(--mc-bg))"></div>
 
-    <main class="max-w-6xl mx-auto pt-8 px-4">
-        <div class="bg-[#141414] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl mb-8 relative">
-            <div id="profile-banner" class="h-32 md:h-48 bg-gradient-to-r from-purple-900/60 to-[#0e0e0e] relative transition-all duration-700"></div>
-            
-            <div class="px-6 md:px-10 pb-8 relative">
-                <div id="profile-avatar" class="absolute -top-12 md:-top-16 w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-800 border-4 border-[#141414] overflow-hidden flex items-center justify-center text-4xl shadow-xl">
-                    <span class="animate-pulse">👤</span>
-                </div>
-                
-                <div class="pt-16 md:pt-20 flex flex-col md:flex-row md:justify-between md:items-start gap-6">
-                    <div>
-                        <h1 id="profile-name" class="text-2xl md:text-4xl font-black tracking-tight">Cargando...</h1>
-                        <p id="profile-username" class="text-zinc-500 text-sm font-medium mt-1">@...</p>
-                        <div class="flex items-center gap-2 mt-3">
-                            <span id="profile-role" class="inline-block text-[10px] font-black uppercase tracking-wider bg-purple-900/20 text-purple-400 border-purple-900/50 px-2.5 py-1 rounded-md border">...</span>
-                            <button onclick="copiarLinkInstagram()" class="bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-md border border-zinc-700 transition-colors flex items-center gap-1 shadow-lg ml-2 cursor-pointer">🔗 Copiar Link para Bio</button>
-                        </div>
+            <div class="max-w-6xl mx-auto px-4 relative -mt-20">
+                <div class="flex flex-col md:flex-row md:items-end gap-5 md:gap-7">
+                    <div id="profile-avatar" class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-zinc-800 overflow-hidden grid place-items-center text-5xl shrink-0" style="box-shadow:0 0 0 5px var(--mc-bg), 0 0 0 8px color-mix(in srgb, var(--acento) 70%, transparent), 0 30px 60px -20px var(--acento)">
+                        <span class="animate-pulse">👤</span>
                     </div>
-                    <div id="profile-links" class="flex flex-wrap gap-3"></div>
+                    <div class="flex-1 min-w-0 pb-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span id="profile-role" class="mc-tipo mc-tipo-fan">…</span>
+                            <span id="profile-ciudad" class="hidden mc-chip"></span>
+                            <span id="profile-vibe" class="hidden mc-chip !text-white" style="border-color:color-mix(in srgb, var(--acento) 50%, transparent); background:color-mix(in srgb, var(--acento) 14%, transparent)"></span>
+                        </div>
+                        <h1 id="profile-name" class="text-4xl md:text-6xl font-extrabold tracking-tight leading-none [overflow-wrap:anywhere]">Cargando…</h1>
+                        <p id="profile-username" class="text-zinc-400 font-medium mt-2">@…</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 pb-1">
+                        <a href="editar-perfil.html" id="btn-editar-header" class="mc-btn px-6">✎ Editar perfil</a>
+                        <button onclick="abrirCompartir()" class="mc-btn-ghost px-5">↗ Compartir</button>
+                        <a id="btn-ver-publico" href="#" class="mc-iconbtn !w-11 !h-11" title="Ver mi perfil como lo ven los demás">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </a>
+                    </div>
                 </div>
-                <p id="profile-bio" class="text-zinc-300 text-sm mt-6 border-t border-zinc-800/60 pt-4 leading-relaxed">Aún no hay biografía configurada.</p>
-            </div>
-        </div>
 
-        <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-12 shadow-lg">
-            <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-4 text-center">Tus Herramientas</h3>
-            <div id="botones-control" class="flex flex-wrap gap-4 mb-6"></div>
-            
-            <div id="panel-fragmento" class="hidden bg-[#141414] p-5 rounded-xl border border-zinc-800 fade-in">
-                <input type="text" id="input-titulo-cancion" placeholder="Título del fragmento" class="input-field mb-3">
-                <input type="text" id="input-embed-cancion" placeholder="Pega aquí el código embed de Spotify o YouTube" class="input-field mb-3">
-                <button onclick="publicarCancion()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg transition-colors">Publicar Fragmento</button>
-            </div>
-            
-            <div id="panel-preview" class="hidden bg-[#141414] p-5 rounded-xl border border-zinc-800 fade-in">
-                <input type="text" id="input-titulo-preview" placeholder="Título del video (Max 1 min)" class="input-field mb-3">
-                <input type="file" id="input-file-preview" accept="video/mp4" class="input-field mb-3 text-zinc-400 p-2">
-                <button onclick="publicarPreview()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg transition-colors">Subir Preview</button>
-            </div>
-            
-            <div id="panel-evento" class="hidden bg-[#141414] p-5 rounded-xl border border-zinc-800 fade-in">
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <input type="text" id="input-fecha-evento" placeholder="Ej: 24 Octubre" class="input-field">
-                    <input type="text" id="input-ciudad-evento" placeholder="Ej: Santiago, CL" class="input-field">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 mt-7">
+                    <div class="flex gap-7">
+                        <div class="stat"><b id="stat-seguidores">–</b><p class="text-xs text-zinc-500 mt-1">seguidores</p></div>
+                        <div class="stat"><b id="stat-siguiendo">–</b><p class="text-xs text-zinc-500 mt-1">siguiendo</p></div>
+                        <div class="stat"><b id="stat-musica">–</b><p class="text-xs text-zinc-500 mt-1" id="stat-musica-label">temas</p></div>
+                        <div class="stat"><b id="stat-posts">–</b><p class="text-xs text-zinc-500 mt-1">posts</p></div>
+                    </div>
+                    <div id="profile-links" class="flex flex-wrap gap-2"></div>
                 </div>
-                <input type="text" id="input-lugar-evento" placeholder="Lugar (Ej: Teatro Caupolicán)" class="input-field mb-3">
-                <input type="text" id="input-tickets-evento" placeholder="Link de entradas (Opcional)" class="input-field mb-4">
-                <button onclick="publicarEvento()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-lg transition-colors">Agregar Evento</button>
+                <p id="profile-bio" class="text-zinc-300 text-lg leading-relaxed mt-6 max-w-3xl">Aún no hay biografía configurada.</p>
             </div>
-            
-            <div id="panel-beat" class="hidden bg-[#141414] p-5 rounded-xl border border-cyan-900/50 fade-in">
-                <input type="text" id="input-titulo-beat" placeholder="Nombre del Beat" class="input-field mb-3">
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <input type="number" id="input-bpm-beat" placeholder="BPM (Ej: 140)" class="input-field">
-                    <input type="text" id="input-etiqueta-beat" placeholder="Etiqueta (Ej: Uso Libre / $50)" class="input-field">
-                </div>
-                <input type="file" id="input-file-beat" accept="audio/mp3, audio/wav" class="input-field mb-3 text-zinc-400 p-2">
-                <button onclick="publicarBeat()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg transition-colors">Subir al Catálogo</button>
-            </div>
-            
-            <div id="panel-integrante" class="hidden bg-[#141414] p-5 rounded-xl border border-red-900/50 fade-in">
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <input type="text" id="input-nombre-int" placeholder="Nombre del integrante" class="input-field">
-                    <input type="text" id="input-rol-int" placeholder="Rol (Ej: Baterista, Vocalista)" class="input-field">
-                </div>
-                <button onclick="agregarIntegrante()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg transition-colors">Agregar a la Alineación</button>
-            </div>
-        </div>
+        </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-10">
+        <div class="max-w-6xl mx-auto px-4 mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-10 min-w-0">
+
+                <!-- ===== HERRAMIENTAS ===== -->
+                <section class="mc-glass p-5 md:p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="mc-display text-xl font-extrabold">Tu estudio</h2>
+                        <span class="mc-kicker">Herramientas</span>
+                    </div>
+                    <div id="botones-control" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+
+                    <div id="panel-fragmento" class="hidden mt-5 mc-panel p-5 fade-in">
+                        <p class="font-bold mb-1">🎵 Publicar un fragmento</p>
+                        <p class="text-xs text-zinc-500 mb-4">Pega el link o el código para insertar de Spotify, YouTube, SoundCloud, Apple Music o Bandcamp.</p>
+                        <input type="text" id="input-titulo-cancion" placeholder="Título del tema" class="input-field mb-3">
+                        <input type="text" id="input-embed-cancion" placeholder="https://open.spotify.com/track/…" class="input-field mb-4">
+                        <button onclick="publicarCancion()" class="mc-btn w-full">Publicar fragmento</button>
+                    </div>
+
+                    <div id="panel-preview" class="hidden mt-5 mc-panel p-5 fade-in">
+                        <p class="font-bold mb-1">🎬 Subir un adelanto exclusivo</p>
+                        <p class="text-xs text-zinc-500 mb-4">Video corto (máx. 1 minuto, MP4). Solo lo ven tus seguidores.</p>
+                        <input type="text" id="input-titulo-preview" placeholder="Título del video" class="input-field mb-3">
+                        <input type="file" id="input-file-preview" accept="video/mp4" class="input-field mb-4">
+                        <button onclick="publicarPreview()" class="mc-btn w-full">Subir adelanto</button>
+                    </div>
+
+                    <div id="panel-evento" class="hidden mt-5 mc-panel p-5 fade-in">
+                        <p class="font-bold mb-4">🎟 Anunciar un show</p>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <input type="text" id="input-fecha-evento" placeholder="Ej: 24 Oct" class="input-field">
+                            <input type="text" id="input-ciudad-evento" placeholder="Ej: Santiago, CL" class="input-field">
+                        </div>
+                        <input type="text" id="input-lugar-evento" placeholder="Lugar (Ej: Teatro Caupolicán)" class="input-field mb-3">
+                        <input type="text" id="input-tickets-evento" placeholder="Link de entradas (opcional)" class="input-field mb-4">
+                        <button onclick="publicarEvento()" class="mc-btn w-full">Agregar show</button>
+                    </div>
+
+                    <div id="panel-beat" class="hidden mt-5 mc-panel p-5 fade-in">
+                        <p class="font-bold mb-4">🎹 Subir un beat</p>
+                        <input type="text" id="input-titulo-beat" placeholder="Nombre del beat" class="input-field mb-3">
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <input type="number" id="input-bpm-beat" placeholder="BPM (Ej: 140)" class="input-field">
+                            <input type="text" id="input-etiqueta-beat" placeholder="Licencia (Ej: Libre / $50)" class="input-field">
+                        </div>
+                        <input type="file" id="input-file-beat" accept="audio/mpeg, audio/wav, audio/x-wav, audio/mp4, audio/x-m4a, audio/ogg, audio/flac" class="input-field mb-4">
+                        <button onclick="publicarBeat()" class="mc-btn w-full">Subir al catálogo</button>
+                    </div>
+
+                    <div id="panel-integrante" class="hidden mt-5 mc-panel p-5 fade-in">
+                        <p class="font-bold mb-4">👥 Agregar a tu equipo</p>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <input type="text" id="input-nombre-int" placeholder="Nombre" class="input-field">
+                            <input type="text" id="input-rol-int" placeholder="Rol (Ej: Batería)" class="input-field">
+                        </div>
+                        <button onclick="agregarIntegrante()" class="mc-btn w-full">Agregar</button>
+                    </div>
+                </section>
+
+                <!-- ===== CONTENIDO ===== -->
                 <div id="seccion-musica" class="hidden space-y-10">
                     <div>
-                        <h2 class="text-xl font-bold mb-6 border-b border-zinc-800 pb-2 flex items-center gap-2">🎵 Fragmentos Oficiales</h2>
+                        <h2 class="mc-section-title"><span>🎵 Tus fragmentos</span><span class="mc-linea"></span></h2>
                         <div id="contenedor-canciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
-                    <div>
-                        <h2 class="text-xl font-bold mb-6 border-b border-purple-800 pb-2 text-purple-400 flex items-center gap-2">🎬 Adelantos (1 Min)</h2>
+                    <div id="bloque-previews">
+                        <h2 class="mc-section-title"><span class="text-acento">🎬 Tus adelantos exclusivos</span><span class="mc-linea"></span></h2>
                         <div id="contenedor-previews" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
                 </div>
                 <div id="seccion-beats" class="hidden">
-                    <h2 class="text-xl font-black mb-6 border-b border-cyan-800/50 pb-2 text-cyan-400 flex items-center justify-between">
-                        <span class="flex items-center gap-2">🎹 Catálogo de Instrumentales</span>
-                        <div class="waveform"><div></div><div></div><div></div><div></div></div>
-                    </h2>
+                    <h2 class="mc-section-title"><span class="text-acento">🎹 Tu catálogo</span><span class="mc-eq"><i></i><i></i><i></i><i></i></span><span class="mc-linea"></span></h2>
                     <div id="contenedor-beats" class="flex flex-col gap-3"></div>
+                </div>
+                <div id="seccion-fan" class="hidden">
+                    <h2 class="mc-section-title"><span>🎧 Para ti</span><span class="mc-linea"></span></h2>
+                    <div id="recomendados" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
                 </div>
             </div>
 
-            <div class="space-y-10">
+            <!-- ===== LATERAL ===== -->
+            <aside class="space-y-8 min-w-0">
+                <div id="tarjeta-completitud" class="mc-glass p-5 hidden">
+                    <div class="flex items-center gap-4">
+                        <div class="mc-anillo" id="anillo"><span id="anillo-pct">0%</span></div>
+                        <div>
+                            <p class="font-extrabold">Tu perfil al <span id="pct-texto">0%</span></p>
+                            <p class="text-xs text-zinc-400 mt-1" id="completitud-msg">Los perfiles completos reciben más seguidores y matches.</p>
+                        </div>
+                    </div>
+                    <div id="pasos-completitud" class="mt-4 space-y-1"></div>
+                </div>
+
                 <div id="seccion-integrantes" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-red-900/50 pb-2 text-red-500 flex items-center gap-2">👥 Alineación Oficial</h2>
+                    <h2 class="mc-section-title"><span>👥 <span id="titulo-integrantes">Alineación</span></span><span class="mc-linea"></span></h2>
                     <div id="contenedor-integrantes" class="flex flex-col gap-2"></div>
                 </div>
                 <div id="seccion-eventos" class="hidden">
-                    <h2 class="text-xl font-bold mb-6 border-b border-orange-900/50 pb-2 text-orange-400 flex items-center gap-2">🎟 Próximos Shows</h2>
-                    <div id="contenedor-eventos" class="flex flex-col gap-3"></div>
+                    <h2 class="mc-section-title"><span>🎟 Tus shows</span><span class="mc-linea"></span></h2>
+                    <div id="contenedor-eventos" class="flex flex-col gap-3"><p class="text-zinc-500 text-sm">Aún no anuncias fechas.</p></div>
                 </div>
-            </div>
+                <div>
+                    <h2 class="mc-section-title"><span>💜 Sigues a</span><span class="mc-linea"></span></h2>
+                    <div id="lista-siguiendo" class="flex flex-col gap-2"><div class="mc-skel h-12"></div><div class="mc-skel h-12"></div></div>
+                </div>
+            </aside>
         </div>
     </main>
+
+    <!-- ===== MODAL: COMPARTIR ===== -->
+    <div id="modal-compartir" class="mc-modal hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+        <div class="mc-glass max-w-sm w-full p-6 text-center shadow-2xl">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="mc-display text-xl font-extrabold">Tu tarjeta</h3>
+                <button onclick="document.getElementById('modal-compartir').classList.add('hidden')" class="mc-iconbtn !w-9 !h-9" aria-label="Cerrar">✕</button>
+            </div>
+            <div class="rounded-3xl p-6" style="background:linear-gradient(160deg, color-mix(in srgb, var(--acento) 55%, #0e0d13), #0e0d13 70%)">
+                <div id="tarjeta-avatar" class="w-16 h-16 mx-auto"></div>
+                <p id="tarjeta-nombre" class="text-2xl font-extrabold mt-3"></p>
+                <p id="tarjeta-user" class="text-sm text-white/60"></p>
+                <div class="bg-white rounded-2xl p-3 mt-5 inline-block"><div id="qr" class="w-[168px] h-[168px] grid place-items-center text-zinc-400 text-xs">Generando QR…</div></div>
+                <p class="mc-kicker !text-white/50 mt-4">Escanea y escúchame en MusaConnect</p>
+            </div>
+            <input id="link-perfil" readonly class="mc-input text-center text-xs mt-5" onclick="this.select()">
+            <div class="grid grid-cols-2 gap-2 mt-3">
+                <button onclick="copiarLinkInstagram()" class="mc-btn-ghost mc-btn-sm">🔗 Copiar link</button>
+                <button onclick="descargarQR()" class="mc-btn-ghost mc-btn-sm">⬇ Descargar QR</button>
+            </div>
+            <button onclick="MusaUI.compartir(linkPerfil(), 'Escúchame en MusaConnect')" class="mc-btn w-full mt-2">Compartir</button>
+        </div>
+    </div>
 
     <script>
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-        actualizarCampana(client);
-        
+        MusaUI.montar(client, { activo: 'perfil' });
+
         let miUsuarioId = null;
         let miTipoPerfil = null;
         let misIntegrantes = [];
         let miUsername = null;
+        let miPerfil = null;
+
+        const HERRAMIENTAS = {
+            fragmento: { panel: 'panel-fragmento', emoji: '🎵', texto: 'Fragmento', sub: 'Spotify, YouTube…' },
+            preview:   { panel: 'panel-preview',   emoji: '🎬', texto: 'Adelanto', sub: 'Solo seguidores' },
+            evento:    { panel: 'panel-evento',    emoji: '🎟', texto: 'Show', sub: 'Fechas y entradas' },
+            beat:      { panel: 'panel-beat',      emoji: '🎹', texto: 'Beat', sub: 'Tu catálogo' },
+            integrante:{ panel: 'panel-integrante',emoji: '👥', texto: 'Equipo', sub: 'Integrantes' }
+        };
+        const HERRAMIENTAS_POR_TIPO = {
+            artista: ['fragmento', 'preview', 'evento'],
+            banda: ['fragmento', 'integrante', 'evento', 'preview'],
+            compositor: ['beat', 'preview'],
+            estudio: ['fragmento', 'integrante', 'evento']
+        };
 
         function mostrarPanel(panelId) {
             ['panel-fragmento', 'panel-preview', 'panel-evento', 'panel-beat', 'panel-integrante'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById(panelId).classList.remove('hidden');
+            document.querySelectorAll('.herramienta').forEach(b => b.classList.toggle('activa', b.dataset.panel === panelId));
         }
 
         async function initPerfil() {
             const { data: { user } } = await client.auth.getUser();
             if (!user) { window.location.href = 'login.html'; return; }
-            
+
             const { data: perfil } = await client.from('perfiles').select('*').eq('id', user.id).single();
-            if (perfil) {
-                miUsuarioId = user.id;
-                miTipoPerfil = perfil.tipo;
-                miUsername = perfil.username;
-                
-                document.getElementById('profile-name').textContent = perfil.nombre_display || "Sin Nombre";
-                document.getElementById('profile-username').textContent = "@" + perfil.username;
-                document.getElementById('profile-role').textContent = perfil.tipo || "Usuario";
-                document.getElementById('profile-bio').textContent = perfil.bio || "Sin biografía.";
-                
-                if (safeUrl(perfil.avatar_url)) document.getElementById('profile-avatar').innerHTML = `<img src="${safeUrl(perfil.avatar_url)}" class="w-full h-full object-cover">`;
-                
-                misIntegrantes = perfil.integrantes_banda || [];
-                const banner = document.getElementById('profile-banner');
-                const rolBadge = document.getElementById('profile-role');
-                const btnEditar = document.getElementById('btn-editar-header');
-                const controles = document.getElementById('botones-control');
-                
-                if (miTipoPerfil === 'compositor') {
-                    banner.className = "h-32 md:h-48 bg-gradient-to-r from-cyan-900/60 to-[#0e0e0e] relative";
-                    rolBadge.className = "inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-cyan-400 bg-cyan-900/20 px-2.5 py-1 rounded-md border border-cyan-900/50";
-                    btnEditar.className = "bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(6,182,212,0.4)]";
-                    
-                    controles.innerHTML = `
-                        <button onclick="mostrarPanel('panel-beat')" class="flex-1 min-w-[150px] bg-[#141414] border border-cyan-900/50 hover:border-cyan-500 text-cyan-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2 shadow-lg"><span class="text-2xl">🎹</span> Subir Beat</button>
-                        <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[150px] bg-[#141414] border border-purple-900/50 hover:border-purple-500 text-purple-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎬</span> Preview Visual</button>
-                    `;
-                    document.getElementById('seccion-beats').classList.remove('hidden');
-                    cargarBeats(); cargarPreviews();
-                } else if (miTipoPerfil === 'banda') {
-                    banner.className = "h-32 md:h-48 bg-gradient-to-r from-red-900/60 to-[#0e0e0e] relative";
-                    rolBadge.className = "inline-block mt-3 text-[10px] font-black uppercase tracking-wider text-red-500 bg-red-900/20 px-2.5 py-1 rounded-md border border-red-900/50";
-                    btnEditar.className = "bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]";
-                    controles.innerHTML = `
-                        <button onclick="mostrarPanel('panel-integrante')" class="flex-1 min-w-[150px] bg-[#141414] border border-red-900/50 hover:border-red-500 text-red-500 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">👥</span> Alineación</button>
-                        <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[150px] bg-[#141414] border border-green-900/50 hover:border-green-500 text-green-500 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎵</span> Spotify</button>
-                        <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[150px] bg-[#141414] border border-orange-900/50 hover:border-orange-500 text-orange-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎟</span> Tour</button>
-                    `;
-                    document.getElementById('seccion-musica').classList.remove('hidden');
-                    document.getElementById('seccion-integrantes').classList.remove('hidden');
-                    document.getElementById('seccion-eventos').classList.remove('hidden');
-                    cargarLanzamientos(); renderIntegrantes(); cargarEventos();
-                } else {
-                    controles.innerHTML = `
-                        <button onclick="mostrarPanel('panel-fragmento')" class="flex-1 min-w-[150px] bg-[#141414] border border-green-900/50 hover:border-green-500 text-green-500 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎵</span> Spotify</button>
-                        <button onclick="mostrarPanel('panel-preview')" class="flex-1 min-w-[150px] bg-[#141414] border border-purple-900/50 hover:border-purple-500 text-purple-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎬</span> Preview</button>
-                        <button onclick="mostrarPanel('panel-evento')" class="flex-1 min-w-[150px] bg-[#141414] border border-orange-900/50 hover:border-orange-500 text-orange-400 p-4 rounded-xl transition-all font-bold text-sm flex flex-col items-center gap-2"><span class="text-2xl">🎟</span> Evento</button>
-                    `;
-                    document.getElementById('seccion-musica').classList.remove('hidden');
-                    document.getElementById('seccion-eventos').classList.remove('hidden');
-                    cargarLanzamientos(); cargarPreviews(); cargarEventos();
-                }
+            if (!perfil) return;
+            miPerfil = perfil;
+            miUsuarioId = user.id;
+            miTipoPerfil = perfil.tipo;
+            miUsername = perfil.username;
+            misIntegrantes = perfil.integrantes_banda || [];
+
+            // Estilo personal
+            const acento = safeColor(perfil.color_acento, '#8b5cf6');
+            document.documentElement.style.setProperty('--acento', acento);
+            const nombreEl = document.getElementById('profile-name');
+            nombreEl.style.fontFamily = safeFont(perfil.fuente_nombre);
+            nombreEl.textContent = perfil.nombre_display || "Sin nombre";
+            document.getElementById('profile-username').textContent = "@" + perfil.username;
+            document.getElementById('profile-bio').textContent = perfil.bio || "Aún no tienes biografía. Cuéntale al mundo quién eres desde Editar perfil.";
+            document.getElementById('btn-ver-publico').href = 'visor.html?id=' + encodeURIComponent(user.id);
+
+            const tipo = MusaUI.TIPOS[perfil.tipo] ? perfil.tipo : 'fan';
+            const rol = document.getElementById('profile-role');
+            rol.className = `mc-tipo mc-tipo-${tipo}`;
+            rol.textContent = `${MusaUI.TIPOS[tipo].emoji} ${MusaUI.TIPOS[tipo].label}`;
+            if (perfil.ciudad) { const c = document.getElementById('profile-ciudad'); c.textContent = '📍 ' + perfil.ciudad; c.classList.remove('hidden'); }
+            if (perfil.estado_vibe) { const v = document.getElementById('profile-vibe'); v.textContent = perfil.estado_vibe; v.classList.remove('hidden'); }
+
+            const avatar = document.getElementById('profile-avatar');
+            if (perfil.forma_avatar === 'rounded-2xl') { avatar.classList.remove('rounded-full'); avatar.classList.add('rounded-[28px]'); }
+            if (safeUrl(perfil.avatar_url)) avatar.innerHTML = `<img src="${safeUrl(perfil.avatar_url)}" alt="" class="w-full h-full object-cover">`;
+            else { avatar.style.background = `linear-gradient(135deg, ${acento}, #1a1724)`; avatar.innerHTML = `<span class="font-black text-6xl">${esc((perfil.nombre_display || perfil.username || '?').charAt(0).toUpperCase())}</span>`; }
+
+            document.getElementById('profile-banner').innerHTML = safeUrl(perfil.banner_url)
+                ? `<img src="${safeUrl(perfil.banner_url)}" alt="" class="absolute inset-0 w-full h-full object-cover">`
+                : `<div class="absolute inset-0" style="background:radial-gradient(ellipse at 20% 20%, ${acento}, transparent 60%), radial-gradient(ellipse at 90% 80%, #ec489955, transparent 55%), #120f19"></div>`;
+
+            // Redes
+            const redes = [
+                { url: perfil.link_instagram || perfil.instagram, texto: '📸 Instagram' },
+                { url: perfil.link_spotify || perfil.spotify, texto: '🎧 Spotify' },
+                { url: perfil.youtube, texto: '▶ YouTube' },
+                { url: perfil.soundcloud, texto: '☁ SoundCloud' },
+                { url: perfil.link_stream, texto: '🔴 En vivo' }
+            ].filter(r => safeUrl(r.url));
+            document.getElementById('profile-links').innerHTML = redes.map(r => `<a href="${safeUrl(r.url)}" target="_blank" rel="noopener noreferrer" class="mc-chip hover:!text-white">${r.texto}</a>`).join('');
+
+            // Herramientas según el rol
+            const herramientas = HERRAMIENTAS_POR_TIPO[tipo] || [];
+            const controles = document.getElementById('botones-control');
+            if (herramientas.length) {
+                controles.innerHTML = herramientas.map(k => {
+                    const h = HERRAMIENTAS[k];
+                    return `<button onclick="mostrarPanel('${h.panel}')" data-panel="${h.panel}" class="herramienta mc-panel p-4 text-left">
+                        <span class="text-2xl">${h.emoji}</span><p class="font-extrabold mt-3">${h.texto}</p><p class="text-[11px] text-zinc-500 mt-0.5">${h.sub}</p></button>`;
+                }).join('');
+            } else {
+                // Los fans no publican música: accesos para descubrir
+                controles.innerHTML = `
+                    <a href="explorar.html" class="herramienta mc-panel p-4"><span class="text-2xl">🧭</span><p class="font-extrabold mt-3">Descubrir</p><p class="text-[11px] text-zinc-500 mt-0.5">Artistas nuevos</p></a>
+                    <a href="feed.html" class="herramienta mc-panel p-4"><span class="text-2xl">🌍</span><p class="font-extrabold mt-3">Muro</p><p class="text-[11px] text-zinc-500 mt-0.5">Opina y comenta</p></a>
+                    <a href="radar.html" class="herramienta mc-panel p-4"><span class="text-2xl">📡</span><p class="font-extrabold mt-3">Radar</p><p class="text-[11px] text-zinc-500 mt-0.5">Colaboraciones</p></a>`;
             }
+
+            if (tipo === 'compositor') {
+                document.getElementById('seccion-beats').classList.remove('hidden');
+                document.getElementById('seccion-musica').classList.remove('hidden');
+                document.querySelector('#seccion-musica > div:first-child').classList.add('hidden');
+                document.getElementById('stat-musica-label').textContent = 'beats';
+                cargarBeats(); cargarPreviews();
+            } else if (tipo === 'fan') {
+                document.getElementById('seccion-fan').classList.remove('hidden');
+                cargarRecomendados();
+            } else {
+                document.getElementById('seccion-musica').classList.remove('hidden');
+                document.getElementById('seccion-eventos').classList.remove('hidden');
+                if (tipo === 'banda' || tipo === 'estudio') {
+                    document.getElementById('seccion-integrantes').classList.remove('hidden');
+                    document.getElementById('titulo-integrantes').textContent = tipo === 'estudio' ? 'Tu equipo' : 'Alineación';
+                    renderIntegrantes();
+                }
+                if (tipo === 'estudio') document.getElementById('bloque-previews').classList.add('hidden');
+                else cargarPreviews();
+                cargarLanzamientos(); cargarEventos();
+            }
+
+            cargarEstadisticas();
+            cargarSiguiendo();
         }
 
+        // ---------- Estadísticas y completitud ----------
+        async function cargarEstadisticas() {
+            const contar = async (tabla, col) => {
+                const { count } = await client.from(tabla).select('id', { count: 'exact', head: true }).eq(col, miUsuarioId);
+                return count || 0;
+            };
+            const tablaMusica = miTipoPerfil === 'compositor' ? 'beats' : 'canciones';
+            const [seguidores, siguiendo, musica, posts] = await Promise.all([
+                contar('seguidores', 'seguido_id'), contar('seguidores', 'seguidor_id'), contar(tablaMusica, 'usuario_id'), contar('posts', 'usuario_id')
+            ]);
+            MusaUI.contar(document.getElementById('stat-seguidores'), seguidores);
+            MusaUI.contar(document.getElementById('stat-siguiendo'), siguiendo);
+            MusaUI.contar(document.getElementById('stat-musica'), musica);
+            MusaUI.contar(document.getElementById('stat-posts'), posts);
+            pintarCompletitud(musica);
+        }
+
+        function pintarCompletitud(cantidadMusica) {
+            const p = miPerfil;
+            const esFan = miTipoPerfil === 'fan';
+            const tieneRedes = [p.link_instagram, p.instagram, p.link_spotify, p.spotify, p.youtube, p.soundcloud].some(u => safeUrl(u));
+            const pasos = [
+                { ok: !!safeUrl(p.avatar_url), texto: 'Sube una foto de perfil', link: 'editar-perfil.html' },
+                { ok: !!safeUrl(p.banner_url), texto: 'Agrega una portada', link: 'editar-perfil.html' },
+                { ok: !!(p.bio && p.bio.length > 10), texto: 'Escribe tu bio', link: 'editar-perfil.html' },
+                { ok: !!p.ciudad, texto: 'Cuenta desde qué ciudad', link: 'editar-perfil.html' },
+                { ok: (p.generos || []).length > 0, texto: 'Elige tus géneros', link: 'editar-perfil.html#seccion-generos' },
+                { ok: tieneRedes, texto: 'Conecta tus redes', link: 'editar-perfil.html#seccion-redes' }
+            ];
+            if (!esFan) {
+                pasos.push({ ok: !!embedSeguro(p.track_destacado), texto: 'Fija tu track destacado', link: 'editar-perfil.html' });
+                pasos.push({ ok: cantidadMusica > 0, texto: miTipoPerfil === 'compositor' ? 'Sube tu primer beat' : 'Publica tu primer tema', accion: miTipoPerfil === 'compositor' ? 'panel-beat' : 'panel-fragmento' });
+            }
+            const hechos = pasos.filter(x => x.ok).length;
+            const pct = Math.round(hechos / pasos.length * 100);
+            document.getElementById('tarjeta-completitud').classList.remove('hidden');
+            document.getElementById('anillo').style.setProperty('--p', pct);
+            document.getElementById('anillo-pct').textContent = pct + '%';
+            document.getElementById('pct-texto').textContent = pct + '%';
+            if (pct === 100) document.getElementById('completitud-msg').textContent = '¡Perfil completo! Así se ve un perfil profesional ✨';
+
+            document.getElementById('pasos-completitud').innerHTML = pasos.map(x => {
+                const icono = x.ok ? '<span class="w-5 h-5 rounded-full grid place-items-center text-[10px] font-black bg-emerald-500/20 text-emerald-300">✓</span>' : '<span class="w-5 h-5 rounded-full border-2 border-white/15"></span>';
+                const destino = x.accion ? `href="#" onclick="event.preventDefault(); mostrarPanel('${x.accion}'); window.scrollTo({ top: document.getElementById('botones-control').offsetTop - 120, behavior: 'smooth' });"` : `href="${x.link}"`;
+                return `<a ${destino} class="paso-check flex items-center gap-3 px-2 py-2 rounded-xl text-sm ${x.ok ? 'text-zinc-500 line-through' : 'text-zinc-200 font-semibold'}">${icono}<span class="flex-1">${x.texto}</span>${x.ok ? '' : '<span class="text-zinc-500">→</span>'}</a>`;
+            }).join('');
+        }
+
+        async function cargarSiguiendo() {
+            const { data: rel } = await client.from('seguidores').select('seguido_id').eq('seguidor_id', miUsuarioId).limit(30);
+            const cont = document.getElementById('lista-siguiendo');
+            const ids = (rel || []).map(r => r.seguido_id);
+            if (!ids.length) {
+                cont.innerHTML = `<div class="mc-panel p-5 text-center"><p class="text-sm text-zinc-400">Todavía no sigues a nadie.</p><a href="explorar.html" class="mc-btn mc-btn-sm mt-3">Descubrir artistas</a></div>`;
+                return;
+            }
+            const { data: ps } = await client.from('perfiles').select('id, username, nombre_display, avatar_url, tipo, color_acento, forma_avatar').in('id', ids);
+            cont.innerHTML = (ps || []).map(p => `
+                <a href="visor.html?id=${encodeURIComponent(p.id)}" class="mc-card flex items-center gap-3 p-3">
+                    ${MusaUI.avatarHtml(p, 'w-10 h-10 text-sm')}
+                    <div class="min-w-0"><p class="font-bold text-sm truncate">${esc(p.nombre_display || p.username)}</p><p class="text-[11px] text-zinc-500">@${esc(p.username)}</p></div>
+                </a>`).join('');
+        }
+
+        async function cargarRecomendados() {
+            const { data } = await client.from('perfiles')
+                .select('id, username, nombre_display, tipo, bio, avatar_url, banner_url, color_acento, fuente_nombre, forma_avatar, generos, ciudad, verificado')
+                .neq('tipo', 'fan').neq('id', miUsuarioId).order('created_at', { ascending: false }).limit(4);
+            document.getElementById('recomendados').innerHTML = (data || []).map(MusaUI.tarjetaPerfil).join('') || '<p class="text-zinc-500 text-sm">Pronto habrá artistas para recomendarte.</p>';
+        }
+
+        // ---------- Beats ----------
         async function cargarBeats() {
             const { data: beats } = await client.from('beats').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-beats');
             if (beats && beats.length > 0) {
                 cont.innerHTML = beats.map(b => `
-                    <div class="bg-[#0a0a0a] border border-cyan-900/30 p-4 rounded-2xl flex flex-col gap-3 group hover:border-cyan-500/60 transition-all fade-in">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-cyan-900/20 rounded-full flex items-center justify-center text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]">🎹</div>
-                                <div><h4 class="font-black text-white text-sm">${esc(b.titulo)}</h4><p class="text-[10px] text-zinc-500 uppercase tracking-widest">${b.bpm ? esc(b.bpm) + ' BPM | ' : ''}<span class="text-cyan-500 font-bold">${esc(b.etiqueta || 'Catálogo')}</span></p></div>
+                    <div class="mc-card p-4 flex flex-col gap-3 group fade-in">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-11 h-11 rounded-2xl grid place-items-center text-xl bg-acento-transparente shrink-0">🎹</div>
+                                <div class="min-w-0"><h4 class="font-extrabold truncate">${esc(b.titulo)}</h4><p class="text-[11px] text-zinc-500 uppercase tracking-widest">${b.bpm ? esc(b.bpm) + ' BPM · ' : ''}<span class="text-acento font-bold">${esc(b.etiqueta || 'Catálogo')}</span></p></div>
                             </div>
-                            <button onclick="borrarBeat(${Number(b.id)})" class="text-red-500 hover:text-red-400 bg-red-900/20 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-xs">🗑</button>
+                            <button onclick="borrarBeat(${Number(b.id)})" class="mc-iconbtn !w-9 !h-9 opacity-0 group-hover:opacity-100 hover:!text-rose-400" title="Eliminar beat">🗑</button>
                         </div>
-                        <audio controls controlsList="nodownload" class="w-full h-8 mt-1 custom-audio" src="${safeUrl(b.url_audio)}"></audio>
-                    </div>
-                `).join('');
-            } else { 
-                cont.innerHTML = '<p class="text-zinc-600 text-sm">Sube tu primer beat para abrir la tienda.</p>'; 
+                        <audio controls controlsList="nodownload" preload="none" src="${safeUrl(b.url_audio)}"></audio>
+                    </div>`).join('');
+            } else {
+                cont.innerHTML = '<div class="mc-panel p-8 text-center text-zinc-500 text-sm">Sube tu primer beat para abrir tu tienda. 🎹</div>';
             }
         }
 
@@ -263,51 +417,57 @@
             const bpm = document.getElementById('input-bpm-beat').value.trim();
             const etiqueta = document.getElementById('input-etiqueta-beat').value.trim();
             const file = document.getElementById('input-file-beat').files[0];
-            
-            if(!titulo || !file) return alert("Falta el archivo o el título del beat.");
-            
-            const btn = event.target; btn.textContent = "Procesando..."; btn.disabled = true;
-            const restaurarBoton = () => { btn.textContent = "Subir al Catálogo"; btn.disabled = false; };
+
+            if (!titulo || !file) return MusaUI.toast("Falta el archivo o el título del beat.", 'error');
+
+            const btn = event.target; btn.textContent = "Subiendo…"; btn.disabled = true;
+            const restaurarBoton = () => { btn.textContent = "Subir al catálogo"; btn.disabled = false; };
             const filePath = `${miUsuarioId}-${Date.now()}.${file.name.split('.').pop()}`;
 
             const { error: uploadError } = await client.storage.from('beats').upload(filePath, file);
-            if (uploadError) { restaurarBoton(); return alert("No se pudo subir el audio: " + uploadError.message); }
+            if (uploadError) { restaurarBoton(); return MusaUI.toast("No se pudo subir el audio: " + uploadError.message, 'error'); }
             const { data: { publicUrl } } = client.storage.from('beats').getPublicUrl(filePath);
 
             const { error } = await client.from('beats').insert([{ usuario_id: miUsuarioId, titulo, bpm, etiqueta, url_audio: publicUrl }]);
-            if (error) { restaurarBoton(); return alert("No se pudo guardar el beat: " + error.message); }
+            if (error) { restaurarBoton(); return MusaUI.toast("No se pudo guardar el beat: " + error.message, 'error'); }
 
             ['input-titulo-beat', 'input-bpm-beat', 'input-etiqueta-beat', 'input-file-beat'].forEach(id => document.getElementById(id).value = '');
             restaurarBoton();
-            cargarBeats();
+            MusaUI.toast('¡Beat publicado en tu catálogo!', 'ok');
+            cargarBeats(); cargarEstadisticas();
         }
 
-        window.borrarBeat = async function(id) { 
-            if(confirm("¿Eliminar este beat de tu catálogo?")) { 
-                await client.from('beats').delete().eq('id', id); 
-                cargarBeats(); 
-            } 
+        window.borrarBeat = async function(id) {
+            if (confirm("¿Eliminar este beat de tu catálogo?")) {
+                await client.from('beats').delete().eq('id', id);
+                cargarBeats(); cargarEstadisticas();
+            }
         }
 
+        // ---------- Integrantes ----------
         window.agregarIntegrante = async function() {
             const nombre = document.getElementById('input-nombre-int').value.trim();
             const rol = document.getElementById('input-rol-int').value.trim();
-            
-            if(!nombre || !rol) return alert("Llena ambos campos.");
-            
+
+            if (!nombre || !rol) return MusaUI.toast("Llena el nombre y el rol.", 'error');
+
             misIntegrantes.push({ nombre, rol });
             const { error } = await client.from('perfiles').update({ integrantes_banda: misIntegrantes }).eq('id', miUsuarioId);
-            
-            if(!error) { 
-                document.getElementById('input-nombre-int').value = ''; 
-                document.getElementById('input-rol-int').value = ''; 
-                renderIntegrantes(); 
+
+            if (!error) {
+                document.getElementById('input-nombre-int').value = '';
+                document.getElementById('input-rol-int').value = '';
+                MusaUI.toast(`${nombre} se sumó al equipo.`, 'ok');
+                renderIntegrantes();
+            } else {
+                misIntegrantes.pop();
+                MusaUI.toast("No se pudo guardar: " + error.message, 'error');
             }
         }
 
         window.quitarIntegrante = async function(index) {
             misIntegrantes.splice(index, 1);
-            await client.from('perfiles').update({ integrantes_banda: misIntegrantes }).eq('id', miUsuarioId); 
+            await client.from('perfiles').update({ integrantes_banda: misIntegrantes }).eq('id', miUsuarioId);
             renderIntegrantes();
         }
 
@@ -315,144 +475,210 @@
             const cont = document.getElementById('contenedor-integrantes');
             if (misIntegrantes.length > 0) {
                 cont.innerHTML = misIntegrantes.map((int, i) => `
-                    <div class="bg-[#1a1a1a] border border-red-900/30 p-3 rounded-xl flex items-center justify-between group fade-in">
-                        <div><h4 class="font-black text-white text-sm">${esc(int.nombre)}</h4><p class="text-[10px] text-red-400 font-bold uppercase tracking-widest">${esc(int.rol)}</p></div>
-                        <button onclick="quitarIntegrante(${i})" class="text-red-500 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">✖</button>
-                    </div>
-                `).join('');
-            } else { 
-                cont.innerHTML = '<p class="text-zinc-600 text-xs">Agrega a los miembros de tu banda.</p>'; 
+                    <div class="mc-panel p-3 flex items-center justify-between gap-3 group fade-in">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-full grid place-items-center font-black bg-acento-transparente text-acento">${esc((int.nombre || '?').charAt(0).toUpperCase())}</div>
+                            <div class="min-w-0"><h4 class="font-bold text-sm truncate">${esc(int.nombre)}</h4><p class="text-[11px] text-zinc-500 uppercase tracking-wider truncate">${esc(int.rol)}</p></div>
+                        </div>
+                        <button onclick="quitarIntegrante(${i})" class="text-zinc-500 hover:text-rose-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity" title="Quitar">✕</button>
+                    </div>`).join('');
+            } else {
+                cont.innerHTML = '<p class="text-zinc-500 text-sm">Agrega a los miembros de tu equipo con la herramienta 👥.</p>';
             }
         }
 
+        // ---------- Fragmentos ----------
         async function cargarLanzamientos() {
             const { data: canciones } = await client.from('canciones').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-canciones');
             if (canciones && canciones.length > 0) {
                 cont.innerHTML = canciones.map(c => `
-                    <div class="bg-[#0a0a0a] border border-green-500/20 p-3 rounded-2xl hover:border-green-500/60 transition-all duration-300 relative group">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-600 to-green-400 rounded-t-2xl opacity-80"></div>
-                        <div class="px-2 pb-2 pt-1 flex justify-between items-center"><h3 class="font-black text-white text-sm truncate pr-2">${esc(c.titulo)}</h3><button onclick="borrarCancion(${Number(c.id)})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
-                        <div class="rounded-xl overflow-hidden">${embedSeguro(c.enlace_embed)}</div>
-                    </div>
-                `).join('');
+                    <div class="mc-card p-3 group">
+                        <div class="px-2 pb-3 pt-1 flex justify-between items-center gap-2"><h3 class="font-extrabold text-sm truncate">${esc(c.titulo)}</h3><button onclick="borrarCancion(${Number(c.id)})" class="text-zinc-500 hover:text-rose-400 text-xs opacity-0 group-hover:opacity-100" title="Borrar">🗑</button></div>
+                        <div class="rounded-2xl overflow-hidden">${embedSeguro(c.enlace_embed) || '<p class="text-xs text-zinc-500 p-4">Este link no se puede reproducir.</p>'}</div>
+                    </div>`).join('');
+            } else {
+                cont.innerHTML = '<div class="mc-panel p-8 text-center text-zinc-500 text-sm md:col-span-2">Publica tu primer tema con la herramienta 🎵.</div>';
             }
         }
 
         window.publicarCancion = async function() {
-            const t = document.getElementById('input-titulo-cancion').value.trim(), 
+            const t = document.getElementById('input-titulo-cancion').value.trim(),
                   e = document.getElementById('input-embed-cancion').value.trim();
-            if(!t || !e) return;
-            await client.from('canciones').insert([{ usuario_id: miUsuarioId, titulo: t, enlace_embed: e }]);
-            document.getElementById('input-titulo-cancion').value = ''; 
-            document.getElementById('input-embed-cancion').value = ''; 
-            cargarLanzamientos();
+            if (!t || !e) return MusaUI.toast("Escribe el título y pega el link del tema.", 'error');
+            if (!embedSeguro(e)) return MusaUI.toast("Ese link no es compatible. Usa Spotify, YouTube, SoundCloud, Apple Music o Bandcamp.", 'error');
+            const { error } = await client.from('canciones').insert([{ usuario_id: miUsuarioId, titulo: t, enlace_embed: e }]);
+            if (error) return MusaUI.toast("No se pudo publicar: " + error.message, 'error');
+            document.getElementById('input-titulo-cancion').value = '';
+            document.getElementById('input-embed-cancion').value = '';
+            MusaUI.toast('¡Tema publicado en tu perfil!', 'ok');
+            cargarLanzamientos(); cargarEstadisticas();
         }
 
-        window.borrarCancion = async function(id) { 
-            if(confirm("¿Borrar fragmento?")) { 
-                await client.from('canciones').delete().eq('id', id); 
-                cargarLanzamientos(); 
-            } 
+        window.borrarCancion = async function(id) {
+            if (confirm("¿Borrar este fragmento?")) {
+                await client.from('canciones').delete().eq('id', id);
+                cargarLanzamientos(); cargarEstadisticas();
+            }
         }
 
+        // ---------- Adelantos ----------
         async function cargarPreviews() {
             const { data: previews } = await client.from('previews').select('*').eq('usuario_id', miUsuarioId).order('fecha', { ascending: false });
-            const { data: comentarios } = await client.from('comentarios_previews').select('*').order('fecha', { ascending: true });
             const cont = document.getElementById('contenedor-previews');
             if (previews && previews.length > 0) {
+                const [{ data: comentarios }, videos] = await Promise.all([
+                    client.from('comentarios_previews').select('*').in('preview_id', previews.map(p => p.id)).order('fecha', { ascending: true }),
+                    firmarPreviews(client, previews)
+                ]);
                 cont.innerHTML = previews.map(p => {
                     const commentsHtml = (comentarios || []).filter(c => c.preview_id === p.id).map(c => `
-                        <div class="bg-[#141414] p-2 rounded-lg mb-1">
-                            <p class="text-[10px] font-black text-purple-400">${esc(c.autor_nombre)}</p>
-                            <p class="text-xs text-zinc-300">${esc(c.mensaje)}</p>
-                        </div>
-                    `).join('');
-                    
+                        <div class="bg-white/[.04] px-3 py-2 rounded-2xl rounded-tl-sm mb-2">
+                            <p class="text-[11px] font-black text-acento">${esc(c.autor_nombre)}</p>
+                            <p class="text-sm text-zinc-300">${esc(c.mensaje)}</p>
+                        </div>`).join('');
                     return `
-                        <div class="bg-[#0a0a0a] border border-purple-800/50 p-4 rounded-2xl flex flex-col group">
-                            <div class="flex justify-between mb-3"><h3 class="font-black text-white text-sm"><span class="text-purple-500">▶</span> ${esc(p.titulo)}</h3><button onclick="borrarPreview(${Number(p.id)})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button></div>
-                            <video controls class="w-full rounded-xl bg-black outline-none border border-zinc-800 mb-4" src="${safeUrl(p.url_media)}"></video>
-                            <div class="mt-auto border-t border-zinc-800/60 pt-3"><div class="max-h-40 overflow-y-auto mb-3">${commentsHtml}</div></div>
-                        </div>
-                    `;
+                        <div class="mc-card p-4 flex flex-col group">
+                            <div class="flex justify-between mb-3 gap-2"><h3 class="font-extrabold text-sm truncate"><span class="text-acento">▶</span> ${esc(p.titulo)}</h3><button onclick="borrarPreview(${Number(p.id)})" class="text-zinc-500 hover:text-rose-400 text-xs opacity-0 group-hover:opacity-100" title="Borrar">🗑</button></div>
+                            ${safeUrl(videos[p.id])
+                                ? `<video controls preload="metadata" class="w-full rounded-2xl bg-black border border-white/5 mb-3" src="${safeUrl(videos[p.id])}"></video>`
+                                : '<div class="mc-panel p-6 mb-3 text-center text-xs text-zinc-500">No se pudo cargar este video.</div>'}
+                            <div class="max-h-40 overflow-y-auto">${commentsHtml || '<p class="text-xs text-zinc-500">Sin comentarios todavía.</p>'}</div>
+                        </div>`;
                 }).join('');
+            } else {
+                cont.innerHTML = '<div class="mc-panel p-8 text-center text-zinc-500 text-sm md:col-span-2">Sube un adelanto 🎬 para premiar a tus seguidores.</div>';
             }
         }
 
         window.publicarPreview = async function() {
             const file = document.getElementById('input-file-preview').files[0];
             const titulo = document.getElementById('input-titulo-preview').value.trim();
-            if(!titulo || !file) return;
+            if (!titulo || !file) return MusaUI.toast("Falta el título o el video.", 'error');
+            if (file.type && file.type !== 'video/mp4') return MusaUI.toast("El adelanto debe ser un video MP4.", 'error');
+            if (file.size > 50 * 1024 * 1024) return MusaUI.toast("El video pesa más de 50 MB. Prueba con uno más corto.", 'error');
             const filePath = `${miUsuarioId}-${Date.now()}.mp4`;
-            const { error: uploadError } = await client.storage.from('previews').upload(filePath, file);
-            if (uploadError) return alert("No se pudo subir el video: " + uploadError.message);
-            const { data: { publicUrl } } = client.storage.from('previews').getPublicUrl(filePath);
-            const { error } = await client.from('previews').insert([{ usuario_id: miUsuarioId, titulo, url_media: publicUrl }]);
-            if (error) return alert("No se pudo guardar el preview: " + error.message);
+            MusaUI.toast('Subiendo tu adelanto…', 'info');
+            const { error: uploadError } = await client.storage.from('previews').upload(filePath, file, { contentType: 'video/mp4' });
+            if (uploadError) return MusaUI.toast("No se pudo subir el video: " + uploadError.message, 'error');
+            // El bucket es privado: se guarda la ruta y el video se muestra con URLs firmadas
+            const { error } = await client.from('previews').insert([{ usuario_id: miUsuarioId, titulo, url_media: filePath }]);
+            if (error) {
+                await client.storage.from('previews').remove([filePath]);
+                return MusaUI.toast("No se pudo guardar el preview: " + error.message, 'error');
+            }
+            document.getElementById('input-titulo-preview').value = '';
+            document.getElementById('input-file-preview').value = '';
+            MusaUI.toast('¡Adelanto publicado para tus seguidores!', 'ok');
             cargarPreviews();
         }
 
-        window.borrarPreview = async function(id) { 
-            if(confirm("¿Borrar video?")) { 
-                await client.from('previews').delete().eq('id', id); 
-                cargarPreviews(); 
-            } 
+        window.borrarPreview = async function(id) {
+            if (confirm("¿Borrar este video?")) {
+                const { data: borrados, error } = await client.from('previews').delete().eq('id', id).select('url_media');
+                if (error) return MusaUI.toast("No se pudo borrar: " + error.message, 'error');
+                // También se borra el archivo, para que no quede un video huérfano en el bucket
+                const rutas = (borrados || []).map(p => rutaPreview(p.url_media)).filter(Boolean);
+                if (rutas.length) await client.storage.from('previews').remove(rutas);
+                cargarPreviews();
+            }
         }
 
+        // ---------- Shows ----------
         async function cargarEventos() {
             const { data: eventos } = await client.from('eventos').select('*').eq('usuario_id', miUsuarioId).order('id', { ascending: false });
             const cont = document.getElementById('contenedor-eventos');
             if (eventos && eventos.length > 0) {
                 cont.innerHTML = eventos.map(e => `
-                    <div class="bg-[#141414] border border-zinc-800 p-4 rounded-xl flex items-center justify-between hover:border-orange-500/50 transition-colors group">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-orange-400 font-black text-sm">${esc(e.fecha)}</span>
-                                <span class="text-[9px] text-zinc-500 border border-zinc-700 px-1.5 rounded">${esc(e.ciudad)}</span>
-                            </div>
-                            <p class="text-white font-bold text-sm">${esc(e.lugar)}</p>
-                        </div>
-                        <button onclick="borrarEvento(${Number(e.id)})" class="text-red-500 text-xs opacity-0 group-hover:opacity-100">🗑</button>
-                    </div>
-                `).join('');
+                    <div class="mc-card p-4 flex items-center gap-3 group">
+                        <div class="w-12 h-12 rounded-2xl shrink-0 grid place-items-center text-center bg-acento-transparente"><span class="text-[10px] font-black leading-tight text-acento px-1">${esc(e.fecha)}</span></div>
+                        <div class="min-w-0 flex-1"><p class="font-bold text-sm truncate">${esc(e.lugar)}</p><p class="text-xs text-zinc-500">📍 ${esc(e.ciudad)}</p></div>
+                        <button onclick="borrarEvento(${Number(e.id)})" class="text-zinc-500 hover:text-rose-400 text-xs opacity-0 group-hover:opacity-100" title="Borrar">🗑</button>
+                    </div>`).join('');
+            } else {
+                cont.innerHTML = '<p class="text-zinc-500 text-sm">Aún no anuncias fechas. Usa la herramienta 🎟.</p>';
             }
         }
 
         window.publicarEvento = async function() {
-            const f = document.getElementById('input-fecha-evento').value, 
-                  c = document.getElementById('input-ciudad-evento').value, 
-                  l = document.getElementById('input-lugar-evento').value, 
-                  t = document.getElementById('input-tickets-evento').value;
-            if(!f || !c || !l) return;
-            await client.from('eventos').insert([{ usuario_id: miUsuarioId, fecha: f, ciudad: c, lugar: l, link_tickets: t }]);
+            const f = document.getElementById('input-fecha-evento').value.trim(),
+                  c = document.getElementById('input-ciudad-evento').value.trim(),
+                  l = document.getElementById('input-lugar-evento').value.trim(),
+                  t = document.getElementById('input-tickets-evento').value.trim();
+            if (!f || !c || !l) return MusaUI.toast("Completa la fecha, la ciudad y el lugar.", 'error');
+            if (t && !safeUrl(t)) return MusaUI.toast("El link de entradas debe empezar por https://", 'error');
+            const { error } = await client.from('eventos').insert([{ usuario_id: miUsuarioId, fecha: f, ciudad: c, lugar: l, link_tickets: t }]);
+            if (error) return MusaUI.toast("No se pudo guardar: " + error.message, 'error');
+            ['input-fecha-evento', 'input-ciudad-evento', 'input-lugar-evento', 'input-tickets-evento'].forEach(id => document.getElementById(id).value = '');
+            MusaUI.toast('¡Show anunciado!', 'ok');
             cargarEventos();
         }
 
-        window.borrarEvento = async function(id) { 
-            if(confirm("¿Borrar evento?")) { 
-                await client.from('eventos').delete().eq('id', id); 
-                cargarEventos(); 
-            } 
+        window.borrarEvento = async function(id) {
+            if (confirm("¿Borrar este show?")) {
+                await client.from('eventos').delete().eq('id', id);
+                cargarEventos();
+            }
         }
 
-        window.cerrarSesion = async function() { 
-            await client.auth.signOut(); 
-            window.location.href = 'index.html'; 
+        // ---------- Compartir ----------
+        function linkPerfil() {
+            const base = window.location.href.split('?')[0].split('#')[0].replace(/[^/]*$/, '');
+            return `${base}visor.html?u=${encodeURIComponent(miUsername || '')}`;
         }
 
         window.copiarLinkInstagram = function() {
             if (!miUsername) return;
-            const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            const url = `${baseUrl}/visor.html?u=${miUsername}`;
-            navigator.clipboard.writeText(url).then(() => {
-                alert("¡Link copiado! Ya puedes pegarlo en tu biografía de Instagram.");
-            }).catch(err => {
-                console.error("Error al copiar: ", err);
-                alert("Copia tu link manualmente: " + url);
+            const url = linkPerfil();
+            navigator.clipboard.writeText(url)
+                .then(() => MusaUI.toast("¡Link copiado! Pégalo en tu bio de Instagram.", 'ok'))
+                .catch(() => MusaUI.toast("Copia tu link manualmente: " + url, 'info'));
+        }
+
+        function cargarScriptQR() {
+            return new Promise((resolve, reject) => {
+                if (window.QRCode) return resolve();
+                const s = document.createElement('script');
+                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+                s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
             });
         }
 
+        window.abrirCompartir = async function() {
+            if (!miPerfil) return;
+            document.getElementById('modal-compartir').classList.remove('hidden');
+            document.getElementById('tarjeta-avatar').innerHTML = MusaUI.avatarHtml(miPerfil, 'w-16 h-16 text-2xl mx-auto ring-4 ring-white/10');
+            const nombre = document.getElementById('tarjeta-nombre');
+            nombre.textContent = miPerfil.nombre_display || miPerfil.username;
+            nombre.style.fontFamily = safeFont(miPerfil.fuente_nombre);
+            document.getElementById('tarjeta-user').textContent = '@' + miPerfil.username;
+            document.getElementById('link-perfil').value = linkPerfil();
+            const qr = document.getElementById('qr');
+            try {
+                await cargarScriptQR();
+                qr.innerHTML = '';
+                new QRCode(qr, { text: linkPerfil(), width: 168, height: 168, colorDark: '#0e0d13', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+            } catch (e) {
+                qr.textContent = 'No se pudo generar el QR. Usa el link.';
+            }
+        }
+
+        window.descargarQR = function() {
+            const fuente = document.querySelector('#qr canvas') || document.querySelector('#qr img');
+            if (!fuente) return MusaUI.toast('El QR todavía se está generando.', 'info');
+            const a = document.createElement('a');
+            a.href = fuente.tagName === 'CANVAS' ? fuente.toDataURL('image/png') : fuente.src;
+            a.download = `musaconnect-${miUsername}.png`;
+            a.click();
+        }
+
+        window.cerrarSesion = async function() {
+            await client.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('modal-compartir').classList.add('hidden'); });
         initPerfil();
     </script>
 </body>

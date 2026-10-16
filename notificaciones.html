@@ -4,32 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notificaciones | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .noti-card { background: #141414; border-bottom: 1px solid #27272a; transition: background 0.2s; }
-        .noti-card:hover { background: #1c1c1c; }
-        .no-leida { border-left: 4px solid #dc2626; background: rgba(220, 38, 38, 0.05); }
+        .noti-card { transition: background .2s, transform .2s; }
+        .noti-card:hover { background: rgba(255,255,255,.05); }
+        .no-leida { background: linear-gradient(90deg, rgba(236,72,153,.10), transparent 70%); }
+        .no-leida::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--mc-grad); }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen">
+<body class="min-h-screen">
 
-    <header class="bg-[#0e0e0e] border-b border-zinc-800 sticky top-0 z-50">
-        <div class="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="profile.html" class="text-zinc-400 hover:text-white text-sm transition-colors">← Mi Perfil</a>
-            <h1 class="text-base font-black tracking-tight">NOTIFICACIONES</h1>
-            <div class="w-16 text-right">
-                <button onclick="marcarLeidas()" class="text-xs text-red-500 font-bold hover:text-red-400">Limpiar</button>
+    <main class="max-w-2xl mx-auto px-4 pt-10 pb-16">
+        <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+            <div class="min-w-0">
+                <p class="mc-kicker">Notificaciones</p>
+                <h1 class="mc-display text-3xl sm:text-4xl font-extrabold mt-1">Tu <span class="mc-grad-text">actividad</span></h1>
             </div>
+            <button onclick="marcarLeidas()" class="mc-btn-ghost mc-btn-sm">✓ Marcar todo leído</button>
         </div>
-    </header>
 
-    <main class="max-w-xl mx-auto pt-2 pb-20">
-        <div id="lista-notificaciones">
-            <p class="text-center text-zinc-600 py-10 text-sm">Cargando...</p>
+        <div id="lista-notificaciones" class="mc-glass overflow-hidden">
+            <div class="p-4 space-y-3"><div class="mc-skel h-14"></div><div class="mc-skel h-14"></div><div class="mc-skel h-14"></div></div>
         </div>
     </main>
 
@@ -37,6 +38,7 @@
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        MusaUI.montar(client, { activo: 'notis' });
 
         let usuarioActual = null;
 
@@ -56,36 +58,44 @@
 
             if (!notis || notis.length === 0) {
                 lista.innerHTML = `
-                    <div class="text-center py-16">
-                        <span class="text-4xl mb-4 block">📭</span>
-                        <p class="text-zinc-500 text-sm">Todo tranquilo por aquí.</p>
-                        <p class="text-zinc-600 text-xs">Aún no tienes notificaciones.</p>
+                    <div class="text-center py-20 px-6">
+                        <div class="w-16 h-16 rounded-2xl mx-auto grid place-items-center text-3xl" style="background:var(--mc-grad-soft); border:1px solid rgba(255,255,255,.08)">📭</div>
+                        <p class="font-bold mt-5">Todo tranquilo por aquí.</p>
+                        <p class="text-zinc-500 text-sm mt-1">Cuando alguien se interese en tus anuncios o haga match contigo, lo verás aquí.</p>
+                        <a href="radar.html" class="mc-btn mc-btn-sm mt-6">📡 Ir al Radar</a>
                     </div>`;
                 return;
             }
 
-            lista.innerHTML = notis.map(n => {
-                const icono = n.tipo === 'like' ? '❤️' : (n.tipo === 'match' ? '🤝' : '💬');
-                const fecha = new Date(n.created_at).toLocaleDateString('es-PE', { day:'numeric', month:'short' });
-                const link = safeUrl(n.link);
-                const contenido = `
-                    <div class="flex gap-4 items-center">
-                        <div class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-lg flex-shrink-0">${icono}</div>
-                        <div class="flex-1">
-                            <p class="text-sm text-zinc-300 leading-snug">${esc(n.mensaje)}</p>
-                            <span class="text-[10px] text-zinc-600 font-bold">${fecha}${link ? (n.link.startsWith('chat.html') ? ' · Abrir chat →' : ' · Ver perfil →') : ''}</span>
-                        </div>
-                    </div>`;
-                return link
-                    ? `<a href="${link}" class="noti-card block p-4 ${n.leida ? '' : 'no-leida'}">${contenido}</a>`
-                    : `<div class="noti-card p-4 ${n.leida ? '' : 'no-leida'}">${contenido}</div>`;
-            }).join('');
+            const nuevas = notis.filter(n => !n.leida);
+            const anteriores = notis.filter(n => n.leida);
+            const bloque = (titulo, items) => items.length ? `<p class="mc-kicker px-5 pt-5 pb-2">${titulo}</p>` + items.map(tarjeta).join('') : '';
+            lista.innerHTML = bloque(`Nuevas · ${nuevas.length}`, nuevas) + bloque('Anteriores', anteriores);
+        }
+
+        function tarjeta(n) {
+            const icono = n.tipo === 'like' ? '❤️' : (n.tipo === 'match' ? '🤝' : '💬');
+            const link = safeUrl(n.link);
+            const etiqueta = link ? (n.link.startsWith('chat.html') ? 'Abrir chat →' : 'Ver perfil →') : '';
+            const contenido = `
+                <div class="flex gap-4 items-center">
+                    <div class="w-11 h-11 rounded-2xl grid place-items-center text-lg shrink-0" style="background:var(--mc-grad-soft); border:1px solid rgba(255,255,255,.08)">${icono}</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-zinc-200 leading-snug">${esc(n.mensaje)}</p>
+                        <p class="text-[11px] text-zinc-500 font-semibold mt-1">${esc(MusaUI.tiempoRelativo(n.created_at))}${etiqueta ? ` · <span class="text-pink-300">${etiqueta}</span>` : ''}</p>
+                    </div>
+                </div>`;
+            const clases = `noti-card relative block px-5 py-4 border-t border-white/5 ${n.leida ? '' : 'no-leida'}`;
+            return link ? `<a href="${link}" class="${clases}">${contenido}</a>` : `<div class="${clases}">${contenido}</div>`;
         }
 
         async function marcarLeidas() {
             if (!usuarioActual) return;
-            await client.from('notificaciones').update({ leida: true }).eq('usuario_id', usuarioActual.id);
+            const { error } = await client.from('notificaciones').update({ leida: true }).eq('usuario_id', usuarioActual.id);
+            if (error) return MusaUI.toast('No se pudo actualizar: ' + error.message, 'error');
+            MusaUI.toast('Todo al día ✓', 'ok');
             cargarNotificaciones();
+            actualizarCampana(client);
         }
 
         init();

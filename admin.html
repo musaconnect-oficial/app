@@ -7,66 +7,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; }
-        
-        .tab { 
-            padding: 12px 16px; font-size: 13px; font-weight: 700; color: #71717a; 
-            border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; white-space: nowrap; 
-        }
-        .tab.activo { color: #fff; border-bottom-color: #dc2626; }
-        .tab:hover:not(.activo) { color: #a1a1aa; }
-        
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1.5px solid #27272a;
-            color: #fff; border-radius: 10px; padding: 10px 14px;
-            font-size: 14px; transition: border-color 0.2s;
-        }
-        .input-field:focus { outline: none; border-color: #dc2626; }
-        
-        .btn-primary { 
-            background: #dc2626; color: #fff; font-weight: 700; padding: 10px 20px; 
-            border-radius: 10px; transition: all 0.2s; border: none; cursor: pointer; 
-        }
-        .btn-primary:hover { background: #b91c1c; }
-        .btn-primary:disabled { background: #3f3f46; cursor: not-allowed; }
-        
-        .btn-match-accept { 
-            background: #16a34a; color: white; padding: 6px 14px; 
-            border-radius: 6px; font-size: 12px; font-weight: bold; transition: all 0.2s; 
-        }
-        .btn-match-accept:hover { background: #15803d; }
-        
-        .btn-match-reject { 
-            background: #27272a; color: white; padding: 6px 14px; 
-            border-radius: 6px; font-size: 12px; font-weight: bold; transition: all 0.2s; border: 1px solid #3f3f46; 
-        }
-        .btn-match-reject:hover { background: #3f3f46; color: #f87171; border-color: #f87171; }
-        
-        .fade-in { animation: fadeIn 0.3s ease forwards; }
-        @keyframes fadeIn { 
-            from { opacity:0; transform:translateY(10px); } 
-            to { opacity:1; transform:translateY(0); } 
-        }
+        .tab { position: relative; padding: 12px 16px; font-size: 13px; font-weight: 700; color: var(--mc-muted); cursor: pointer; transition: color .2s; white-space: nowrap; }
+        .tab.activo { color: #fff; }
+        .tab.activo::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: -1px; height: 3px; border-radius: 3px; background: var(--mc-grad); }
+        .tab:hover:not(.activo) { color: #fff; }
+        .btn-primary { background: var(--mc-grad); color: #fff; font-weight: 800; padding: 12px 20px; border-radius: 999px; transition: all .2s; border: none; cursor: pointer; box-shadow: 0 10px 30px -10px rgba(236,72,153,.6); }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:disabled { filter: grayscale(.8) brightness(.6); cursor: not-allowed; transform: none; }
+        .btn-match-accept { background: var(--mc-grad); color: white; padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+        .btn-match-reject { background: rgba(255,255,255,.06); color: white; padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid rgba(255,255,255,.12); }
+        .btn-match-reject:hover { color: #fda4af; border-color: rgba(244,63,94,.5); }
+        #contenido-posts > div, #contenido-musica > div:first-child { background: var(--mc-panel) !important; border-color: var(--mc-line) !important; border-radius: 24px !important; }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen pb-12">
+<body class="min-h-screen pb-12">
 
-    <header class="bg-[#0e0e0e]/80 backdrop-blur border-b border-zinc-800/50 sticky top-0 z-50">
-        <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a href="profile.html" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                Mi Perfil
-            </a>
-            <span class="font-black text-sm text-red-500 uppercase tracking-widest">Panel de Control</span>
-            <div class="w-16"></div> 
+    <main class="max-w-2xl mx-auto pt-10">
+        <div class="px-4 mb-6">
+            <p class="mc-kicker">Panel de creador</p>
+            <h1 class="mc-display text-4xl font-extrabold mt-1">Tu <span class="mc-grad-text">consola</span></h1>
         </div>
-    </header>
-
-    <main class="max-w-2xl mx-auto pt-6">
-        <div class="border-b border-zinc-800 overflow-x-auto mb-6 px-4">
+        <div class="border-b border-white/10 overflow-x-auto mb-6 px-4">
             <div class="flex min-w-max">
                 <button class="tab activo" onclick="mostrarTab('posts')" id="tab-posts">Publicar en Feed</button>
                 <button class="tab" onclick="mostrarTab('musica')" id="tab-musica">Gestionar Música</button>
@@ -116,6 +81,7 @@
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        MusaUI.montar(client, { activo: null });
         
         let usuarioActual = null;
         let perfilActual = null;

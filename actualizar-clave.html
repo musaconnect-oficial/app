@@ -3,74 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva Contraseña | MusaConnect</title>
+    <title>Nueva contraseña | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
-            color: #fff; border-radius: 12px; padding: 14px 16px;
-            font-size: 14px; transition: all 0.2s;
-        }
-        .input-field:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
-        
-        .btn-primary {
-            width: 100%; background: #7c3aed; color: #fff; font-weight: 700;
-            padding: 14px; border-radius: 12px; font-size: 15px;
-            transition: all 0.2s; border: none; cursor: pointer;
-            box-shadow: 0 0 15px rgba(124,58,237,0.3);
-        }
-        .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 0 20px rgba(124,58,237,0.5); }
-        .btn-primary:disabled { background: #3f3f46; box-shadow: none; cursor: not-allowed; transform: none; }
-    </style>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-5">
 
-    <div class="w-full max-w-sm">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-black tracking-tight">MUSA<span class="text-purple-600">CONNECT</span></h1>
-            <p class="text-zinc-400 text-sm mt-2">Restablece tu acceso</p>
-        </div>
+    <div class="w-full max-w-md mc-in">
+        <a href="index.html" class="block text-center mc-display font-extrabold text-2xl mb-8">MUSA<span class="mc-grad-text">CONNECT</span></a>
 
-        <div class="bg-[#141414]/80 backdrop-blur border border-zinc-800 rounded-3xl p-8 shadow-2xl" id="panel-formulario">
-            <div class="flex flex-col gap-5">
+        <div class="mc-glass p-7 sm:p-9 shadow-2xl" id="panel-formulario">
+            <div class="w-14 h-14 rounded-2xl grid place-items-center text-2xl mb-6" style="background:var(--mc-grad-soft); border:1px solid rgba(255,255,255,.1)">🔑</div>
+            <h1 class="mc-display text-3xl font-extrabold">Nueva contraseña</h1>
+            <p class="text-zinc-400 text-sm mt-1.5">Elige una que no uses en otros sitios.</p>
+
+            <form class="flex flex-col gap-5 mt-8" onsubmit="event.preventDefault(); guardarNuevaClave();">
                 <div>
-                    <label class="text-xs text-zinc-400 font-bold mb-1.5 block uppercase tracking-wider">Nueva Contraseña</label>
-                    <input type="password" id="nueva-clave" class="input-field" placeholder="Mínimo 6 caracteres">
+                    <label class="mc-label" for="nueva-clave">Nueva contraseña</label>
+                    <input type="password" id="nueva-clave" class="input-field" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
                 </div>
                 <div>
-                    <label class="text-xs text-zinc-400 font-bold mb-1.5 block uppercase tracking-wider">Confirmar Contraseña</label>
-                    <input type="password" id="confirmar-clave" class="input-field" placeholder="Repite la contraseña">
+                    <label class="mc-label" for="confirmar-clave">Confirmar contraseña</label>
+                    <input type="password" id="confirmar-clave" class="input-field" placeholder="Repite la contraseña" autocomplete="new-password">
                 </div>
 
-                <div id="mensaje-box" class="hidden text-xs rounded-xl px-4 py-3 text-center transition-all"></div>
+                <div id="mensaje-box" class="hidden text-sm rounded-xl px-4 py-3 text-center"></div>
 
-                <button id="btn-guardar" class="btn-primary mt-2" onclick="guardarNuevaClave()">Actualizar Contraseña</button>
-            </div>
+                <button id="btn-guardar" type="submit" class="mc-btn w-full py-4 mt-1">Guardar contraseña</button>
+            </form>
         </div>
 
-        <div id="panel-exito" class="hidden bg-green-900/20 border border-green-800 rounded-3xl p-8 text-center mt-6">
-            <div class="text-5xl mb-4">✅</div>
-            <h2 class="text-xl font-black mb-2 text-green-400">¡Clave actualizada!</h2>
-            <p class="text-zinc-400 text-sm mb-6">Tu contraseña se guardó correctamente en el ecosistema.</p>
-            <a href="login.html" class="btn-primary inline-block w-full">Ir a Iniciar Sesión</a>
+        <div id="panel-exito" class="hidden mc-glass p-9 text-center">
+            <div class="w-20 h-20 rounded-3xl mx-auto grid place-items-center text-4xl" style="background:var(--mc-grad)">✓</div>
+            <h2 class="mc-display text-3xl font-extrabold mt-6">¡Listo!</h2>
+            <p class="text-zinc-400 text-sm mt-3">Tu contraseña nueva quedó guardada. Ya puedes ingresar con ella.</p>
+            <a href="login.html" class="mc-btn w-full py-4 mt-8">Ir a iniciar sesión</a>
         </div>
+
+        <a href="login.html" class="block text-center text-zinc-500 hover:text-zinc-300 text-xs font-bold mt-6">← Volver al login</a>
     </div>
 
     <script>
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        MusaUI.montar(client, { sinNav: true });
 
         // Validar que la página se haya abierto desde un link de recuperación válido
         window.onload = function() {
             const hash = window.location.hash;
             if (!hash || !hash.includes('access_token')) {
-                mostrarMensaje('Link inválido o expirado. Solicita uno nuevo.', 'error');
+                mostrarMensaje('Este link no es válido o ya expiró. Pide uno nuevo desde "¿La olvidaste?" en el login.', 'error');
                 document.getElementById('btn-guardar').disabled = true;
             }
         };
@@ -85,22 +72,18 @@
             if (clave1 !== clave2) return mostrarMensaje('Las contraseñas no coinciden.', 'error');
 
             btn.disabled = true;
-            btn.textContent = 'Actualizando...';
+            btn.textContent = 'Guardando…';
 
-            // Magia de Supabase: detecta la sesión del link y actualiza la contraseña
-            const { error } = await client.auth.updateUser({
-                password: clave1
-            });
+            // Supabase detecta la sesión del link y actualiza la contraseña
+            const { error } = await client.auth.updateUser({ password: clave1 });
 
             if (error) {
                 mostrarMensaje(error.message, 'error');
                 btn.disabled = false;
-                btn.textContent = 'Actualizar Contraseña';
+                btn.textContent = 'Guardar contraseña';
             } else {
-                // Éxito: Ocultar formulario, mostrar panel verde
                 document.getElementById('panel-formulario').classList.add('hidden');
                 document.getElementById('panel-exito').classList.remove('hidden');
-                
                 // Cerramos la sesión temporal de recuperación por seguridad
                 await client.auth.signOut();
             }
@@ -109,13 +92,9 @@
         function mostrarMensaje(texto, tipo) {
             const box = document.getElementById('mensaje-box');
             box.textContent = texto;
-            box.classList.remove('hidden', 'bg-red-900/30', 'border-red-800', 'text-red-400', 'bg-green-900/30', 'border-green-800', 'text-green-400');
-            
-            if (tipo === 'error') {
-                box.classList.add('bg-red-900/30', 'border', 'border-red-800', 'text-red-400');
-            } else {
-                box.classList.add('bg-green-900/30', 'border', 'border-green-800', 'text-green-400');
-            }
+            box.className = 'text-sm rounded-xl px-4 py-3 text-center border ' + (tipo === 'error'
+                ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300');
         }
     </script>
 </body>

@@ -3,108 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro Global | MusaConnect</title>
+    <title>Muro | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
     <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0e0e0e; }
-        .fade-in { animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
-        .like-anim { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .like-anim { animation: pop .45s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.45); } 100% { transform: scale(1); } }
+        .post-texto a { color: #f9a8d4; }
+        .filtro-muro.activo { color: #fff; background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
     </style>
 </head>
-<body class="text-white min-h-screen flex flex-col pb-20">
+<body class="min-h-screen">
 
-    <!-- HEADER -->
-    <header class="border-b border-zinc-800/80 bg-[#0e0e0e]/90 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-2 text-white hover:text-purple-400 transition-colors font-bold text-sm">
-                ← Portada
-            </a>
-            <h1 class="font-black tracking-widest uppercase text-sm">Muro <span class="text-purple-500">Global</span></h1>
-            
-            <div class="flex items-center gap-2">
-                <a href="chat.html" id="chat-link" title="Chats" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">💬<span id="chat-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
-                <a href="notificaciones.html" id="campana" title="Notificaciones" class="hidden relative bg-zinc-800 hover:bg-zinc-700 text-sm px-3 py-1.5 rounded-lg transition-colors border border-zinc-700">🔔<span id="campana-badge" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center flex"></span></a>
-                <a href="radar.html" class="bg-pink-900/20 hover:bg-pink-600 text-pink-400 hover:text-white text-xs font-bold px-3 py-2 rounded-lg transition-all border border-pink-900/50 hover:border-pink-500 flex items-center gap-1 shadow-[0_0_10px_rgba(236,72,153,0.1)]">
-                    📡 <span class="hidden sm:inline">Radar</span>
-                </a>
-                <a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors border border-zinc-700">Mi Perfil</a>
-            </div>
-        </div>
-    </header>
+    <div class="max-w-7xl mx-auto px-4 pt-6 pb-16 grid lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)_300px] gap-6">
 
-    <main class="flex-1 w-full max-w-2xl mx-auto px-4 pt-6">
-        
-        <!-- CAJA PARA CREAR PUBLICACIÓN -->
-        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-4 mb-8 shadow-lg focus-within:border-purple-500/50 transition-colors">
-            <div class="flex gap-3">
-                <div class="w-10 h-10 rounded-full bg-zinc-800 shrink-0 overflow-hidden ring-1 ring-zinc-700" id="mi-avatar-creador">
-                    <span class="flex items-center justify-center w-full h-full text-sm">👤</span>
+        <!-- ===== Columna izquierda ===== -->
+        <aside class="hidden lg:block">
+            <div class="sticky top-24 space-y-4">
+                <div id="mi-tarjeta" class="mc-glass p-5">
+                    <div class="mc-skel h-14 w-14 rounded-full"></div>
+                    <div class="mc-skel h-4 w-32 mt-4"></div>
+                    <div class="mc-skel h-3 w-20 mt-2"></div>
                 </div>
-                <div class="flex-1">
-                    <textarea id="input-post-texto" rows="3" placeholder="¿Qué está sonando en tu cabeza? (Pega un link de YouTube o Spotify aquí)" class="w-full bg-transparent text-white placeholder-zinc-500 text-sm outline-none resize-none mb-2"></textarea>
-                    
-                    <div id="preview-container" class="hidden mb-3 relative inline-block">
-                        <img id="img-preview" src="" class="max-h-40 rounded-xl border border-zinc-700 object-cover">
-                        <button onclick="quitarImagen()" class="absolute top-2 right-2 bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-500 transition-colors">✕</button>
-                    </div>
+                <nav class="mc-panel p-2 text-sm font-bold">
+                    <a href="feed.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5 text-white">🌍 Muro global</a>
+                    <a href="radar.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">📡 Radar de colaboraciones</a>
+                    <a href="explorar.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">🧭 Explorar talentos</a>
+                    <a href="chat.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">💬 Mis chats</a>
+                </nav>
+            </div>
+        </aside>
 
-                    <div class="flex items-center justify-between border-t border-zinc-800/60 pt-3">
-                        <label class="cursor-pointer text-zinc-400 hover:text-purple-400 transition-colors flex items-center gap-1.5 text-xs font-bold">
-                            <span class="text-lg">📸</span> Adjuntar foto
-                            <input type="file" id="input-post-imagen" accept="image/jpeg, image/png, image/webp" class="hidden" onchange="previsualizarImagen(this)">
-                        </label>
-                        <button id="btn-publicar" onclick="publicarPost()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-6 py-2 rounded-full transition-colors shadow-[0_0_15px_rgba(147,51,234,0.3)]">
-                            Publicar
-                        </button>
+        <!-- ===== Columna central ===== -->
+        <main class="min-w-0">
+            <div class="flex items-end justify-between mb-5">
+                <div>
+                    <p class="mc-kicker">Lo que suena hoy</p>
+                    <h1 class="mc-display text-4xl font-extrabold mt-1">Muro <span class="mc-grad-text">global</span></h1>
+                </div>
+                <span class="mc-eq mb-2"><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+
+            <!-- Crear publicación -->
+            <div id="caja-composer" class="mc-glass p-4 sm:p-5 mb-6 focus-within:border-pink-500/40 transition-colors">
+                <div class="flex gap-3">
+                    <div id="mi-avatar-creador" class="w-11 h-11 rounded-full bg-zinc-800 shrink-0 overflow-hidden grid place-items-center">👤</div>
+                    <div class="flex-1 min-w-0">
+                        <textarea id="input-post-texto" rows="3" placeholder="¿Qué estás cocinando? Pega un link de Spotify, YouTube o SoundCloud y se convierte en reproductor ✨" class="w-full bg-transparent text-white placeholder-zinc-500 text-[15px] outline-none resize-none leading-relaxed"></textarea>
+
+                        <div id="preview-container" class="hidden mb-3 relative inline-block">
+                            <img id="img-preview" src="" alt="Vista previa" class="max-h-48 rounded-2xl border border-white/10 object-cover">
+                            <button onclick="quitarImagen()" class="absolute top-2 right-2 bg-black/70 text-white rounded-full w-7 h-7 grid place-items-center text-xs hover:bg-rose-500 transition-colors" aria-label="Quitar imagen">✕</button>
+                        </div>
+
+                        <div class="flex items-center justify-between border-t border-white/5 pt-3 gap-3">
+                            <label class="cursor-pointer text-zinc-400 hover:text-pink-300 transition-colors flex items-center gap-2 text-sm font-bold">
+                                <span class="w-8 h-8 rounded-full bg-white/5 grid place-items-center">📸</span> Foto
+                                <input type="file" id="input-post-imagen" accept="image/jpeg, image/png, image/webp" class="hidden" onchange="previsualizarImagen(this)">
+                            </label>
+                            <button id="btn-publicar" onclick="publicarPost()" class="mc-btn mc-btn-sm !px-6">Publicar</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div id="contenedor-posts" class="flex flex-col gap-5">
-            <div class="text-center text-zinc-500 text-sm py-10 animate-pulse">Cargando el ecosistema...</div>
-        </div>
+            <!-- Filtros -->
+            <div class="flex gap-2 mb-5 overflow-x-auto">
+                <button class="filtro-muro activo shrink-0 px-4 py-1.5 rounded-full border border-white/10 text-sm font-bold text-zinc-400" data-filtro="todo">Todo</button>
+                <button class="filtro-muro shrink-0 px-4 py-1.5 rounded-full border border-white/10 text-sm font-bold text-zinc-400" data-filtro="musica">🎵 Con música</button>
+                <button class="filtro-muro shrink-0 px-4 py-1.5 rounded-full border border-white/10 text-sm font-bold text-zinc-400" data-filtro="fotos">📸 Con fotos</button>
+                <button class="filtro-muro shrink-0 px-4 py-1.5 rounded-full border border-white/10 text-sm font-bold text-zinc-400" data-filtro="mios">✦ Míos</button>
+            </div>
 
-    </main>
+            <div id="contenedor-posts" class="flex flex-col gap-5">
+                <div class="mc-skel h-40"></div><div class="mc-skel h-56"></div><div class="mc-skel h-40"></div>
+            </div>
+        </main>
+
+        <!-- ===== Columna derecha ===== -->
+        <aside class="hidden xl:block">
+            <div class="sticky top-24 space-y-4">
+                <div class="mc-panel p-5">
+                    <h3 class="font-extrabold flex items-center gap-2">✨ Nuevos en la escena</h3>
+                    <div id="nuevos-miembros" class="mt-4 space-y-3"><div class="mc-skel h-10"></div><div class="mc-skel h-10"></div><div class="mc-skel h-10"></div></div>
+                    <a href="explorar.html" class="block text-xs font-bold text-pink-300 hover:text-pink-200 mt-4">Ver a toda la comunidad →</a>
+                </div>
+                <div class="mc-panel p-5">
+                    <h3 class="font-extrabold flex items-center gap-2">📡 En el Radar</h3>
+                    <div id="ultimos-anuncios" class="mt-4 space-y-3"><div class="mc-skel h-14"></div></div>
+                    <a href="radar.html" class="block text-xs font-bold text-pink-300 hover:text-pink-200 mt-4">Buscar colaboraciones →</a>
+                </div>
+                <p class="text-[11px] text-zinc-600 px-2">© 2026 MusaConnect · Hecho para la escena independiente</p>
+            </div>
+        </aside>
+    </div>
 
     <script>
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-        actualizarCampana(client);
-        
+        MusaUI.montar(client, { activo: 'muro' });
+
         let miUsuarioId = null;
         let miNombreDeUsuario = "Fan";
-        let perfilesCache = {}; 
+        let perfilesCache = {};
         let archivoComprimido = null;
+        let filtroMuro = 'todo';
+        let postsCargados = [], likesCargados = [], comentariosCargados = [];
 
         async function initFeed() {
             const { data: { user } } = await client.auth.getUser();
             if (user) {
                 miUsuarioId = user.id;
-                const { data: perfil } = await client.from('perfiles').select('nombre_display, username, avatar_url').eq('id', user.id).single();
+                const { data: perfil } = await client.from('perfiles').select('nombre_display, username, avatar_url, tipo, color_acento, forma_avatar, bio').eq('id', user.id).single();
                 if (perfil) {
                     miNombreDeUsuario = perfil.nombre_display || perfil.username;
-                    if (safeUrl(perfil.avatar_url)) document.getElementById('mi-avatar-creador').innerHTML = `<img src="${safeUrl(perfil.avatar_url)}" class="w-full h-full object-cover">`;
+                    document.getElementById('mi-avatar-creador').outerHTML = MusaUI.avatarHtml(perfil, 'w-11 h-11 text-base', 'rounded-full');
+                    pintarMiTarjeta(perfil);
                 }
             } else {
-                document.querySelector('.bg-\\[\\#141414\\]').innerHTML = `
-                    <div class="text-center p-4">
-                        <p class="text-zinc-400 text-sm mb-3">Únete para compartir tu música, debatir y dar likes.</p>
-                        <a href="register.html" class="inline-block bg-purple-600 text-white text-xs font-bold px-6 py-2 rounded-full shadow-[0_0_15px_rgba(147,51,234,0.3)]">Crear Cuenta</a>
-                    </div>
-                `;
+                document.getElementById('caja-composer').innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                        <div class="w-12 h-12 rounded-2xl grid place-items-center text-2xl shrink-0" style="background:var(--mc-grad)">✦</div>
+                        <div class="flex-1"><p class="font-bold">Únete para publicar, dar likes y comentar.</p><p class="text-sm text-zinc-400">Es gratis y toma dos minutos.</p></div>
+                        <a href="register.html" class="mc-btn mc-btn-sm">Crear cuenta</a>
+                    </div>`;
+                document.getElementById('mi-tarjeta').innerHTML = `
+                    <p class="mc-display font-extrabold text-xl">Súmate a la escena</p>
+                    <p class="text-sm text-zinc-400 mt-2">Crea tu perfil de artista o de fan y empieza a conectar.</p>
+                    <a href="register.html" class="mc-btn mc-btn-sm w-full mt-4">Únete gratis</a>
+                    <a href="login.html" class="block text-center text-xs font-bold text-zinc-400 hover:text-white mt-3">Ya tengo cuenta</a>`;
+                document.querySelector('[data-filtro="mios"]').remove();
             }
             cargarPosts();
+        }
+
+        function pintarMiTarjeta(p) {
+            const acento = safeColor(p.color_acento, '#8b5cf6');
+            const t = MusaUI.TIPOS[p.tipo] || MusaUI.TIPOS.fan;
+            document.getElementById('mi-tarjeta').innerHTML = `
+                <div class="h-14 -mx-5 -mt-5 mb-[-28px] rounded-t-[20px]" style="background:linear-gradient(135deg, ${acento}, transparent)"></div>
+                ${MusaUI.avatarHtml(p, 'w-14 h-14 text-xl relative ring-4 ring-[#14121b]')}
+                <p class="font-extrabold mt-3 truncate">${esc(p.nombre_display || p.username)}</p>
+                <p class="text-xs text-zinc-500">@${esc(p.username)}</p>
+                <span class="mc-tipo mc-tipo-${MusaUI.TIPOS[p.tipo] ? p.tipo : 'fan'} mt-3">${t.emoji} ${t.label}</span>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <a href="profile.html" class="mc-btn-ghost mc-btn-sm">Mi perfil</a>
+                    <a href="editar-perfil.html" class="mc-btn-ghost mc-btn-sm">Editar</a>
+                </div>`;
         }
 
         function previsualizarImagen(input) {
@@ -115,14 +166,14 @@
             reader.onload = (event) => {
                 document.getElementById('img-preview').src = event.target.result;
                 document.getElementById('preview-container').classList.remove('hidden');
-                
+
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 1080; const MAX_HEIGHT = 1080;
                     let width = img.width; let height = img.height;
-                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
+                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
                     else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
@@ -148,28 +199,24 @@
             html = html.replace(/\n/g, '<br>');
 
             const spotifyRegex = /https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist)\/([a-zA-Z0-9]+)(?:\S*)?/g;
-            html = html.replace(spotifyRegex, (match, tipo, id) => `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(29,185,84,0.1)]"><iframe src="https://open.spotify.com/embed/${tipo}/${id}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>`);
+            html = html.replace(spotifyRegex, (match, tipo, id) => `<div class="w-full mt-3 rounded-2xl overflow-hidden"><iframe src="https://open.spotify.com/embed/${tipo}/${id}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe></div>`);
 
             const soundcloudRegex = /(https:\/\/soundcloud\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(?:\S*)?/g;
-            html = html.replace(soundcloudRegex, (match, url) => `<div class="w-full mt-3 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.15)]"><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%237c3aed&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe></div>`);
+            html = html.replace(soundcloudRegex, (match, url) => `<div class="w-full mt-3 rounded-2xl overflow-hidden"><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" loading="lazy" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ec4899&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe></div>`);
 
             const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?/gi;
-            html = html.replace(youtubeRegex, '<div class="aspect-video w-full rounded-xl overflow-hidden mt-3 border border-red-900/30 shadow-[0_0_15px_rgba(220,38,38,0.1)]"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>');
+            html = html.replace(youtubeRegex, '<div class="aspect-video w-full rounded-2xl overflow-hidden mt-3"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen loading="lazy"></iframe></div>');
 
             return html;
         }
 
-        function formatearFechaExacta(fechaStr) {
-            const fecha = new Date(fechaStr);
-            const opciones = { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
-            return fecha.toLocaleDateString('es-ES', opciones).replace(',', ' a las');
-        }
+        const tieneMusica = texto => /open\.spotify\.com|soundcloud\.com|youtube\.com|youtu\.be/i.test(texto || '');
 
         window.publicarPost = async function() {
             const btn = document.getElementById('btn-publicar');
             const textoRaw = document.getElementById('input-post-texto').value.trim();
-            if (!textoRaw && !archivoComprimido) return alert("Escribe algo o sube una foto.");
-            btn.disabled = true; btn.textContent = "Subiendo...";
+            if (!textoRaw && !archivoComprimido) return MusaUI.toast("Escribe algo o adjunta una foto.", 'error');
+            btn.disabled = true; btn.textContent = "Subiendo…";
 
             let imageUrlSubida = null;
             if (archivoComprimido) {
@@ -177,7 +224,7 @@
                 const { error: uploadError } = await client.storage.from('feed_images').upload(filePath, archivoComprimido);
                 if (uploadError) {
                     btn.disabled = false; btn.textContent = "Publicar";
-                    return alert("No se pudo subir la imagen: " + uploadError.message);
+                    return MusaUI.toast("No se pudo subir la imagen: " + uploadError.message, 'error');
                 }
                 const { data: { publicUrl } } = client.storage.from('feed_images').getPublicUrl(filePath);
                 imageUrlSubida = publicUrl;
@@ -186,168 +233,186 @@
             const { error } = await client.from('posts').insert([{ usuario_id: miUsuarioId, contenido: textoRaw, imagen_url: imageUrlSubida }]);
             btn.disabled = false; btn.textContent = "Publicar";
 
-            if (error) alert("Error: " + error.message);
+            if (error) MusaUI.toast("Error: " + error.message, 'error');
             else {
                 document.getElementById('input-post-texto').value = '';
                 quitarImagen();
-                cargarPosts(); 
+                MusaUI.toast('¡Publicado! Ya está en el muro.', 'ok');
+                cargarPosts();
             }
         }
 
         async function cargarPosts() {
-            const { data: postsData } = await client.from('posts').select('*').order('fecha', { ascending: false }).limit(50);
-            const { data: perfilesData } = await client.from('perfiles').select('id, nombre_display, username, avatar_url, tipo');
-            const { data: likesDBData } = await client.from('likes_posts').select('*');
-            const { data: comentariosDBData } = await client.from('comentarios_posts').select('*').order('fecha', { ascending: true });
+            const [{ data: postsData }, { data: perfilesData }, { data: likesDBData }, { data: comentariosDBData }] = await Promise.all([
+                client.from('posts').select('*').order('fecha', { ascending: false }).limit(50),
+                client.from('perfiles').select('id, nombre_display, username, avatar_url, tipo, color_acento, fuente_nombre, forma_avatar, verificado, created_at'),
+                client.from('likes_posts').select('*'),
+                client.from('comentarios_posts').select('*').order('fecha', { ascending: true })
+            ]);
 
-            const posts = postsData || [];
-            const perfiles = perfilesData || [];
-            const likesDB = likesDBData || [];
-            const comentariosDB = comentariosDBData || [];
+            postsCargados = postsData || [];
+            likesCargados = likesDBData || [];
+            comentariosCargados = comentariosDBData || [];
+            (perfilesData || []).forEach(p => { perfilesCache[p.id] = p; });
+            pintarNuevosMiembros(perfilesData || []);
+            pintarPosts();
+        }
 
-            perfiles.forEach(p => { perfilesCache[p.id] = p; });
-
+        function pintarPosts() {
             const cont = document.getElementById('contenedor-posts');
+            const posts = postsCargados.filter(p => {
+                if (filtroMuro === 'musica') return tieneMusica(p.contenido);
+                if (filtroMuro === 'fotos') return !!safeUrl(p.imagen_url);
+                if (filtroMuro === 'mios') return p.usuario_id === miUsuarioId;
+                return true;
+            });
+
             if (posts.length === 0) {
-                cont.innerHTML = '<div class="text-center text-zinc-500 text-sm py-10">El muro está vacío o hubo un error. ¡Sé el primero en publicar!</div>';
+                cont.innerHTML = `<div class="mc-panel text-center py-14 px-6"><div class="text-4xl mb-3">🎧</div><p class="font-bold">Aquí todavía hay silencio.</p><p class="text-sm text-zinc-500 mt-1">${filtroMuro === 'todo' ? '¡Sé el primero en publicar!' : 'Prueba con otro filtro.'}</p></div>`;
                 return;
             }
 
             cont.innerHTML = posts.map(post => {
-                const autor = perfilesCache[post.usuario_id] || { nombre_display: 'Usuario', username: 'desconocido', avatar_url: '', tipo: 'usuario' };
+                const autor = perfilesCache[post.usuario_id] || { nombre_display: 'Usuario', username: 'desconocido', avatar_url: '', tipo: 'fan' };
+                const acento = safeColor(autor.color_acento, '#8b5cf6');
+                const tipo = MusaUI.TIPOS[autor.tipo] ? autor.tipo : 'fan';
                 const contenidoMagico = procesarTextoConEmbeds(post.contenido);
-                const imagenHtml = safeUrl(post.imagen_url) ? `<div class="mt-3 rounded-2xl overflow-hidden border border-zinc-800"><img src="${safeUrl(post.imagen_url)}" class="w-full h-auto max-h-[600px] object-cover"></div>` : '';
-                const botonBorrar = (post.usuario_id === miUsuarioId) ? `<button onclick="borrarPost(${post.id})" class="text-red-500 hover:text-red-400 text-xs bg-red-900/10 hover:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">🗑️</button>` : '';
+                const imagenHtml = safeUrl(post.imagen_url) ? `<div class="mt-3 rounded-2xl overflow-hidden border border-white/5"><img src="${safeUrl(post.imagen_url)}" alt="" loading="lazy" class="w-full h-auto max-h-[620px] object-cover"></div>` : '';
+                const botonBorrar = (post.usuario_id === miUsuarioId) ? `<button onclick="borrarPost(${Number(post.id)})" class="text-zinc-500 hover:text-rose-400 text-xs w-8 h-8 rounded-full grid place-items-center hover:bg-rose-500/10 transition-colors opacity-0 group-hover:opacity-100" title="Borrar publicación">🗑️</button>` : '';
 
-                const likesDelPost = likesDB.filter(l => l.post_id === post.id);
-                const totalLikes = likesDelPost.length;
+                const likesDelPost = likesCargados.filter(l => l.post_id === post.id);
                 const yoLeDiLike = miUsuarioId ? likesDelPost.some(l => l.usuario_id === miUsuarioId) : false;
-                const corazon = yoLeDiLike ? '❤️' : '🤍';
-                const colorLike = yoLeDiLike ? 'text-red-500' : 'text-zinc-400';
-
-                const comentariosDelPost = comentariosDB.filter(c => c.post_id === post.id);
-                const totalComentarios = comentariosDelPost.length;
-                const comentariosHtml = comentariosDelPost.map(c => `
-                    <div class="bg-[#1a1a1a] p-3 rounded-lg border border-zinc-800/50 mb-2">
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="text-[10px] font-black text-purple-400">${esc((perfilesCache[c.usuario_id] || {}).nombre_display || c.autor_nombre)}</span>
-                            <span class="text-[9px] text-zinc-600">${formatearFechaExacta(c.fecha)}</span>
+                const comentariosDelPost = comentariosCargados.filter(c => c.post_id === post.id);
+                const comentariosHtml = comentariosDelPost.map(c => {
+                    const p = perfilesCache[c.usuario_id];
+                    return `
+                    <div class="flex gap-2.5 mb-3">
+                        ${MusaUI.avatarHtml(p || { nombre_display: c.autor_nombre }, 'w-7 h-7 text-[11px]', 'rounded-full')}
+                        <div class="bg-white/[.04] border border-white/5 rounded-2xl rounded-tl-sm px-3 py-2 min-w-0">
+                            <div class="flex items-baseline gap-2"><span class="text-xs font-bold">${esc((p || {}).nombre_display || c.autor_nombre)}</span><span class="text-[10px] text-zinc-600">${esc(MusaUI.tiempoRelativo(c.fecha))}</span></div>
+                            <p class="text-sm text-zinc-300 leading-snug break-words">${esc(c.mensaje)}</p>
                         </div>
-                        <p class="text-xs text-zinc-300 leading-snug">${esc(c.mensaje)}</p>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
 
                 return `
-                <div class="bg-[#141414] border border-zinc-800/80 rounded-2xl p-4 md:p-5 fade-in group hover:border-zinc-700 transition-colors shadow-lg">
-                    <div class="flex justify-between items-start mb-3">
-                        <a href="visor.html?id=${encodeURIComponent(post.usuario_id)}" class="flex gap-3 items-center group/autor cursor-pointer">
-                            <div class="w-10 h-10 rounded-full bg-zinc-800 shrink-0 overflow-hidden ring-1 ring-zinc-700 group-hover/autor:ring-purple-500 transition-colors">
-                                ${safeUrl(autor.avatar_url) ? `<img src="${safeUrl(autor.avatar_url)}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center w-full h-full text-sm">👤</span>`}
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-white text-sm group-hover/autor:text-purple-400 transition-colors flex items-center gap-1.5">
-                                    ${esc(autor.nombre_display)}
-                                    <span class="text-[8px] bg-zinc-800 border border-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded uppercase tracking-widest">${esc(autor.tipo)}</span>
-                                </h4>
-                                <p class="text-zinc-500 text-[11px] font-medium">
-                                    @${esc(autor.username)} • 📅 ${formatearFechaExacta(post.fecha)}
-                                </p>
+                <article class="mc-card group p-4 sm:p-5 mc-reveal" style="--acento:${acento}">
+                    <div class="flex justify-between items-start gap-3">
+                        <a href="visor.html?id=${encodeURIComponent(post.usuario_id)}" class="flex gap-3 items-center min-w-0">
+                            <span class="rounded-full p-[2px]" style="background:linear-gradient(135deg, ${acento}, transparent)">${MusaUI.avatarHtml(autor, 'w-11 h-11 text-base', 'rounded-full')}</span>
+                            <div class="min-w-0">
+                                <p class="font-bold text-[15px] flex items-center gap-1.5 truncate hover:text-[var(--acento)] transition-colors">${esc(autor.nombre_display)}${autor.verificado ? '<span class="mc-verificado">✓</span>' : ''}</p>
+                                <p class="text-zinc-500 text-xs flex items-center gap-2"><span class="truncate">@${esc(autor.username)}</span><span>·</span><span class="shrink-0" title="${esc(new Date(post.fecha).toLocaleString('es-CL'))}">${esc(MusaUI.tiempoRelativo(post.fecha))}</span></p>
                             </div>
                         </a>
-                        ${botonBorrar}
+                        <div class="flex items-center gap-2 shrink-0"><span class="mc-tipo mc-tipo-${tipo} hidden sm:inline-flex">${MusaUI.TIPOS[tipo].emoji} ${MusaUI.TIPOS[tipo].label}</span>${botonBorrar}</div>
                     </div>
-                    
-                    <div class="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap ml-0 md:ml-13">${contenidoMagico}</div>
-                    <div class="ml-0 md:ml-13">${imagenHtml}</div>
 
-                    <div class="flex items-center gap-6 mt-4 ml-0 md:ml-13 border-t border-zinc-800/60 pt-3">
-                        <button onclick="darLike(${post.id}, this)" class="flex items-center gap-1.5 hover:text-red-500 transition-colors text-xs font-bold ${colorLike} focus:outline-none">
-                            <span class="icon-corazon">${corazon}</span> <span class="contador-likes">${totalLikes}</span>
+                    <div class="post-texto text-zinc-200 text-[15px] leading-relaxed mt-3 break-words">${contenidoMagico}</div>
+                    ${imagenHtml}
+
+                    <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5">
+                        <button onclick="darLike(${Number(post.id)}, this)" class="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-rose-500/10 transition-colors text-sm font-bold ${yoLeDiLike ? 'text-rose-400' : 'text-zinc-400'}">
+                            <span class="icon-corazon">${yoLeDiLike ? '❤️' : '🤍'}</span> <span class="contador-likes">${likesDelPost.length}</span>
                         </button>
-                        <button onclick="toggleComentarios(${post.id})" class="flex items-center gap-1.5 text-zinc-400 hover:text-purple-400 transition-colors text-xs font-bold focus:outline-none">
-                            <span>💬</span> <span>${totalComentarios}</span> Responder
+                        <button onclick="toggleComentarios(${Number(post.id)})" class="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/5 text-zinc-400 hover:text-white transition-colors text-sm font-bold">
+                            💬 <span>${comentariosDelPost.length}</span><span class="hidden sm:inline font-semibold">Responder</span>
                         </button>
                     </div>
 
-                    <div id="caja-comentarios-${post.id}" class="hidden ml-0 md:ml-13 mt-4 bg-[#0a0a0a] rounded-xl p-3 md:p-4 border border-zinc-800/50 shadow-inner">
-                        <div id="lista-comentarios-${post.id}" class="max-h-48 overflow-y-auto mb-3 pr-2">
-                            ${comentariosHtml || '<p class="text-xs text-zinc-600 italic mb-2">Sé el primero en responder a este hilo.</p>'}
+                    <div id="caja-comentarios-${Number(post.id)}" class="hidden mt-3 pt-3 border-t border-white/5">
+                        <div class="max-h-64 overflow-y-auto pr-1">
+                            ${comentariosHtml || '<p class="text-xs text-zinc-500 italic mb-3">Sé el primero en responder.</p>'}
                         </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="input-comentario-${post.id}" placeholder="Escribe una respuesta..." class="flex-1 bg-[#1c1c1c] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-purple-500 transition-colors">
-                            <button onclick="enviarComentario(${post.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shadow-[0_0_10px_rgba(147,51,234,0.3)]">Enviar</button>
+                        <div class="flex gap-2 mt-1">
+                            <input type="text" id="input-comentario-${Number(post.id)}" placeholder="Escribe una respuesta…" class="mc-input !rounded-full !py-2 text-sm" onkeydown="if(event.key==='Enter') enviarComentario(${Number(post.id)})">
+                            <button onclick="enviarComentario(${Number(post.id)})" class="mc-btn mc-btn-sm">Enviar</button>
                         </div>
                     </div>
-
-                </div>
-                `;
+                </article>`;
             }).join('');
         }
 
+        function pintarNuevosMiembros(perfiles) {
+            const nuevos = [...perfiles].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+            document.getElementById('nuevos-miembros').innerHTML = nuevos.map(p => {
+                const tipo = MusaUI.TIPOS[p.tipo] ? p.tipo : 'fan';
+                return `
+                <a href="visor.html?id=${encodeURIComponent(p.id)}" class="flex items-center gap-3 group">
+                    ${MusaUI.avatarHtml(p, 'w-10 h-10 text-sm')}
+                    <div class="min-w-0 flex-1"><p class="text-sm font-bold truncate group-hover:text-pink-300">${esc(p.nombre_display || p.username)}</p><p class="text-[11px] text-zinc-500">${MusaUI.TIPOS[tipo].emoji} ${MusaUI.TIPOS[tipo].label}</p></div>
+                </a>`;
+            }).join('') || '<p class="text-sm text-zinc-500">Aún no hay miembros.</p>';
+        }
+
+        async function cargarAnunciosRadar() {
+            const { data } = await client.from('radar_anuncios').select('id, titulo, tipo_busqueda, genero, fecha').eq('activa', true).order('fecha', { ascending: false }).limit(3);
+            document.getElementById('ultimos-anuncios').innerHTML = (data || []).map(a => `
+                <a href="radar.html" class="block p-3 rounded-xl bg-white/[.03] border border-white/5 hover:border-pink-500/40 transition-colors">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-pink-300">Busca: ${esc(a.tipo_busqueda)}</p>
+                    <p class="text-sm font-bold mt-1 line-clamp-2">${esc(a.titulo)}</p>
+                    <p class="text-[11px] text-zinc-500 mt-1">🎵 ${esc(a.genero)} · ${esc(MusaUI.tiempoRelativo(a.fecha))}</p>
+                </a>`).join('') || '<p class="text-sm text-zinc-500">No hay anuncios activos. ¡Publica el primero!</p>';
+        }
+
         window.darLike = async function(postId, btnElement) {
-            if (!miUsuarioId) return alert("Debes iniciar sesión para dar me gusta.");
+            if (!miUsuarioId) return MusaUI.toast("Inicia sesión para dar me gusta.", 'info');
             const iconSpan = btnElement.querySelector('.icon-corazon');
             const countSpan = btnElement.querySelector('.contador-likes');
             let likesActuales = parseInt(countSpan.innerText);
-            
+
             const { data: existente } = await client.from('likes_posts').select('id').eq('post_id', postId).eq('usuario_id', miUsuarioId).maybeSingle();
 
             if (existente) {
                 await client.from('likes_posts').delete().eq('id', existente.id);
                 iconSpan.innerText = '🤍'; countSpan.innerText = likesActuales - 1;
-                btnElement.classList.remove('text-red-500'); btnElement.classList.add('text-zinc-400');
-                iconSpan.classList.remove('like-anim');
+                btnElement.classList.remove('text-rose-400'); btnElement.classList.add('text-zinc-400');
+                likesCargados = likesCargados.filter(l => l.id !== existente.id);
             } else {
-                await client.from('likes_posts').insert([{ post_id: postId, usuario_id: miUsuarioId }]);
+                const { data: nuevo } = await client.from('likes_posts').insert([{ post_id: postId, usuario_id: miUsuarioId }]).select().maybeSingle();
                 iconSpan.innerText = '❤️'; countSpan.innerText = likesActuales + 1;
-                btnElement.classList.remove('text-zinc-400'); btnElement.classList.add('text-red-500');
+                btnElement.classList.remove('text-zinc-400'); btnElement.classList.add('text-rose-400');
                 iconSpan.classList.remove('like-anim'); void iconSpan.offsetWidth; iconSpan.classList.add('like-anim');
+                if (nuevo) likesCargados.push(nuevo);
             }
         }
 
         window.toggleComentarios = function(postId) {
             const caja = document.getElementById(`caja-comentarios-${postId}`);
             caja.classList.toggle('hidden');
+            if (!caja.classList.contains('hidden')) document.getElementById(`input-comentario-${postId}`).focus();
         }
 
         window.enviarComentario = async function(postId) {
-            if (!miUsuarioId) return alert("Debes iniciar sesión para comentar.");
+            if (!miUsuarioId) return MusaUI.toast("Inicia sesión para comentar.", 'info');
             const input = document.getElementById(`input-comentario-${postId}`);
             const mensaje = input.value.trim();
             if (!mensaje) return;
 
-            await client.from('comentarios_posts').insert([{ post_id: postId, usuario_id: miUsuarioId, autor_nombre: miNombreDeUsuario, mensaje: mensaje }]);
-            input.value = ''; cargarPosts(); 
+            const { error } = await client.from('comentarios_posts').insert([{ post_id: postId, usuario_id: miUsuarioId, autor_nombre: miNombreDeUsuario, mensaje: mensaje }]);
+            if (error) return MusaUI.toast("No se pudo comentar: " + error.message, 'error');
+            input.value = '';
+            await cargarPosts();
+            document.getElementById(`caja-comentarios-${postId}`)?.classList.remove('hidden');
         }
 
         window.borrarPost = async function(id) {
             if (confirm("¿Borrar esta publicación? Se eliminarán también los likes y comentarios.")) {
-                await client.from('posts').delete().eq('id', id); cargarPosts();
+                const { error } = await client.from('posts').delete().eq('id', id);
+                if (error) return MusaUI.toast("No se pudo borrar: " + error.message, 'error');
+                MusaUI.toast('Publicación borrada.', 'ok');
+                cargarPosts();
             }
         }
 
+        document.querySelectorAll('.filtro-muro').forEach(b => b.addEventListener('click', () => {
+            filtroMuro = b.dataset.filtro;
+            document.querySelectorAll('.filtro-muro').forEach(x => x.classList.toggle('activo', x === b));
+            pintarPosts();
+        }));
+
         initFeed();
+        cargarAnunciosRadar();
     </script>
-    <!-- BARRA DE NAVEGACIÓN MÓVIL ESTILO APP (Solo visible en celulares) -->
-    <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
-        
-        <!-- Botón Muro -->
-        <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
-            <span class="text-2xl mb-0.5">🌍</span>
-            <span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
-        </a>
-        
-        <!-- BOTÓN RADAR GIGANTE FLOTANTE -->
-        <a href="radar.html" class="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 bg-gradient-to-tr from-pink-600 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(236,72,153,0.5)] border-[5px] border-[#0e0e0e] hover:scale-105 active:scale-95 transition-all">
-            <span class="text-3xl drop-shadow-lg">📡</span>
-        </a>
-        
-        <!-- Botón Perfil -->
-        <a href="profile.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
-            <span class="text-2xl mb-0.5">👤</span>
-            <span class="text-[9px] font-black uppercase tracking-widest">Perfil</span>
-        </a>
-        
-    </div>
 </body>
 </html>

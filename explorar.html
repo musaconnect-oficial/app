@@ -4,40 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explorar | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; }
-        
-        .card-perfil { background: #141414; border: 1px solid #27272a; transition: all 0.2s; }
-        .card-perfil:hover { border-color: #52525b; transform: translateY(-3px); }
-        
-        .badge { font-size: 10px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; color: #fff; }
-        .badge-artista { background: linear-gradient(135deg, #dc2626, #991b1b); }
-        .badge-compositor { background: linear-gradient(135deg, #7c3aed, #4c1d95); }
-        .badge-banda { background: linear-gradient(135deg, #ea580c, #9a3412); }
+        .filtro-rol.activo { color: #fff; background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen pb-20">
+<body class="min-h-screen">
 
-    <header class="bg-[#0e0e0e]/90 backdrop-blur border-b border-zinc-800 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="index.html" class="text-zinc-400 hover:text-white text-sm transition-colors">⬅ Inicio</a>
-            <h1 class="text-base font-black tracking-tight">EXPLORAR <span class="text-red-500">TALENTOS</span></h1>
-            <a href="profile.html" class="text-zinc-400 hover:text-white text-sm transition-colors">Mi Perfil</a>
-        </div>
-    </header>
+    <main class="max-w-7xl mx-auto px-4 pt-10 pb-16">
+        <header class="text-center max-w-2xl mx-auto mc-in">
+            <p class="mc-kicker">🧭 Explorar talentos</p>
+            <h1 class="mc-display text-4xl md:text-6xl font-extrabold mt-4 leading-[.95]">Encuentra tu<br><span class="mc-grad-text">próximo sonido</span>.</h1>
+            <p class="text-zinc-400 mt-5">Artistas, bandas, productores, estudios y fans de la escena independiente.</p>
+        </header>
 
-    <main class="max-w-4xl mx-auto px-4 pt-8">
-        <div class="mb-8 text-center">
-            <h2 class="text-3xl font-black mb-2">Encuentra tu próximo sonido</h2>
-            <p class="text-zinc-500 text-sm">Descubre artistas, bandas y productores en la plataforma.</p>
+        <!-- Buscador -->
+        <div class="mc-glass p-3 mt-10 max-w-3xl mx-auto flex flex-col sm:flex-row gap-3 mc-in mc-d1">
+            <div class="relative flex-1">
+                <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input id="buscador" type="search" autocomplete="off" placeholder="Nombre, @usuario, ciudad o género…" class="mc-input !pl-12 !py-3.5 !rounded-2xl !border-transparent !bg-white/[.04] text-base">
+            </div>
+            <select id="orden" class="mc-input sm:!w-48 !rounded-2xl !border-transparent !bg-white/[.04]">
+                <option value="nuevos">Más nuevos</option>
+                <option value="nombre">A → Z</option>
+                <option value="completos">Perfiles más completos</option>
+            </select>
         </div>
-        <div id="grid-talentos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <p class="text-center text-zinc-600 col-span-full">Cargando comunidad...</p>
+
+        <div id="filtros-rol" class="flex gap-2 justify-start md:justify-center overflow-x-auto mt-6 pb-1"></div>
+        <div id="filtros-genero" class="flex gap-2 justify-start md:justify-center flex-wrap mt-3"></div>
+
+        <p id="conteo" class="text-sm text-zinc-500 mt-8 mb-4"></p>
+        <div id="grid-talentos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div class="mc-skel h-64"></div><div class="mc-skel h-64"></div><div class="mc-skel h-64"></div><div class="mc-skel h-64 hidden xl:block"></div>
+        </div>
+        <div id="vacio" class="hidden text-center py-20">
+            <div class="text-5xl mb-4">🔍</div>
+            <p class="font-bold text-lg">No encontramos a nadie así… todavía.</p>
+            <p class="text-zinc-500 text-sm mt-1">Prueba con otra búsqueda o invita a tu gente a MusaConnect.</p>
         </div>
     </main>
 
@@ -45,39 +55,77 @@
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        MusaUI.montar(client, { activo: 'explorar' });
+
+        const ROLES = [
+            { id: 'todos', texto: 'Todos', emoji: '✦' },
+            { id: 'artista', texto: 'Artistas', emoji: '🎤' },
+            { id: 'banda', texto: 'Bandas', emoji: '🎸' },
+            { id: 'compositor', texto: 'Productores', emoji: '🎹' },
+            { id: 'estudio', texto: 'Estudios', emoji: '🎙️' },
+            { id: 'fan', texto: 'Fans', emoji: '🎧' }
+        ];
+        let perfiles = [];
+        let rolActivo = new URLSearchParams(location.search).get('rol') || 'todos';
+        if (!ROLES.some(r => r.id === rolActivo)) rolActivo = 'todos';
+        let generoActivo = null;
+
+        const tipoDe = p => ['artista', 'banda', 'compositor', 'estudio'].includes(p.tipo) ? p.tipo : 'fan';
+        // Qué tan completo está un perfil (para ordenar)
+        const completitud = p => [p.avatar_url, p.banner_url, p.bio, p.ciudad, (p.generos || []).length, p.track_destacado].filter(Boolean).length;
 
         async function cargarPerfiles() {
-            // Buscamos a todos menos a los "fan"
-            const { data: perfiles } = await client.from('perfiles')
-                .select('*')
-                .neq('tipo', 'fan')
+            const { data, error } = await client.from('perfiles')
+                .select('id, username, nombre_display, tipo, bio, avatar_url, banner_url, color_acento, fuente_nombre, forma_avatar, generos, ciudad, verificado, track_destacado, created_at')
                 .order('created_at', { ascending: false });
-                
-            const grid = document.getElementById('grid-talentos');
-            
-            if (!perfiles || perfiles.length === 0) {
-                grid.innerHTML = '<p class="text-center text-zinc-600 col-span-full py-10">Aún no hay creadores registrados.</p>';
+            if (error) {
+                document.getElementById('grid-talentos').innerHTML = '<p class="col-span-full text-center text-zinc-500 py-10">No pudimos cargar la comunidad. Intenta recargar.</p>';
                 return;
             }
-            
-            grid.innerHTML = perfiles.map(p => {
-                let badgeClass = p.tipo === 'artista' ? 'badge-artista' : (p.tipo === 'banda' ? 'badge-banda' : 'badge-compositor');
-                let inicial = esc((p.nombre_display || '?').charAt(0).toUpperCase());
-                let avatar = safeUrl(p.avatar_url) ? `<img src="${safeUrl(p.avatar_url)}" class="w-16 h-16 rounded-full object-cover">` : `<div class="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center text-2xl font-black">${inicial}</div>`;
-                let generos = (p.generos || []).slice(0,3).map(g => `<span class="text-[10px] font-bold text-zinc-400 bg-zinc-900 px-2 py-1 rounded border border-zinc-800">${esc(g)}</span>`).join('');
-
-                return `
-                <a href="visor.html?u=${encodeURIComponent(p.username)}" class="card-perfil p-5 rounded-2xl flex flex-col items-center text-center">
-                    <div class="mb-3">${avatar}</div>
-                    <span class="badge ${badgeClass} mb-2">${esc(p.tipo)}</span>
-                    <h3 class="font-bold text-lg mb-1">${esc(p.nombre_display)}</h3>
-                    <p class="text-zinc-500 text-xs mb-3">@${esc(p.username)}</p>
-                    <div class="flex flex-wrap gap-1 justify-center mb-4">${generos}</div>
-                    <button class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded-lg transition-colors">Ver Perfil</button>
-                </a>`;
-            }).join('');
+            perfiles = data || [];
+            pintarFiltros();
+            pintar();
         }
-        
+
+        function pintarFiltros() {
+            document.getElementById('filtros-rol').innerHTML = ROLES.map(r => {
+                const n = r.id === 'todos' ? perfiles.length : perfiles.filter(p => tipoDe(p) === r.id).length;
+                return `<button data-rol="${r.id}" class="filtro-rol ${r.id === rolActivo ? 'activo' : ''} shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 text-sm font-bold text-zinc-400 hover:text-white transition-colors">${r.emoji} ${r.texto} <span class="text-[11px] text-zinc-500 font-mono">${n}</span></button>`;
+            }).join('');
+            document.querySelectorAll('.filtro-rol').forEach(b => b.addEventListener('click', () => { rolActivo = b.dataset.rol; pintarFiltros(); pintar(); }));
+
+            // Géneros más usados por la comunidad
+            const cuenta = {};
+            perfiles.forEach(p => (p.generos || []).forEach(g => { cuenta[g] = (cuenta[g] || 0) + 1; }));
+            const top = Object.entries(cuenta).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([g]) => g);
+            document.getElementById('filtros-genero').innerHTML = top.map((g, i) =>
+                `<button data-i="${i}" class="filtro-genero mc-chip ${g === generoActivo ? 'activo' : ''}" style="--acento:#ec4899">#${esc(g)}</button>`).join('');
+            document.querySelectorAll('.filtro-genero').forEach(b => b.addEventListener('click', () => {
+                const g = top[Number(b.dataset.i)];
+                generoActivo = generoActivo === g ? null : g;
+                pintarFiltros(); pintar();
+            }));
+        }
+
+        function pintar() {
+            const q = document.getElementById('buscador').value.trim().toLowerCase().replace(/^@/, '');
+            const orden = document.getElementById('orden').value;
+            let lista = perfiles.filter(p => {
+                if (rolActivo !== 'todos' && tipoDe(p) !== rolActivo) return false;
+                if (generoActivo && !(p.generos || []).includes(generoActivo)) return false;
+                if (!q) return true;
+                return [p.nombre_display, p.username, p.ciudad, p.bio, ...(p.generos || [])].join(' ').toLowerCase().includes(q);
+            });
+            if (orden === 'nombre') lista = [...lista].sort((a, b) => (a.nombre_display || a.username).localeCompare(b.nombre_display || b.username, 'es'));
+            if (orden === 'completos') lista = [...lista].sort((a, b) => completitud(b) - completitud(a));
+
+            document.getElementById('grid-talentos').innerHTML = lista.map(MusaUI.tarjetaPerfil).join('');
+            document.getElementById('vacio').classList.toggle('hidden', lista.length > 0);
+            document.getElementById('conteo').textContent = lista.length === 1 ? '1 perfil' : `${lista.length} perfiles`;
+        }
+
+        document.getElementById('buscador').addEventListener('input', pintar);
+        document.getElementById('orden').addEventListener('change', pintar);
         cargarPerfiles();
     </script>
 </body>

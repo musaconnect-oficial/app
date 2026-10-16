@@ -3,161 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Perfil | MusaConnect</title>
+    <title>Editar perfil | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; }
-        .input-field { width: 100%; background: #1c1c1c; border: 1.5px solid #27272a; color: #fff; border-radius: 10px; padding: 10px 14px; font-size: 14px; }
-        .input-field:focus { outline: none; border-color: var(--acento, #7c3aed); }
-        .btn-primary { background: var(--acento, #7c3aed); color: #fff; font-weight: 700; padding: 12px; border-radius: 10px; transition: all 0.2s; }
-        .btn-primary:hover { filter: brightness(1.2); }
-        .btn-primary:disabled { background: #3f3f46; cursor: not-allowed; filter: none; }
-        .fade-in { animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .seccion { scroll-margin-top: 90px; }
+        .indice a.activo { color: #fff; background: rgba(255,255,255,.07); }
+        .swatch { width: 30px; height: 30px; border-radius: 10px; cursor: pointer; transition: transform .2s; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+        .swatch:hover { transform: scale(1.12); }
+        .swatch.activo { box-shadow: 0 0 0 2px #0e0d13, 0 0 0 4px #fff; }
+        .fuente-btn.activo, .forma-btn.activo { border-color: var(--acento); background: color-mix(in srgb, var(--acento) 14%, transparent); color: #fff; }
+        .genero-btn.activo { color: #fff; background: color-mix(in srgb, var(--acento) 22%, transparent); border-color: color-mix(in srgb, var(--acento) 60%, transparent); }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen">
+<body class="min-h-screen">
 
-    <header class="border-b border-zinc-800/50 bg-[#0e0e0e]/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a href="profile.html" class="text-zinc-400 hover:text-white flex items-center gap-1 text-sm transition-colors">← Cancelar</a>
-            <span class="font-black text-sm text-purple-500 uppercase tracking-widest">Ajustes de Cuenta</span>
-            <div class="w-16"></div>
-        </div>
-    </header>
+    <main class="max-w-6xl mx-auto px-4 pt-8 pb-40 grid lg:grid-cols-[220px_minmax(0,1fr)] gap-8">
 
-    <main class="max-w-2xl mx-auto pt-6 px-4 pb-20">
-        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6 space-y-8">
-            
-            <div class="relative mb-12">
-                <div id="banner-preview" class="h-32 md:h-40 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden relative group">
-                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <label class="cursor-pointer bg-black/80 text-white text-xs font-bold px-4 py-2 rounded-lg border border-zinc-600">
-                            Cambiar Portada
-                            <input type="file" id="banner-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'banner-preview')">
+        <!-- Índice -->
+        <aside class="hidden lg:block">
+            <nav class="indice sticky top-24 mc-panel p-2 text-sm font-bold text-zinc-400">
+                <a href="#seccion-identidad" class="block px-3 py-2.5 rounded-xl hover:text-white">🖼 Identidad</a>
+                <a href="#seccion-estilo" class="block px-3 py-2.5 rounded-xl hover:text-white">🎨 Estilo</a>
+                <a href="#seccion-info" class="block px-3 py-2.5 rounded-xl hover:text-white">✍️ Sobre ti</a>
+                <a href="#seccion-generos" class="block px-3 py-2.5 rounded-xl hover:text-white">🎧 Sonido</a>
+                <a href="#seccion-redes" class="block px-3 py-2.5 rounded-xl hover:text-white">🔗 Redes y links</a>
+                <a href="#seccion-trayectoria" class="block px-3 py-2.5 rounded-xl hover:text-white">🎓 Trayectoria</a>
+                <a href="#seccion-equipo" class="block px-3 py-2.5 rounded-xl hover:text-white">👥 Equipo</a>
+                <a href="#seccion-privado" class="block px-3 py-2.5 rounded-xl hover:text-white">🔒 Privado</a>
+            </nav>
+        </aside>
+
+        <div class="space-y-6 min-w-0">
+            <header class="flex flex-wrap items-end justify-between gap-4">
+                <div class="min-w-0">
+                    <p class="mc-kicker">Ajustes de perfil</p>
+                    <h1 class="mc-display text-3xl sm:text-4xl font-extrabold mt-1">Edita tu <span class="mc-grad-text">identidad</span></h1>
+                </div>
+                <a href="profile.html" class="mc-btn-ghost mc-btn-sm shrink-0">← Volver</a>
+            </header>
+
+            <!-- IDENTIDAD -->
+            <section id="seccion-identidad" class="seccion mc-glass overflow-hidden">
+                <div id="banner-preview" class="h-40 md:h-52 bg-zinc-900 relative group overflow-hidden" style="background:radial-gradient(ellipse at 20% 20%, var(--acento), transparent 60%), #120f19">
+                    <label class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
+                        <span class="mc-btn-ghost mc-btn-sm">📷 Cambiar portada</span>
+                        <input type="file" id="banner-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'banner-preview')">
+                    </label>
+                </div>
+                <div class="px-6 pb-6 -mt-12 relative z-20 flex items-end gap-4">
+                    <div id="avatar-preview" class="w-24 h-24 bg-zinc-800 flex items-center justify-center text-3xl font-black overflow-hidden relative group rounded-full shrink-0" style="box-shadow:0 0 0 4px #14121b, 0 0 0 6px var(--acento)">
+                        📸
+                        <label class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10 text-[11px] text-white font-bold">
+                            Cambiar
+                            <input type="file" id="avatar-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'avatar-preview')">
                         </label>
                     </div>
-                </div>
-
-                <div class="absolute -bottom-10 left-6 flex items-end gap-4">
-                    <div id="avatar-preview" class="w-24 h-24 bg-zinc-800 border-4 border-[#141414] flex items-center justify-center text-3xl font-black overflow-hidden relative group rounded-full">
-                        📸
-                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <label class="cursor-pointer text-[10px] text-white font-bold text-center w-full h-full flex items-center justify-center">
-                                Cambiar
-                                <input type="file" id="avatar-file" accept="image/*" class="hidden" onchange="previsualizar(this, 'avatar-preview')">
-                            </label>
-                        </div>
+                    <div class="pb-1 min-w-0">
+                        <p id="nombre-preview" class="text-2xl font-extrabold truncate" style="color:var(--acento)">Tu nombre</p>
+                        <p class="text-xs text-zinc-500">Pasa el mouse (o toca) sobre la portada y la foto para cambiarlas.</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- PERSONALIZACIÓN DE ESTILO -->
-            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-800/60">
+            <!-- ESTILO -->
+            <section id="seccion-estilo" class="seccion mc-glass p-6 space-y-6">
+                <h2 class="mc-display text-xl font-extrabold">🎨 Estilo</h2>
                 <div>
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">Color de Acento</label>
-                    <div class="flex items-center gap-3 bg-[#1c1c1c] border border-zinc-800 rounded-lg p-2">
-                        <input type="color" id="perfil-color" value="#7c3aed" class="w-8 h-8 rounded cursor-pointer border-none bg-transparent" onchange="actualizarAcento(this.value)">
-                        <span class="text-xs text-zinc-400" id="color-hex">#7c3aed</span>
+                    <label class="mc-label">Color de acento</label>
+                    <div class="flex items-center gap-2 flex-wrap" id="swatches">
+                        <input type="color" id="perfil-color" value="#8b5cf6" class="w-[30px] h-[30px] rounded-[10px] cursor-pointer bg-transparent border-0 p-0" title="Elegir otro color" oninput="actualizarAcento(this.value)">
+                        <span class="text-xs text-zinc-500 font-mono ml-1" id="color-hex">#8b5cf6</span>
                     </div>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">Fuente del Nombre</label>
-                    <select id="perfil-fuente" class="input-field">
+                    <label class="mc-label">Tipografía de tu nombre</label>
+                    <select id="perfil-fuente" class="hidden">
                         <option value="Inter">Moderna (Inter)</option>
                         <option value="'Bebas Neue'">Impacto (Bebas)</option>
                         <option value="'Space Mono'">Tech (Mono)</option>
                         <option value="'Permanent Marker'">Urbano (Marker)</option>
                     </select>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="fuentes-botones"></div>
                 </div>
-                <div class="col-span-2">
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">Estilo del Avatar</label>
-                    <select id="perfil-forma-avatar" class="input-field" onchange="cambiarFormaAvatar(this.value)">
-                        <option value="rounded-full">Círculo Clásico</option>
-                        <option value="rounded-2xl">Cuadrado (Tipo Portada de Disco)</option>
+                <div>
+                    <label class="mc-label">Forma de tu foto</label>
+                    <select id="perfil-forma-avatar" class="hidden" onchange="cambiarFormaAvatar(this.value)">
+                        <option value="rounded-full">Círculo</option>
+                        <option value="rounded-2xl">Portada de disco</option>
                     </select>
+                    <div class="grid grid-cols-2 gap-2 max-w-sm">
+                        <button type="button" class="forma-btn mc-panel !rounded-xl p-3 flex items-center gap-3 text-sm font-bold text-zinc-300" data-forma="rounded-full" onclick="elegirForma('rounded-full')"><span class="w-8 h-8 rounded-full" style="background:var(--acento)"></span>Círculo</button>
+                        <button type="button" class="forma-btn mc-panel !rounded-xl p-3 flex items-center gap-3 text-sm font-bold text-zinc-300" data-forma="rounded-2xl" onclick="elegirForma('rounded-2xl')"><span class="w-8 h-8 rounded-lg" style="background:var(--acento)"></span>Disco</button>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- DATOS BÁSICOS -->
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">Nombre en pantalla</label>
-                    <input type="text" id="perfil-nombre" class="input-field font-bold text-lg" placeholder="Tu nombre artístico">
+            <!-- SOBRE TI -->
+            <section id="seccion-info" class="seccion mc-glass p-6 space-y-5">
+                <h2 class="mc-display text-xl font-extrabold">✍️ Sobre ti</h2>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="mc-label" for="perfil-nombre">Nombre en pantalla</label>
+                        <input type="text" id="perfil-nombre" class="input-field font-bold" maxlength="50" placeholder="Tu nombre artístico" oninput="document.getElementById('nombre-preview').textContent = this.value || 'Tu nombre'">
+                    </div>
+                    <div>
+                        <label class="mc-label" for="perfil-ciudad">Ciudad</label>
+                        <input type="text" id="perfil-ciudad" class="input-field" maxlength="40" placeholder="Ej: Santiago, CL">
+                    </div>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">Estado / Vibe Actual</label>
+                    <label class="mc-label" for="perfil-estado">Estado / vibe actual</label>
                     <input type="text" id="perfil-estado" class="input-field" placeholder="Ej: 🔴 Grabando en el estudio" maxlength="40">
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">Biografía</label>
-                    <textarea id="perfil-bio" class="input-field resize-none" rows="3" placeholder="Cuéntale al mundo quién eres..." maxlength="160"></textarea>
+                    <div class="flex justify-between"><label class="mc-label" for="perfil-bio">Biografía</label><span id="bio-contador" class="text-[11px] text-zinc-500 font-mono">0/160</span></div>
+                    <textarea id="perfil-bio" class="input-field resize-none" rows="3" placeholder="Cuéntale al mundo quién eres…" maxlength="160" oninput="document.getElementById('bio-contador').textContent = this.value.length + '/160'"></textarea>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-zinc-400 block mb-1">⭐ Track Destacado (Fijado)</label>
-                    <input type="text" id="track-destacado" class="input-field" placeholder="Pega el código iframe de tu mejor tema">
+                    <label class="mc-label" for="track-destacado">⭐ Track destacado (fijado arriba de tu perfil)</label>
+                    <input type="text" id="track-destacado" class="input-field" placeholder="Link o código para insertar de Spotify, YouTube, SoundCloud…" oninput="previsualizarTrack()">
+                    <div id="track-preview" class="mt-3 rounded-2xl overflow-hidden"></div>
                 </div>
-            </div>
+            </section>
 
-            <!-- INFLUENCIAS MUSICALES -->
-            <div class="pt-4 border-t border-zinc-800/60">
-                <label class="text-xs font-bold text-zinc-400 block mb-1">🎧 Influencias Musicales</label>
-                <p class="text-[10px] text-zinc-500 mb-3">¿Qué artistas te inspiran?</p>
-                <div id="contenedor-influencias" class="flex flex-wrap gap-2 mb-3"></div>
-                <div class="flex gap-2">
-                    <input type="text" id="input-nueva-influencia" class="input-field text-xs" placeholder="Ej: Travis Scott">
-                    <button type="button" onclick="agregarInfluencia()" class="bg-zinc-800 text-white px-4 rounded-lg text-xs font-bold hover:bg-zinc-700">+</button>
+            <!-- SONIDO -->
+            <section id="seccion-generos" class="seccion mc-glass p-6 space-y-5">
+                <h2 class="mc-display text-xl font-extrabold">🎧 Tu sonido</h2>
+                <div>
+                    <label class="mc-label">Géneros <span class="normal-case tracking-normal text-zinc-500 font-semibold">(hasta 5)</span></label>
+                    <div class="flex flex-wrap gap-2" id="generos-lista"></div>
                 </div>
-            </div>
+                <div>
+                    <label class="mc-label">Influencias musicales</label>
+                    <p class="text-xs text-zinc-500 mb-3">¿Qué artistas te inspiran?</p>
+                    <div id="contenedor-influencias" class="flex flex-wrap gap-2 mb-3"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-nueva-influencia" class="input-field" placeholder="Ej: Travis Scott" onkeydown="if(event.key==='Enter'){event.preventDefault(); agregarInfluencia();}">
+                        <button type="button" onclick="agregarInfluencia()" class="mc-btn-ghost !px-5">+</button>
+                    </div>
+                </div>
+            </section>
 
-            <!-- ESTUDIOS Y EQUIPAMIENTO -->
-            <div class="pt-4 border-t border-zinc-800/60">
-                <label class="text-xs font-bold text-zinc-400 block mb-1">🎓 Formación y Estudios</label>
-                <div id="contenedor-estudios" class="space-y-3 mb-3"></div>
-                <button type="button" onclick="agregarInputEstudio('', '', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Estudio</button>
-            </div>
+            <!-- REDES -->
+            <section id="seccion-redes" class="seccion mc-glass p-6 space-y-5">
+                <h2 class="mc-display text-xl font-extrabold">🔗 Redes y links</h2>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div><label class="mc-label" for="red-instagram">📸 Instagram</label><input type="url" id="red-instagram" class="input-field" placeholder="instagram.com/tuusuario"></div>
+                    <div><label class="mc-label" for="red-spotify">🎧 Spotify</label><input type="url" id="red-spotify" class="input-field" placeholder="open.spotify.com/artist/…"></div>
+                    <div><label class="mc-label" for="red-youtube">▶ YouTube</label><input type="url" id="red-youtube" class="input-field" placeholder="youtube.com/@tucanal"></div>
+                    <div><label class="mc-label" for="red-soundcloud">☁ SoundCloud</label><input type="url" id="red-soundcloud" class="input-field" placeholder="soundcloud.com/tuusuario"></div>
+                    <div class="sm:col-span-2"><label class="mc-label" for="red-stream">🔴 Transmisión en vivo (Twitch, YouTube Live…)</label><input type="url" id="red-stream" class="input-field" placeholder="Si estás en vivo, aparece un botón rojo en tu perfil"></div>
+                </div>
+                <div class="pt-2">
+                    <label class="mc-label">Links personalizados <span class="normal-case tracking-normal text-zinc-500 font-semibold">(estilo Linktree, hasta 6)</span></label>
+                    <div id="contenedor-links" class="space-y-2 mb-3"></div>
+                    <button type="button" onclick="agregarInputLink('', '')" class="mc-btn-ghost mc-btn-sm w-full">+ Añadir link</button>
+                </div>
+            </section>
 
-            <div class="pt-4 border-t border-zinc-800/60">
-                <label class="text-xs font-bold text-zinc-400 block mb-1">🎛️ Equipamiento / Setup</label>
-                <div id="contenedor-equipos" class="space-y-3 mb-3"></div>
-                <button type="button" onclick="agregarInputEquipo('', '')" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Equipo</button>
-            </div>
+            <!-- TRAYECTORIA -->
+            <section id="seccion-trayectoria" class="seccion mc-glass p-6 space-y-6">
+                <h2 class="mc-display text-xl font-extrabold">🎓 Trayectoria</h2>
+                <div>
+                    <label class="mc-label">Formación y estudios</label>
+                    <div id="contenedor-estudios" class="space-y-3 mb-3"></div>
+                    <button type="button" onclick="agregarInputEstudio('', '', '')" class="mc-btn-ghost mc-btn-sm w-full">+ Añadir estudio</button>
+                </div>
+                <div>
+                    <label class="mc-label">Equipamiento / setup</label>
+                    <div id="contenedor-equipos" class="space-y-3 mb-3"></div>
+                    <button type="button" onclick="agregarInputEquipo('', '')" class="mc-btn-ghost mc-btn-sm w-full">+ Añadir equipo</button>
+                </div>
+            </section>
 
-            <!-- ESTUDIO / COLECTIVO -->
-            <div class="pt-4 border-t border-zinc-800/60">
-                <label class="text-xs font-bold text-zinc-400 block mb-1">🎙️ Estudio / Colectivo</label>
-                <p class="text-[10px] text-zinc-500 mb-3">Agrega los integrantes de tu estudio o colectivo musical.</p>
+            <!-- EQUIPO -->
+            <section id="seccion-equipo" class="seccion mc-glass p-6">
+                <h2 class="mc-display text-xl font-extrabold">👥 Tu equipo</h2>
+                <p class="text-xs text-zinc-500 mt-1 mb-4">Integrantes de tu banda, estudio o colectivo. Si tienen cuenta, enlaza su @usuario.</p>
                 <div id="contenedor-integrantes" class="space-y-3 mb-3"></div>
-                <button type="button" onclick="agregarIntegrante()" class="text-xs font-bold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg w-full transition-colors">+ Añadir Integrante</button>
-            </div>
+                <button type="button" onclick="agregarIntegrante()" class="mc-btn-ghost mc-btn-sm w-full">+ Añadir integrante</button>
+            </section>
 
-            <div id="msg-box" class="hidden text-xs px-3 py-2 rounded-lg mb-4 mt-4 font-bold text-center"></div>
-            <button id="btn-guardar" onclick="guardarTodo()" class="btn-primary w-full shadow-lg">Guardar y Actualizar Perfil</button>
+            <!-- PRIVADO -->
+            <section id="seccion-privado" class="seccion mc-glass p-6">
+                <h2 class="mc-display text-xl font-extrabold">🔒 Datos privados</h2>
+                <p class="text-xs text-zinc-500 mt-1 mb-4">Solo tú (y la administración) pueden ver esto. Nunca aparece en tu perfil público.</p>
+                <label class="mc-label" for="perfil-nombre-legal">Nombre del responsable legal</label>
+                <input type="text" id="perfil-nombre-legal" class="input-field" maxlength="80" placeholder="Nombre real">
+            </section>
         </div>
     </main>
+
+    <!-- Barra de guardado -->
+    <div class="fixed left-0 right-0 bottom-[86px] md:bottom-0 z-50 px-4 pb-4 pointer-events-none">
+        <div class="max-w-3xl mx-auto mc-glass p-3 pl-5 flex items-center gap-3 shadow-2xl pointer-events-auto">
+            <div id="msg-box" class="hidden"></div>
+            <p class="text-sm text-zinc-400 flex-1 hidden sm:block">Tus cambios se aplican en todo MusaConnect.</p>
+            <a href="profile.html" class="mc-btn-ghost mc-btn-sm">Cancelar</a>
+            <button id="btn-guardar" onclick="guardarTodo()" class="mc-btn mc-btn-acento flex-1 sm:flex-none sm:px-8">Guardar cambios</button>
+        </div>
+    </div>
 
     <script>
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        MusaUI.montar(client, { activo: 'perfil' });
 
         let usuarioActual = null;
         let urlFotoFinal = null;
         let urlBannerFinal = null;
+        let generosSeleccionados = [];
+        let nombreLegalOriginal = '';
 
+        const COLORES = ['#8b5cf6','#ec4899','#f43f5e','#f59e0b','#22c55e','#06b6d4','#3b82f6','#e5e7eb'];
+        const FUENTES = [{ valor: 'Inter', nombre: 'Moderna' }, { valor: "'Bebas Neue'", nombre: 'Impacto' }, { valor: "'Space Mono'", nombre: 'Tech' }, { valor: "'Permanent Marker'", nombre: 'Urbano' }];
+        const GENEROS = ['Trap','R&B','Hip Hop','Reggaeton','Pop','Electrónica','Rock','Metal','Indie','Salsa','Cumbia','Jazz','Punk','Drill','Lo-fi','Folk'];
+
+        // ---------- Estilo ----------
         function actualizarAcento(color) {
-            document.documentElement.style.setProperty('--acento', color);
-            document.getElementById('color-hex').textContent = color;
+            const c = safeColor(color, '#8b5cf6');
+            document.documentElement.style.setProperty('--acento', c);
+            document.getElementById('perfil-color').value = c;
+            document.getElementById('color-hex').textContent = c;
+            document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('activo', s.dataset.color === c));
+        }
+
+        function elegirFuente(i) {
+            document.getElementById('perfil-fuente').value = FUENTES[i].valor;
+            document.querySelectorAll('.fuente-btn').forEach(b => b.classList.toggle('activo', Number(b.dataset.i) === i));
+            document.getElementById('nombre-preview').style.fontFamily = safeFont(FUENTES[i].valor);
         }
 
         function cambiarFormaAvatar(forma) {
             const avatar = document.getElementById('avatar-preview');
             avatar.classList.remove('rounded-full', 'rounded-2xl');
             avatar.classList.add(forma);
+            document.querySelectorAll('.forma-btn').forEach(b => b.classList.toggle('activo', b.dataset.forma === forma));
+        }
+        function elegirForma(forma) {
+            document.getElementById('perfil-forma-avatar').value = forma;
+            cambiarFormaAvatar(forma);
+        }
+
+        function pintarOpcionesEstilo() {
+            document.getElementById('swatches').insertAdjacentHTML('afterbegin', COLORES.map(c =>
+                `<button type="button" class="swatch" data-color="${c}" style="background:${c}" aria-label="Color ${c}" onclick="actualizarAcento('${c}')"></button>`).join(''));
+            document.getElementById('fuentes-botones').innerHTML = FUENTES.map((f, i) =>
+                `<button type="button" class="fuente-btn mc-panel !rounded-xl px-3 py-3 text-center text-zinc-300" data-i="${i}" onclick="elegirFuente(${i})">
+                    <span class="block text-lg leading-none" style="font-family:${esc(f.valor)}">Aa</span><span class="block text-[10px] font-bold mt-1.5 text-zinc-500 uppercase tracking-wider">${f.nombre}</span></button>`).join('');
+        }
+
+        // ---------- Géneros ----------
+        function renderGeneros() {
+            document.getElementById('generos-lista').innerHTML = GENEROS.map((g, i) =>
+                `<button type="button" onclick="toggleGenero(${i}, this)" class="genero-btn mc-chip ${generosSeleccionados.includes(g) ? 'activo' : ''}">${esc(g)}</button>`).join('');
+        }
+        function toggleGenero(i, el) {
+            const g = GENEROS[i];
+            if (generosSeleccionados.includes(g)) { generosSeleccionados = generosSeleccionados.filter(x => x !== g); el.classList.remove('activo'); }
+            else if (generosSeleccionados.length < 5) { generosSeleccionados.push(g); el.classList.add('activo'); }
+            else MusaUI.toast('Puedes elegir hasta 5 géneros.', 'info');
+        }
+
+        function previsualizarTrack() {
+            const html = embedSeguro(document.getElementById('track-destacado').value);
+            const cont = document.getElementById('track-preview');
+            const valor = document.getElementById('track-destacado').value.trim();
+            cont.innerHTML = html || (valor ? '<p class="text-xs text-amber-300">Ese link no se puede reproducir. Usa Spotify, YouTube, SoundCloud, Apple Music o Bandcamp.</p>' : '');
+        }
+
+        // Acepta "instagram.com/x" y lo convierte en https://instagram.com/x
+        function normalizarUrl(valor) {
+            const v = (valor || '').trim();
+            if (!v) return '';
+            const conProtocolo = /^https?:\/\//i.test(v) ? v : 'https://' + v;
+            try { const u = new URL(conProtocolo); return (u.protocol === 'https:' || u.protocol === 'http:') && u.hostname.includes('.') ? u.href : null; }
+            catch (e) { return null; }
         }
 
         async function init() {
@@ -165,95 +293,115 @@
             if (!user) { window.location.href = 'login.html'; return; }
             usuarioActual = user;
 
-            const { data: perfil } = await client.from('perfiles').select('*').eq('id', user.id).single();
-            if (perfil) {
-                document.getElementById('perfil-nombre').value = perfil.nombre_display || '';
-                document.getElementById('perfil-bio').value = perfil.bio || '';
-                document.getElementById('perfil-estado').value = perfil.estado_vibe || '';
-                document.getElementById('track-destacado').value = perfil.track_destacado || '';
-                
-                if(perfil.color_acento) {
-                    document.getElementById('perfil-color').value = perfil.color_acento;
-                    actualizarAcento(perfil.color_acento);
-                }
-                if(perfil.fuente_nombre) document.getElementById('perfil-fuente').value = perfil.fuente_nombre;
-                if(perfil.forma_avatar) {
-                    document.getElementById('perfil-forma-avatar').value = perfil.forma_avatar;
-                    cambiarFormaAvatar(perfil.forma_avatar);
-                }
-                
-                urlFotoFinal = perfil.avatar_url;
-                if(safeUrl(urlFotoFinal)) document.getElementById('avatar-preview').insertAdjacentHTML('afterbegin', `<img src="${safeUrl(urlFotoFinal)}" class="absolute inset-0 w-full h-full object-cover">`);
-
-                urlBannerFinal = perfil.banner_url;
-                if(safeUrl(urlBannerFinal)) document.getElementById('banner-preview').insertAdjacentHTML('afterbegin', `<img src="${safeUrl(urlBannerFinal)}" class="absolute inset-0 w-full h-full object-cover">`);
-
-                if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
-                if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano, e.musa_username || ''));
-                if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
-                if (perfil.integrantes_banda) perfil.integrantes_banda.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || ''));
+            const [{ data: perfil }, { data: privado }] = await Promise.all([
+                client.from('perfiles').select('*').eq('id', user.id).single(),
+                client.from('perfiles_privados').select('nombre_legal').eq('id', user.id).maybeSingle()
+            ]);
+            if (privado && privado.nombre_legal) {
+                nombreLegalOriginal = privado.nombre_legal;
+                document.getElementById('perfil-nombre-legal').value = privado.nombre_legal;
             }
+            if (!perfil) return;
+
+            document.getElementById('perfil-nombre').value = perfil.nombre_display || '';
+            document.getElementById('nombre-preview').textContent = perfil.nombre_display || 'Tu nombre';
+            document.getElementById('perfil-bio').value = perfil.bio || '';
+            document.getElementById('bio-contador').textContent = (perfil.bio || '').length + '/160';
+            document.getElementById('perfil-estado').value = perfil.estado_vibe || '';
+            document.getElementById('perfil-ciudad').value = perfil.ciudad || '';
+            document.getElementById('track-destacado').value = perfil.track_destacado || '';
+            previsualizarTrack();
+
+            actualizarAcento(perfil.color_acento || '#8b5cf6');
+            const iFuente = Math.max(0, FUENTES.findIndex(f => f.valor === safeFont(perfil.fuente_nombre)));
+            elegirFuente(iFuente);
+            elegirForma(perfil.forma_avatar === 'rounded-2xl' ? 'rounded-2xl' : 'rounded-full');
+
+            urlFotoFinal = perfil.avatar_url;
+            if (safeUrl(urlFotoFinal)) document.getElementById('avatar-preview').insertAdjacentHTML('afterbegin', `<img src="${safeUrl(urlFotoFinal)}" alt="" class="absolute inset-0 w-full h-full object-cover">`);
+            urlBannerFinal = perfil.banner_url;
+            if (safeUrl(urlBannerFinal)) document.getElementById('banner-preview').insertAdjacentHTML('afterbegin', `<img src="${safeUrl(urlBannerFinal)}" alt="" class="absolute inset-0 w-full h-full object-cover">`);
+
+            generosSeleccionados = Array.isArray(perfil.generos) ? perfil.generos.slice(0, 5) : [];
+            // Géneros guardados que no están en la lista también se pueden ver y quitar
+            generosSeleccionados.forEach(g => { if (!GENEROS.includes(g)) GENEROS.push(g); });
+            renderGeneros();
+
+            document.getElementById('red-instagram').value = perfil.link_instagram || perfil.instagram || '';
+            document.getElementById('red-spotify').value = perfil.link_spotify || perfil.spotify || '';
+            document.getElementById('red-youtube').value = perfil.youtube || '';
+            document.getElementById('red-soundcloud').value = perfil.soundcloud || '';
+            document.getElementById('red-stream').value = perfil.link_stream || '';
+            (perfil.links_custom || []).forEach(l => agregarInputLink(l.titulo, l.url));
+
+            if (perfil.influencias) perfil.influencias.forEach(inf => agregarTagInfluencia(inf));
+            if (perfil.estudios) perfil.estudios.forEach(e => agregarInputEstudio(e.titulo, e.institucion, e.ano, e.musa_username || ''));
+            if (perfil.equipamiento) perfil.equipamiento.forEach(eq => agregarInputEquipo(eq.categoria, eq.detalle));
+            if (perfil.integrantes_banda) perfil.integrantes_banda.forEach(i => agregarIntegrante(i.nombre, i.rol, i.musa_username || ''));
+
+            // Si se llegó con #seccion-..., ir directo ahí
+            if (location.hash) setTimeout(() => document.querySelector(location.hash)?.scrollIntoView({ behavior: 'smooth' }), 300);
         }
+
+        // ---------- Listas dinámicas ----------
+        const btnQuitar = cerrar => `<button type="button" onclick="${cerrar}" class="mc-iconbtn !w-9 !h-9 shrink-0 hover:!text-rose-400" aria-label="Quitar">✕</button>`;
 
         window.agregarTagInfluencia = function(nombre) {
             const div = document.createElement('div');
-            div.className = 'bg-zinc-800 text-zinc-300 text-[10px] px-2 py-1 rounded-md flex items-center gap-1 tag-influencia fade-in';
-            div.innerHTML = `<span>${esc(nombre)}</span><button type="button" onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 ml-1">✕</button>`;
+            div.className = 'mc-chip tag-influencia fade-in !text-zinc-200';
+            div.innerHTML = `<span>${esc(nombre)}</span><button type="button" onclick="this.parentElement.remove()" class="text-rose-300 hover:text-rose-200 ml-1" aria-label="Quitar">✕</button>`;
             document.getElementById('contenedor-influencias').appendChild(div);
         }
 
         window.agregarInfluencia = function() {
             const input = document.getElementById('input-nueva-influencia');
             const val = input.value.trim();
-            if(val) { agregarTagInfluencia(val); input.value = ''; }
+            if (val) { agregarTagInfluencia(val.slice(0, 40)); input.value = ''; }
+        }
+
+        window.agregarInputLink = function(titulo = '', url = '') {
+            if (document.querySelectorAll('.link-item').length >= 6) return MusaUI.toast('Puedes tener hasta 6 links.', 'info');
+            const div = document.createElement('div');
+            div.className = 'flex gap-2 items-center link-item fade-in';
+            div.innerHTML = `
+                <input type="text" placeholder="Título (Ej: Mi EP)" value="${esc(titulo)}" maxlength="40" class="input-field w-2/5 link-titulo">
+                <input type="url" placeholder="https://…" value="${esc(url)}" class="input-field flex-1 link-url">
+                ${btnQuitar('this.parentElement.remove()')}`;
+            document.getElementById('contenedor-links').appendChild(div);
         }
 
         window.agregarInputEstudio = function(tit = '', inst = '', ano = '', musa = '') {
-            const div = document.createElement('div'); div.className = 'flex gap-2 items-start estudio-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800';
+            const div = document.createElement('div'); div.className = 'flex gap-2 items-start estudio-item fade-in mc-panel p-3';
             div.innerHTML = `
                 <div class="flex-1 grid grid-cols-2 gap-2">
-                    <input type="text" placeholder="Título (Ej: Producción Musical)" value="${esc(tit)}" class="input-field col-span-2 text-xs estudio-titulo">
-                    <input type="text" placeholder="Institución" value="${esc(inst)}" class="input-field text-xs estudio-inst">
-                    <input type="text" placeholder="Año (Ej: 2024)" value="${esc(ano)}" class="input-field text-xs estudio-ano">
-                    <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
-                        <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil de MusaConnect</p>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 Usuario</span>
-                            <input type="text" placeholder="@usuario o link de su perfil" value="${esc(musa)}" class="input-field text-xs estudio-musa" onblur="this.value = limpiarUsername(this.value)">
-                        </div>
-                    </div>
+                    <input type="text" placeholder="Título (Ej: Producción musical)" value="${esc(tit)}" class="input-field col-span-2 estudio-titulo">
+                    <input type="text" placeholder="Institución" value="${esc(inst)}" class="input-field estudio-inst">
+                    <input type="text" placeholder="Año (Ej: 2024)" value="${esc(ano)}" class="input-field estudio-ano">
+                    <input type="text" placeholder="🔗 @usuario de MusaConnect (opcional)" value="${esc(musa)}" class="input-field col-span-2 estudio-musa" onblur="this.value = limpiarUsername(this.value)">
                 </div>
-                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
+                ${btnQuitar('this.parentElement.remove()')}`;
             document.getElementById('contenedor-estudios').appendChild(div);
         }
 
         window.agregarIntegrante = function(nombre = '', rol = '', musa = '') {
             const div = document.createElement('div');
-            div.className = 'integrante-item fade-in bg-[#1c1c1c] p-3 rounded-lg border border-zinc-800 space-y-2';
+            div.className = 'integrante-item fade-in mc-panel p-3 flex gap-2 items-start';
             div.innerHTML = `
-                <div class="flex gap-2 items-start">
-                    <div class="flex-1 grid grid-cols-2 gap-2">
-                        <input type="text" placeholder="Nombre del integrante" value="${esc(nombre)}" class="input-field col-span-2 text-xs integrante-nombre">
-                        <input type="text" placeholder="Rol (Ej: Productor)" value="${esc(rol)}" class="input-field col-span-2 text-xs integrante-rol">
-                        <div class="col-span-2 border-t border-zinc-700/50 pt-2 mt-1">
-                            <p class="text-[10px] text-zinc-500 mb-2 font-bold uppercase tracking-wider">Perfil de MusaConnect</p>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] text-purple-400 w-16 shrink-0 font-bold">🔗 Usuario</span>
-                                <input type="text" placeholder="@usuario o link de su perfil" value="${esc(musa)}" class="input-field text-xs integrante-musa" onblur="this.value = limpiarUsername(this.value)">
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" onclick="this.closest('.integrante-item').remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>
-                </div>`;
+                <div class="flex-1 grid grid-cols-2 gap-2">
+                    <input type="text" placeholder="Nombre" value="${esc(nombre)}" class="input-field integrante-nombre">
+                    <input type="text" placeholder="Rol (Ej: Productor)" value="${esc(rol)}" class="input-field integrante-rol">
+                    <input type="text" placeholder="🔗 @usuario de MusaConnect (opcional)" value="${esc(musa)}" class="input-field col-span-2 integrante-musa" onblur="this.value = limpiarUsername(this.value)">
+                </div>
+                ${btnQuitar("this.closest('.integrante-item').remove()")}`;
             document.getElementById('contenedor-integrantes').appendChild(div);
         }
 
         window.agregarInputEquipo = function(cat = '', det = '') {
             const div = document.createElement('div'); div.className = 'flex gap-2 items-center equipo-item fade-in';
             div.innerHTML = `
-                <input type="text" placeholder="Tipo (Ej: Teclado)" value="${esc(cat)}" class="input-field text-xs w-1/3 equipo-cat">
-                <input type="text" placeholder="Modelo (Ej: Redragon Kumara)" value="${esc(det)}" class="input-field text-xs flex-1 equipo-det">
-                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors">✕</button>`;
+                <input type="text" placeholder="Tipo (Ej: Micrófono)" value="${esc(cat)}" class="input-field w-1/3 equipo-cat">
+                <input type="text" placeholder="Modelo (Ej: Shure SM7B)" value="${esc(det)}" class="input-field flex-1 equipo-det">
+                ${btnQuitar('this.parentElement.remove()')}`;
             document.getElementById('contenedor-equipos').appendChild(div);
         }
 
@@ -262,8 +410,8 @@
                 const reader = new FileReader();
                 reader.onload = e => {
                     const preview = document.getElementById(previewId);
-                    const oldImg = preview.querySelector('img.object-cover');
-                    if(oldImg) oldImg.remove();
+                    const oldImg = preview.querySelector('img');
+                    if (oldImg) oldImg.remove();
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.className = 'absolute inset-0 w-full h-full object-cover';
@@ -282,12 +430,31 @@
             return data.publicUrl;
         }
 
+        // ---------- Guardar ----------
         window.guardarTodo = async function() {
             const btn = document.getElementById('btn-guardar');
             const nombre = document.getElementById('perfil-nombre').value.trim();
             if (!nombre) return mostrarMensaje("El nombre en pantalla es obligatorio.", false);
 
-            btn.disabled = true; btn.textContent = "Guardando en la base de datos...";
+            // Redes: se validan antes de guardar
+            const redes = {};
+            const camposRedes = { link_instagram: 'red-instagram', link_spotify: 'red-spotify', youtube: 'red-youtube', soundcloud: 'red-soundcloud', link_stream: 'red-stream' };
+            for (const [columna, id] of Object.entries(camposRedes)) {
+                const url = normalizarUrl(document.getElementById(id).value);
+                if (url === null) { document.getElementById(id).focus(); return mostrarMensaje("Revisa este link: debe ser una dirección web válida.", false); }
+                redes[columna] = url || null;
+            }
+            const linksCustom = [];
+            for (const item of document.querySelectorAll('.link-item')) {
+                const titulo = item.querySelector('.link-titulo').value.trim();
+                const urlBruta = item.querySelector('.link-url').value;
+                if (!titulo && !urlBruta.trim()) continue;
+                const url = normalizarUrl(urlBruta);
+                if (!url) { item.querySelector('.link-url').focus(); return mostrarMensaje(`El link "${titulo || 'sin título'}" no es una dirección válida.`, false); }
+                linksCustom.push({ titulo: titulo || new URL(url).hostname, url });
+            }
+
+            btn.disabled = true; btn.textContent = "Guardando…";
 
             try {
                 const avatarFile = document.getElementById('avatar-file').files[0];
@@ -320,22 +487,32 @@
                     nombre_display: nombre,
                     bio: document.getElementById('perfil-bio').value.trim(),
                     estado_vibe: document.getElementById('perfil-estado').value.trim(),
+                    ciudad: document.getElementById('perfil-ciudad').value.trim() || null,
                     track_destacado: document.getElementById('track-destacado').value.trim(),
-                    color_acento: document.getElementById('perfil-color').value,
+                    color_acento: safeColor(document.getElementById('perfil-color').value, '#8b5cf6'),
                     fuente_nombre: document.getElementById('perfil-fuente').value,
                     forma_avatar: document.getElementById('perfil-forma-avatar').value,
                     avatar_url: urlFotoFinal,
                     banner_url: urlBannerFinal,
+                    generos: generosSeleccionados,
                     influencias,
                     estudios,
                     equipamiento,
-                    integrantes_banda: integrantes
+                    integrantes_banda: integrantes,
+                    links_custom: linksCustom,
+                    ...redes
                 }).eq('id', usuarioActual.id);
-
                 if (error) throw error;
 
-                mostrarMensaje("¡Perfil actualizado con éxito! Redirigiendo...", true);
-                setTimeout(() => window.location.href = 'profile.html', 1500);
+                // El nombre legal vive en una tabla privada aparte
+                const nombreLegal = document.getElementById('perfil-nombre-legal').value.trim();
+                if (nombreLegal !== nombreLegalOriginal) {
+                    const { error: errPriv } = await client.from('perfiles_privados').upsert({ id: usuarioActual.id, nombre_legal: nombreLegal || null });
+                    if (errPriv) throw errPriv;
+                }
+
+                mostrarMensaje("¡Perfil actualizado! Llevándote a tu perfil…", true);
+                setTimeout(() => window.location.href = 'profile.html', 1200);
 
             } catch (error) {
                 mostrarMensaje("Error al guardar: " + error.message, false);
@@ -344,10 +521,7 @@
         }
 
         function mostrarMensaje(texto, exito) {
-            const msgBox = document.getElementById('msg-box');
-            msgBox.textContent = texto;
-            msgBox.className = `text-xs px-3 py-3 rounded-lg mb-4 mt-4 font-bold text-center ${exito ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`;
-            msgBox.classList.remove('hidden');
+            MusaUI.toast(texto, exito ? 'ok' : 'error');
         }
 
         // Extrae el @usuario de MusaConnect ya sea que pegues el link completo o solo el username
@@ -366,6 +540,14 @@
             return v.replace('@', '').toLowerCase();
         }
 
+        // Resalta en el índice la sección visible
+        const enlacesIndice = document.querySelectorAll('.indice a');
+        const observadorIndice = new IntersectionObserver(entradas => entradas.forEach(e => {
+            if (e.isIntersecting) enlacesIndice.forEach(a => a.classList.toggle('activo', a.getAttribute('href') === '#' + e.target.id));
+        }), { rootMargin: '-40% 0px -55% 0px' });
+        document.querySelectorAll('.seccion').forEach(s => observadorIndice.observe(s));
+
+        pintarOpcionesEstilo();
         init();
     </script>
 </body>

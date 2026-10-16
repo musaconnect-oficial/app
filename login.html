@@ -4,99 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ingresar | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
-            color: #fff; border-radius: 12px; padding: 14px 16px;
-            font-size: 14px; transition: all 0.2s;
-        }
-        .input-field:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
-        .input-field::placeholder { color: #52525b; }
-
-        .btn-primary {
-            width: 100%; background: #7c3aed; color: #fff; font-weight: 700;
-            padding: 14px; border-radius: 12px; font-size: 15px;
-            transition: all 0.2s; border: none; cursor: pointer;
-            box-shadow: 0 0 15px rgba(124,58,237,0.3);
-        }
-        .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 0 20px rgba(124,58,237,0.5); }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-primary:disabled { background: #3f3f46; box-shadow: none; cursor: not-allowed; transform: none; }
-
-        .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-
-        /* Brillo de fondo */
-        .hero-glow {
-            position: absolute; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, rgba(0,0,0,0) 70%);
-            top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; pointer-events: none;
-        }
+        .sacudir { animation: sacudir .4s; }
+        @keyframes sacudir { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col items-center justify-center p-4 relative z-0">
+<body class="min-h-screen">
 
-    <div class="hero-glow"></div>
-
-    <div class="w-full max-w-sm slide-up">
-        <div class="text-center mb-8">
-            <a href="index.html" class="inline-block transition-transform hover:scale-105">
-                <h1 class="text-3xl font-black tracking-tight">MUSA<span class="text-purple-600">CONNECT</span></h1>
-            </a>
-            <p class="text-zinc-400 text-sm mt-2">Bienvenido de vuelta a tu ecosistema</p>
-        </div>
-
-        <div class="bg-[#141414]/80 backdrop-blur border border-zinc-800 rounded-3xl p-8 shadow-2xl">
-            <div class="flex flex-col gap-5">
-                <div>
-                    <label class="text-xs text-zinc-400 font-bold mb-1.5 block uppercase tracking-wider">Correo electrónico</label>
-                    <input type="email" id="login-email" class="input-field" placeholder="tu@correo.com">
-                </div>
-                <div>
-                    <label class="text-xs text-zinc-400 font-bold mb-1.5 block uppercase tracking-wider">Contraseña</label>
-                    <input type="password" id="login-password" class="input-field" placeholder="••••••••">
-                </div>
-
-                <div id="login-error" class="hidden bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-xl px-4 py-3 text-center transition-all"></div>
-
-                <button id="btn-login" class="btn-primary mt-2" onclick="iniciarSesion()">Ingresar al panel</button>
+    <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+        <!-- Panel artístico -->
+        <aside class="hidden lg:flex relative overflow-hidden flex-col justify-between p-12 border-r border-white/5">
+            <a href="index.html" class="mc-display font-extrabold text-xl relative z-10">MUSA<span class="mc-grad-text">CONNECT</span></a>
+            <div class="mc-vinilo absolute -right-40 top-1/2 -translate-y-1/2 w-[560px] aspect-square opacity-90"></div>
+            <div class="absolute -right-24 top-1/2 -translate-y-1/2 w-[420px] aspect-square rounded-full blur-3xl opacity-40" style="background:var(--mc-grad)"></div>
+            <div class="relative z-10 max-w-md">
+                <p class="mc-kicker">Sesión de estudio</p>
+                <h1 class="mc-display text-6xl font-extrabold leading-[.95] mt-4">Bienvenido<br>de vuelta al<br><span class="mc-grad-text">estudio.</span></h1>
+                <p class="text-zinc-400 mt-6 text-lg">Tus matches, tus chats y tu público te están esperando.</p>
             </div>
-        </div>
+            <div class="relative z-10 flex items-center gap-3 text-sm text-zinc-500">
+                <span class="mc-eq"><i></i><i></i><i></i><i></i><i></i></span> La escena independiente, en un solo lugar.
+            </div>
+        </aside>
 
-        <div class="text-center mt-8 space-y-4">
-            <p class="text-zinc-500 text-sm">
-                ¿No tienes cuenta? <a href="register.html" class="text-purple-500 hover:text-purple-400 font-bold transition-colors">Crear cuenta gratis</a>
-            </p>
-            <a href="index.html" class="text-zinc-600 hover:text-zinc-400 text-xs font-bold transition-colors block">← Volver a la portada</a>
-        </div>
+        <!-- Formulario -->
+        <main class="flex items-center justify-center p-5 sm:p-10">
+            <div class="w-full max-w-md mc-in">
+                <a href="index.html" class="lg:hidden block text-center mc-display font-extrabold text-2xl mb-8">MUSA<span class="mc-grad-text">CONNECT</span></a>
+
+                <div class="mc-glass p-7 sm:p-9 shadow-2xl">
+                    <!-- Ingresar -->
+                    <div id="panel-login">
+                        <h2 class="mc-display text-3xl font-extrabold">Ingresa</h2>
+                        <p class="text-zinc-400 text-sm mt-1.5">Qué bueno verte otra vez.</p>
+
+                        <form class="flex flex-col gap-5 mt-8" onsubmit="event.preventDefault(); iniciarSesion();">
+                            <div>
+                                <label class="mc-label" for="login-email">Correo electrónico</label>
+                                <input type="email" id="login-email" class="input-field" placeholder="tu@correo.com" autocomplete="email">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <label class="mc-label" for="login-password">Contraseña</label>
+                                    <button type="button" onclick="mostrarRecuperar(true)" class="text-xs font-bold text-pink-400 hover:text-pink-300 mb-1.5">¿La olvidaste?</button>
+                                </div>
+                                <div class="relative">
+                                    <input type="password" id="login-password" class="input-field !pr-12" placeholder="••••••••" autocomplete="current-password">
+                                    <button type="button" onclick="verClave()" id="btn-ver-clave" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white text-xs font-bold px-1" aria-label="Mostrar contraseña">VER</button>
+                                </div>
+                            </div>
+
+                            <div id="login-error" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm rounded-xl px-4 py-3 text-center"></div>
+
+                            <button id="btn-login" type="submit" class="mc-btn w-full py-4 mt-1">Ingresar al estudio</button>
+                        </form>
+                    </div>
+
+                    <!-- Recuperar contraseña -->
+                    <div id="panel-recuperar" class="hidden">
+                        <button type="button" onclick="mostrarRecuperar(false)" class="text-sm text-zinc-400 hover:text-white mb-6">← Volver</button>
+                        <h2 class="mc-display text-3xl font-extrabold">Recupera tu acceso</h2>
+                        <p class="text-zinc-400 text-sm mt-1.5">Te enviaremos un link para crear una contraseña nueva.</p>
+                        <form class="flex flex-col gap-5 mt-8" onsubmit="event.preventDefault(); enviarRecuperacion();">
+                            <div>
+                                <label class="mc-label" for="recuperar-email">Correo de tu cuenta</label>
+                                <input type="email" id="recuperar-email" class="input-field" placeholder="tu@correo.com" autocomplete="email">
+                            </div>
+                            <button id="btn-recuperar" type="submit" class="mc-btn w-full py-4">Enviarme el link</button>
+                        </form>
+                    </div>
+                </div>
+
+                <p class="text-center text-zinc-400 text-sm mt-8">
+                    ¿Primera vez aquí? <a href="register.html" class="font-bold text-white hover:text-pink-300 border-b border-pink-400/50 pb-0.5">Crea tu perfil gratis</a>
+                </p>
+                <a href="index.html" class="block text-center text-zinc-600 hover:text-zinc-300 text-xs font-bold mt-4">← Volver a la portada</a>
+            </div>
+        </main>
     </div>
 
     <script>
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        MusaUI.montar(client, { sinNav: true });
 
-        // Verificar si ya hay una sesión activa
+        // Si ya hay una sesión activa, directo al perfil
         async function checkSession() {
             const { data: { session } } = await client.auth.getSession();
-            if (session) {
-                window.location.href = 'profile.html'; 
-            }
+            if (session) window.location.href = 'profile.html';
         }
         checkSession();
-
-        // Soporte para tecla Enter
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                iniciarSesion();
-            }
-        });
 
         async function iniciarSesion() {
             const email = document.getElementById('login-email').value.trim();
@@ -104,51 +108,65 @@
             const errorDiv = document.getElementById('login-error');
             const btn = document.getElementById('btn-login');
 
-            if (!email || !password) {
-                mostrarError('Por favor, completa todos los campos.');
-                return;
-            }
+            if (!email || !password) return mostrarError('Completa tu correo y tu contraseña.');
 
             btn.disabled = true;
-            btn.textContent = 'Verificando credenciales...';
+            btn.textContent = 'Verificando…';
             errorDiv.classList.add('hidden');
 
-            const { data, error } = await client.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            const { error } = await client.auth.signInWithPassword({ email, password });
 
             if (error) {
                 btn.disabled = false;
-                btn.textContent = 'Ingresar al panel';
-                if (error.message === 'Invalid login credentials') {
-                    mostrarError('Correo o contraseña incorrectos.');
-                } else {
-                    mostrarError(error.message);
-                }
+                btn.textContent = 'Ingresar al estudio';
+                if (error.message === 'Invalid login credentials') mostrarError('Correo o contraseña incorrectos.');
+                else if (/confirm/i.test(error.message)) mostrarError('Primero confirma tu correo: revisa tu bandeja de entrada (y el spam).');
+                else mostrarError(error.message);
                 return;
             }
-
-            // Éxito
+            btn.textContent = '¡Listo! Entrando…';
             window.location.href = 'profile.html';
         }
 
         function mostrarError(mensaje) {
             const errorDiv = document.getElementById('login-error');
             errorDiv.textContent = mensaje;
-            errorDiv.classList.remove('hidden');
-            
-            // Animación de vibración (shake) en caso de error
-            errorDiv.style.transform = 'translateX(5px)';
-            setTimeout(() => errorDiv.style.transform = 'translateX(-5px)', 100);
-            setTimeout(() => errorDiv.style.transform = 'translateX(5px)', 200);
-            setTimeout(() => errorDiv.style.transform = 'translateX(0)', 300);
+            errorDiv.classList.remove('hidden', 'sacudir');
+            void errorDiv.offsetWidth;
+            errorDiv.classList.add('sacudir');
         }
 
-        window.cerrarSesion = async function() {
-            await client.auth.signOut();
-            window.location.href = 'login.html';
-        };
+        function verClave() {
+            const input = document.getElementById('login-password');
+            const btn = document.getElementById('btn-ver-clave');
+            const ver = input.type === 'password';
+            input.type = ver ? 'text' : 'password';
+            btn.textContent = ver ? 'OCULTAR' : 'VER';
+        }
+
+        function mostrarRecuperar(mostrar) {
+            document.getElementById('panel-login').classList.toggle('hidden', mostrar);
+            document.getElementById('panel-recuperar').classList.toggle('hidden', !mostrar);
+            if (mostrar) {
+                document.getElementById('recuperar-email').value = document.getElementById('login-email').value;
+                document.getElementById('recuperar-email').focus();
+            }
+        }
+
+        async function enviarRecuperacion() {
+            const email = document.getElementById('recuperar-email').value.trim();
+            if (!email) return MusaUI.toast('Escribe el correo de tu cuenta.', 'error');
+            const btn = document.getElementById('btn-recuperar');
+            btn.disabled = true; btn.textContent = 'Enviando…';
+            // El link vuelve a actualizar-clave.html en el mismo sitio desde donde se pidió
+            const redirectTo = new URL('actualizar-clave.html', window.location.href).href;
+            const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+            btn.disabled = false; btn.textContent = 'Enviarme el link';
+            if (error) return MusaUI.toast('No se pudo enviar: ' + error.message, 'error');
+            // Mensaje neutro: no revela si el correo existe o no
+            MusaUI.toast('Si ese correo tiene cuenta, te llegará el link en unos minutos. Revisa también el spam.', 'ok');
+            mostrarRecuperar(false);
+        }
     </script>
 </body>
 </html>

@@ -4,222 +4,279 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Únete | MusaConnect</title>
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-
-        .tipo-card { cursor: pointer; transition: all 0.3s ease; border: 1px solid #27272a; background: #141414; }
-        .tipo-card:hover { border-color: #7c3aed; transform: translateY(-2px); }
-        .tipo-card.seleccionado { border-color: #7c3aed; background: rgba(124,58,237,0.1); }
-        .tipo-card.seleccionado .tipo-icon { background: #7c3aed; }
-
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1px solid #27272a;
-            color: #fff; border-radius: 12px; padding: 14px 16px;
-            font-size: 14px; transition: all 0.2s;
-        }
-        .input-field:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
-        
-        .btn-primary {
-            width: 100%; background: #7c3aed; color: #fff; font-weight: 700;
-            padding: 14px; border-radius: 12px; font-size: 15px;
-            transition: all 0.2s; border: none; cursor: pointer;
-            box-shadow: 0 0 15px rgba(124,58,237,0.3);
-        }
-        .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 0 20px rgba(124,58,237,0.5); }
-        .btn-primary:disabled { background: #3f3f46; box-shadow: none; cursor: not-allowed; }
-
-        .slide-up { animation: slideUp 0.4s ease forwards; }
-        @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .tipo-card { cursor: pointer; transition: all .3s var(--mc-ease); }
+        .tipo-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.2); }
+        .tipo-card.seleccionado { border-color: transparent; background: var(--mc-grad-soft); box-shadow: 0 0 0 2px #ec4899, 0 16px 40px -16px rgba(236,72,153,.6); }
+        .tipo-card.seleccionado .tipo-check { opacity: 1; transform: scale(1); }
+        .tipo-check { opacity: 0; transform: scale(.5); transition: all .3s var(--mc-ease); }
 
         .step { display: none; }
-        .step.activo { display: block; }
+        .step.activo { display: block; animation: mc-in .5s var(--mc-ease) both; }
 
-        .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #27272a; transition: all 0.3s; }
-        .step-dot.activo { background: #7c3aed; width: 24px; border-radius: 4px; }
-        .step-dot.hecho { background: #10b981; }
+        .step-dot { height: 6px; width: 18px; border-radius: 99px; background: rgba(255,255,255,.1); transition: all .4s var(--mc-ease); }
+        .step-dot.activo { width: 34px; background: var(--mc-grad); }
+        @media (min-width: 640px) { .step-dot { width: 28px; } .step-dot.activo { width: 48px; } }
+        .step-dot.hecho { background: #34d399; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        .swatch { width: 30px; height: 30px; border-radius: 10px; cursor: pointer; transition: transform .2s; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+        .swatch:hover { transform: scale(1.12); }
+        .swatch.activo { box-shadow: 0 0 0 2px #0e0d13, 0 0 0 4px #fff; }
+        .fuente-btn { transition: all .2s; }
+        .fuente-btn.activo { border-color: #ec4899; background: rgba(236,72,153,.1); color: #fff; }
+        .genero-btn.activo { color: #fff; background: rgba(236,72,153,.18); border-color: rgba(236,72,153,.6); }
+
+        .fuerza i { height: 4px; flex: 1; border-radius: 4px; background: rgba(255,255,255,.08); transition: background .3s; }
+
+        .confeti span { position: absolute; width: 8px; height: 14px; border-radius: 2px; top: 40%; left: 50%; opacity: 0; animation: confeti 1.4s var(--mc-ease) forwards; }
+        @keyframes confeti { 0% { opacity: 1; transform: translate(0,0) rotate(0); } 100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)); } }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen">
 
-    <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-            <a href="index.html" class="inline-block">
-                <h1 class="text-3xl font-black tracking-tight">MUSA<span class="text-purple-600">CONNECT</span></h1>
-            </a>
-            <p class="text-zinc-500 text-sm mt-1">Tu ecosistema musical</p>
-        </div>
+    <div class="min-h-screen grid grid-cols-1 lg:grid-cols-[1fr_1.05fr]">
 
-        <div class="flex items-center justify-center gap-2 mb-8">
-            <div class="step-dot activo" id="dot-1"></div>
-            <div class="step-dot" id="dot-2"></div>
-            <div class="step-dot" id="dot-3"></div>
-        </div>
+        <!-- Vista previa en vivo (escritorio) -->
+        <aside class="hidden lg:flex relative overflow-hidden flex-col justify-between p-12 border-r border-white/5">
+            <a href="index.html" class="mc-display font-extrabold text-xl relative z-10">MUSA<span class="mc-grad-text">CONNECT</span></a>
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] aspect-square rounded-full blur-3xl opacity-30 transition-colors duration-700" id="preview-glow" style="background:var(--mc-grad)"></div>
+            <div class="relative z-10">
+                <p class="mc-kicker mb-4">Así te verá la comunidad</p>
+                <div class="preview-card max-w-sm mc-float"></div>
+            </div>
+            <p class="relative z-10 text-sm text-zinc-500 max-w-sm">Tu color y tu tipografía viajan contigo: aparecen en tu perfil, en el directorio y en el muro.</p>
+        </aside>
 
-        <div class="bg-[#141414] border border-zinc-800 rounded-3xl p-8 shadow-2xl">
-
-            <!-- PASO 1 CON EL NUEVO ROL DE ESTUDIO -->
-            <div class="step activo slide-up" id="step-1">
-                <h2 class="text-xl font-black mb-1">¿Qué haces en la música?</h2>
-                <p class="text-zinc-500 text-sm mb-6">Elige tu rol principal.</p>
-
-                <!-- Scroll activado para que quepan las 5 opciones cómodamente -->
-                <div class="max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar">
-                    <div class="flex flex-col gap-3" id="tipos-container">
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="fan" onclick="seleccionarTipo('fan')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎧</div>
-                            <div>
-                                <p class="font-bold text-sm">Fan</p>
-                                <p class="text-zinc-500 text-xs">Descubre artistas y debate</p>
-                            </div>
-                        </div>
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="artista" onclick="seleccionarTipo('artista')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎤</div>
-                            <div>
-                                <p class="font-bold text-sm">Artista</p>
-                                <p class="text-zinc-500 text-xs">Sube música y adelantos</p>
-                            </div>
-                        </div>
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="banda" onclick="seleccionarTipo('banda')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎸</div>
-                            <div>
-                                <p class="font-bold text-sm">Banda</p>
-                                <p class="text-zinc-500 text-xs">Gestión grupal de música</p>
-                            </div>
-                        </div>
-                        
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="compositor" onclick="seleccionarTipo('compositor')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎼</div>
-                            <div>
-                                <p class="font-bold text-sm">Compositor / Beatmaker</p>
-                                <p class="text-zinc-500 text-xs">Publica beats y colabora</p>
-                            </div>
-                        </div>
-
-                        <!-- NUEVO ROL: ESTUDIO DE GRABACIÓN -->
-                        <div class="tipo-card rounded-xl p-4 flex items-center gap-4" data-tipo="estudio" onclick="seleccionarTipo('estudio')">
-                            <div class="tipo-icon w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl transition-colors flex-shrink-0">🎙️</div>
-                            <div>
-                                <p class="font-bold text-sm">Estudio de Grabación</p>
-                                <p class="text-zinc-500 text-xs">Ofrece mezcla, master y spots</p>
-                            </div>
-                        </div>
-
+        <main class="flex items-center justify-center p-5 sm:p-10">
+            <div class="w-full max-w-lg">
+                <div class="flex items-center justify-between gap-3 mb-8">
+                    <a href="index.html" class="lg:invisible mc-display font-extrabold text-base sm:text-xl">MUSA<span class="mc-grad-text">CONNECT</span></a>
+                    <div class="flex items-center gap-2">
+                        <div class="step-dot activo" id="dot-1"></div>
+                        <div class="step-dot" id="dot-2"></div>
+                        <div class="step-dot" id="dot-3"></div>
                     </div>
                 </div>
 
-                <button class="btn-primary mt-6" id="btn-paso1" onclick="irPaso2()" disabled>Continuar →</button>
-            </div>
+                <div class="mc-glass p-6 sm:p-9 shadow-2xl">
 
-            <!-- PASO 2 -->
-            <div class="step slide-up" id="step-2">
-                <button onclick="irPaso1()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
-                <h2 class="text-xl font-black mb-1">Credenciales</h2>
-                <p class="text-zinc-500 text-sm mb-6">Tus datos para acceder.</p>
+                    <!-- PASO 1 -->
+                    <div class="step activo" id="step-1">
+                        <p class="mc-kicker">Paso 1 de 3</p>
+                        <h2 class="mc-display text-3xl font-extrabold mt-2">¿Qué haces en la música?</h2>
+                        <p class="text-zinc-400 text-sm mt-1.5 mb-6">Elige tu rol principal. Puedes cambiarlo después.</p>
 
-                <div class="flex flex-col gap-3">
-                    <input type="email" id="reg-email" class="input-field" placeholder="Correo electrónico">
-                    <input type="password" id="reg-password" class="input-field" placeholder="Contraseña">
-                    <input type="password" id="reg-password2" class="input-field" placeholder="Confirmar contraseña">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="tipos-container">
+                            <div class="tipo-card mc-panel p-4 relative" data-tipo="artista" onclick="seleccionarTipo('artista')">
+                                <span class="tipo-check absolute top-3 right-3 w-6 h-6 rounded-full grid place-items-center text-xs font-black" style="background:var(--mc-grad)">✓</span>
+                                <div class="text-3xl">🎤</div><p class="font-extrabold mt-3">Artista</p><p class="text-zinc-400 text-xs mt-1">Sube tu música, adelantos y shows</p>
+                            </div>
+                            <div class="tipo-card mc-panel p-4 relative" data-tipo="banda" onclick="seleccionarTipo('banda')">
+                                <span class="tipo-check absolute top-3 right-3 w-6 h-6 rounded-full grid place-items-center text-xs font-black" style="background:var(--mc-grad)">✓</span>
+                                <div class="text-3xl">🎸</div><p class="font-extrabold mt-3">Banda</p><p class="text-zinc-400 text-xs mt-1">Perfil grupal con tu alineación</p>
+                            </div>
+                            <div class="tipo-card mc-panel p-4 relative" data-tipo="compositor" onclick="seleccionarTipo('compositor')">
+                                <span class="tipo-check absolute top-3 right-3 w-6 h-6 rounded-full grid place-items-center text-xs font-black" style="background:var(--mc-grad)">✓</span>
+                                <div class="text-3xl">🎹</div><p class="font-extrabold mt-3">Productor / Compositor</p><p class="text-zinc-400 text-xs mt-1">Catálogo de beats y colaboraciones</p>
+                            </div>
+                            <div class="tipo-card mc-panel p-4 relative" data-tipo="estudio" onclick="seleccionarTipo('estudio')">
+                                <span class="tipo-check absolute top-3 right-3 w-6 h-6 rounded-full grid place-items-center text-xs font-black" style="background:var(--mc-grad)">✓</span>
+                                <div class="text-3xl">🎙️</div><p class="font-extrabold mt-3">Estudio de grabación</p><p class="text-zinc-400 text-xs mt-1">Mezcla, master y sesiones</p>
+                            </div>
+                            <div class="tipo-card mc-panel p-4 relative sm:col-span-2" data-tipo="fan" onclick="seleccionarTipo('fan')">
+                                <span class="tipo-check absolute top-3 right-3 w-6 h-6 rounded-full grid place-items-center text-xs font-black" style="background:var(--mc-grad)">✓</span>
+                                <div class="flex items-center gap-4"><div class="text-3xl">🎧</div><div><p class="font-extrabold">Fan</p><p class="text-zinc-400 text-xs mt-0.5">Descubre artistas, síguelos y desbloquea su contenido exclusivo</p></div></div>
+                            </div>
+                        </div>
+
+                        <button class="mc-btn w-full py-4 mt-7" id="btn-paso1" onclick="irPaso2()" disabled>Continuar →</button>
+                    </div>
+
+                    <!-- PASO 2 -->
+                    <div class="step" id="step-2">
+                        <button onclick="irPaso1()" class="text-zinc-400 hover:text-white text-sm mb-5">← Volver</button>
+                        <p class="mc-kicker">Paso 2 de 3</p>
+                        <h2 class="mc-display text-3xl font-extrabold mt-2">Tu acceso</h2>
+                        <p class="text-zinc-400 text-sm mt-1.5 mb-6">Con esto vas a ingresar a tu cuenta.</p>
+
+                        <div class="flex flex-col gap-4">
+                            <div><label class="mc-label" for="reg-email">Correo electrónico</label><input type="email" id="reg-email" class="input-field" placeholder="tu@correo.com" autocomplete="email"></div>
+                            <div>
+                                <label class="mc-label" for="reg-password">Contraseña</label>
+                                <input type="password" id="reg-password" class="input-field" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="medirClave(this.value)">
+                                <div class="fuerza flex gap-1.5 mt-2.5"><i></i><i></i><i></i><i></i></div>
+                                <p id="fuerza-texto" class="text-[11px] text-zinc-500 mt-1.5">Usa letras, números y algún símbolo.</p>
+                            </div>
+                            <div><label class="mc-label" for="reg-password2">Confirmar contraseña</label><input type="password" id="reg-password2" class="input-field" placeholder="Repite tu contraseña" autocomplete="new-password"></div>
+                        </div>
+
+                        <div id="error-paso2" class="hidden mt-4 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm rounded-xl px-4 py-3 text-center"></div>
+                        <button class="mc-btn w-full py-4 mt-6" onclick="irPaso3()">Continuar →</button>
+                    </div>
+
+                    <!-- PASO 3 -->
+                    <div class="step" id="step-3">
+                        <button onclick="irPaso2()" class="text-zinc-400 hover:text-white text-sm mb-5">← Volver</button>
+                        <p class="mc-kicker">Paso 3 de 3</p>
+                        <h2 class="mc-display text-3xl font-extrabold mt-2">Dale identidad</h2>
+                        <p class="text-zinc-400 text-sm mt-1.5 mb-6">Tu perfil, tu estilo. Todo se puede cambiar después.</p>
+
+                        <div class="preview-card lg:hidden mb-6"></div>
+
+                        <div class="flex flex-col gap-4">
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="mc-label" for="reg-username">Usuario</label>
+                                    <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">@</span>
+                                    <input type="text" id="reg-username" class="input-field !pl-9" placeholder="tunombre" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,''); actualizarPreview()"></div>
+                                </div>
+                                <div>
+                                    <label class="mc-label" for="reg-nombre">Nombre artístico</label>
+                                    <input type="text" id="reg-nombre" class="input-field" placeholder="Como te conocen" maxlength="50" oninput="actualizarPreview()">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="mc-label">Color de acento</label>
+                                <div class="flex items-center gap-2 flex-wrap" id="swatches">
+                                    <input type="color" id="reg-color" value="#8b5cf6" class="w-[30px] h-[30px] rounded-[10px] cursor-pointer bg-transparent border-0 p-0" title="Elegir otro color" oninput="elegirColor(this.value, true)">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="mc-label">Tipografía de tu nombre</label>
+                                <select id="reg-fuente" class="hidden">
+                                    <option value="Inter">Moderna (Inter)</option>
+                                    <option value="'Bebas Neue'">Impacto (Bebas)</option>
+                                    <option value="'Space Mono'">Tech (Mono)</option>
+                                    <option value="'Permanent Marker'">Urbano (Marker)</option>
+                                </select>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="fuentes-botones"></div>
+                            </div>
+
+                            <div>
+                                <label class="mc-label" for="reg-bio">Bio corta</label>
+                                <textarea id="reg-bio" class="input-field resize-none" rows="2" placeholder="Desde dónde haces música, qué te mueve…" maxlength="160" oninput="actualizarPreview()"></textarea>
+                            </div>
+
+                            <div id="seccion-generos" class="hidden">
+                                <label class="mc-label">Tus géneros <span class="normal-case tracking-normal text-zinc-500 font-semibold">(hasta 5)</span></label>
+                                <div class="flex flex-wrap gap-2" id="generos-lista"></div>
+                            </div>
+
+                            <div>
+                                <label class="mc-label" for="reg-nombre-legal">Nombre del responsable legal <span class="normal-case tracking-normal text-zinc-500 font-semibold">(opcional)</span></label>
+                                <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre real" maxlength="80">
+                                <p class="text-[11px] text-zinc-500 mt-1.5">🔒 Privado: solo lo ves tú. Nunca aparece en tu perfil público.</p>
+                            </div>
+                        </div>
+
+                        <div id="error-paso3" class="hidden mt-4 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm rounded-xl px-4 py-3 text-center"></div>
+                        <button class="mc-btn w-full py-4 mt-6" id="btn-registrar" onclick="registrar()">Crear mi cuenta ✦</button>
+                    </div>
+
+                    <!-- ÉXITO -->
+                    <div class="step text-center py-6 relative" id="step-exito">
+                        <div class="confeti absolute inset-0 pointer-events-none" id="confeti"></div>
+                        <div class="w-20 h-20 rounded-3xl mx-auto grid place-items-center text-4xl shadow-[0_20px_50px_-15px_rgba(236,72,153,.8)]" style="background:var(--mc-grad)">✦</div>
+                        <h2 class="mc-display text-3xl font-extrabold mt-6">¡Bienvenido a la escena!</h2>
+                        <p id="exito-texto" class="text-zinc-400 text-sm mt-3 max-w-sm mx-auto leading-relaxed">Tu cuenta está lista.</p>
+                        <a id="exito-link" href="login.html" class="mc-btn w-full py-4 mt-8">Ir a iniciar sesión</a>
+                    </div>
                 </div>
 
-                <div id="error-paso2" class="hidden mt-3 bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3 text-center"></div>
-                <button class="btn-primary mt-5" onclick="irPaso3()">Continuar →</button>
+                <p class="text-center text-zinc-400 text-sm mt-7">¿Ya tienes cuenta? <a href="login.html" class="font-bold text-white hover:text-pink-300 border-b border-pink-400/50 pb-0.5">Ingresa aquí</a></p>
             </div>
-
-            <!-- PASO 3 -->
-            <div class="step slide-up" id="step-3">
-                <button onclick="irPaso2()" class="text-zinc-500 hover:text-white text-sm mb-5 flex items-center gap-1 transition-colors">← Volver</button>
-                <h2 class="text-xl font-black mb-1">Configura tu perfil</h2>
-                <p class="text-zinc-500 text-sm mb-4">Dale identidad a tu cuenta.</p>
-
-                <div class="flex flex-col gap-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                    <input type="text" id="reg-username" class="input-field" placeholder="@usuario (sin espacios)" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
-                    <input type="text" id="reg-nombre" class="input-field" placeholder="Nombre (Artístico o del Estudio)" maxlength="50">
-
-                    <!-- SECCIÓN ESTILO -->
-                    <div class="grid grid-cols-2 gap-3 mt-1 mb-1">
-                        <div>
-                            <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Color de Acento</label>
-                            <input type="color" id="reg-color" value="#7c3aed" class="w-full h-10 rounded-lg cursor-pointer bg-[#1c1c1c] border border-zinc-800 p-1">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-400 font-bold mb-1 uppercase tracking-wider block">Fuente</label>
-                            <select id="reg-fuente" class="input-field py-2 text-xs h-10">
-                                <option value="Inter">Moderna (Inter)</option>
-                                <option value="'Bebas Neue'">Impacto (Bebas)</option>
-                                <option value="'Space Mono'">Tech (Mono)</option>
-                                <option value="'Permanent Marker'">Urbano (Marker)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <input type="text" id="reg-nombre-legal" class="input-field" placeholder="Nombre del responsable legal" maxlength="80">
-                        <p class="text-[10px] text-zinc-500 mt-1.5 px-1">🔒 No será visible en el perfil público.</p>
-                    </div>
-
-                    <textarea id="reg-bio" class="input-field resize-none" rows="3" placeholder="Información, ubicación, biografía..." maxlength="160"></textarea>
-                    
-                    <div id="seccion-generos" class="hidden">
-                        <p class="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider">Géneros (selecciona hasta 5)</p>
-                        <div class="flex flex-wrap gap-2" id="generos-lista"></div>
-                    </div>
-                </div>
-
-                <div id="error-paso3" class="hidden mt-3 bg-red-900/30 border border-red-800 text-red-400 text-xs rounded-lg px-4 py-3 text-center"></div>
-                <button class="btn-primary mt-5" id="btn-registrar" onclick="registrar()">Crear mi cuenta</button>
-            </div>
-
-            <!-- ÉXITO -->
-            <div class="step slide-up text-center py-4" id="step-exito">
-                <div class="text-5xl mb-4">✨</div>
-                <h2 class="text-xl font-black mb-2">¡Bienvenido a la comunidad!</h2>
-                <p class="text-zinc-500 text-xs mb-6">Todo listo para empezar.</p>
-                <a href="login.html" class="btn-primary inline-block w-full">Ir a Iniciar Sesión</a>
-            </div>
-
-        </div>
+        </main>
     </div>
 
     <script>
     const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
     const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
     const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+    MusaUI.montar(client, { sinNav: true });
 
     let tipoSeleccionado = null;
     let generosSeleccionados = [];
-    const GENEROS = ['Trap','R&B','Hip Hop','Reggaeton','Pop','Electrónica','Rock','Metal','Indie','Salsa','Cumbia','Jazz','Punk'];
+    const GENEROS = ['Trap','R&B','Hip Hop','Reggaeton','Pop','Electrónica','Rock','Metal','Indie','Salsa','Cumbia','Jazz','Punk','Drill','Lo-fi','Folk'];
+    const COLORES = ['#8b5cf6','#ec4899','#f43f5e','#f59e0b','#22c55e','#06b6d4','#3b82f6','#e5e7eb'];
+    const FUENTES = [
+        { valor: 'Inter', nombre: 'Moderna' },
+        { valor: "'Bebas Neue'", nombre: 'Impacto' },
+        { valor: "'Space Mono'", nombre: 'Tech' },
+        { valor: "'Permanent Marker'", nombre: 'Urbano' }
+    ];
 
+    // ---------- Vista previa ----------
+    function actualizarPreview() {
+        const nombre = document.getElementById('reg-nombre').value.trim() || 'Tu nombre artístico';
+        const usuario = document.getElementById('reg-username').value.trim() || 'tunombre';
+        const bio = document.getElementById('reg-bio').value.trim();
+        const color = safeColor(document.getElementById('reg-color').value, '#8b5cf6');
+        const fuente = safeFont(document.getElementById('reg-fuente').value);
+        const tipo = MusaUI.TIPOS[tipoSeleccionado] ? tipoSeleccionado : 'fan';
+        const t = MusaUI.TIPOS[tipo];
+        const generos = generosSeleccionados.map(g => `<span class="mc-chip">${esc(g)}</span>`).join('');
+        const html = `
+            <div class="mc-card overflow-hidden" style="--acento:${color}">
+                <div class="h-24 relative" style="background:linear-gradient(135deg, ${color}, ${color}22 70%, transparent)">
+                    <div class="absolute inset-0" style="background:linear-gradient(180deg, transparent, rgba(14,13,19,.9))"></div>
+                </div>
+                <div class="px-6 pb-6 -mt-10 relative">
+                    <div class="w-20 h-20 rounded-full grid place-items-center text-3xl font-black" style="background:linear-gradient(135deg, ${color}, #1a1724); box-shadow:0 0 0 4px #0e0d13, 0 0 0 6px ${color}88">${esc(nombre.charAt(0).toUpperCase())}</div>
+                    <h3 class="text-2xl font-extrabold mt-3 truncate" style="font-family:${esc(fuente)}; color:${color}">${esc(nombre)}</h3>
+                    <p class="text-sm text-zinc-500">@${esc(usuario)}</p>
+                    <p class="text-sm text-zinc-300 mt-3 leading-relaxed min-h-[1.25rem]">${esc(bio || t.bio)}</p>
+                    <div class="mt-4 flex flex-wrap gap-1.5"><span class="mc-tipo mc-tipo-${tipo}">${t.emoji} ${t.label}</span>${generos}</div>
+                </div>
+            </div>`;
+        document.querySelectorAll('.preview-card').forEach(el => { el.innerHTML = html; });
+        document.getElementById('preview-glow').style.background = `radial-gradient(circle, ${color}, transparent 70%)`;
+    }
+
+    function elegirColor(color, desdePicker) {
+        document.getElementById('reg-color').value = color;
+        document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('activo', !desdePicker && s.dataset.color === color));
+        actualizarPreview();
+    }
+
+    function pintarOpcionesEstilo() {
+        document.getElementById('swatches').insertAdjacentHTML('afterbegin', COLORES.map(c =>
+            `<button type="button" class="swatch ${c === '#8b5cf6' ? 'activo' : ''}" data-color="${c}" style="background:${c}" aria-label="Color ${c}" onclick="elegirColor('${c}')"></button>`).join(''));
+        document.getElementById('fuentes-botones').innerHTML = FUENTES.map((f, i) =>
+            `<button type="button" class="fuente-btn ${i === 0 ? 'activo' : ''} mc-panel !rounded-xl px-3 py-3 text-center text-zinc-300" data-i="${i}" onclick="elegirFuente(${i})">
+                <span class="block text-lg leading-none" style="font-family:${esc(f.valor)}">Aa</span><span class="block text-[10px] font-bold mt-1.5 text-zinc-500 uppercase tracking-wider">${f.nombre}</span></button>`).join('');
+    }
+
+    function elegirFuente(i) {
+        document.getElementById('reg-fuente').value = FUENTES[i].valor;
+        document.querySelectorAll('.fuente-btn').forEach(b => b.classList.toggle('activo', Number(b.dataset.i) === i));
+        actualizarPreview();
+    }
+
+    // ---------- Paso 1 ----------
     function seleccionarTipo(tipo) {
         tipoSeleccionado = tipo;
         document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('seleccionado'));
         document.querySelector(`[data-tipo="${tipo}"]`).classList.add('seleccionado');
         document.getElementById('btn-paso1').disabled = false;
 
+        // Los fans no eligen géneros; el resto sí (también los estudios, para mostrar qué graban)
         const seccion = document.getElementById('seccion-generos');
-        // A los estudios también les sirve elegir géneros para mostrar qué graban más
-        if (tipo !== 'fan') {
-            seccion.classList.remove('hidden');
-            renderGeneros();
-        } else {
-            seccion.classList.add('hidden');
-        }
+        if (tipo !== 'fan') { seccion.classList.remove('hidden'); renderGeneros(); }
+        else { seccion.classList.add('hidden'); generosSeleccionados = []; }
+        actualizarPreview();
     }
 
     function renderGeneros() {
         document.getElementById('generos-lista').innerHTML = GENEROS.map((g, i) => `
-            <button onclick="toggleGenero(${i}, this)" class="px-3 py-1 rounded-full text-xs font-bold border border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-purple-500 transition-all">${esc(g)}</button>
+            <button type="button" onclick="toggleGenero(${i}, this)" class="genero-btn mc-chip ${generosSeleccionados.includes(g) ? 'activo' : ''}">${esc(g)}</button>
         `).join('');
     }
 
@@ -227,13 +284,27 @@
         const g = GENEROS[i];
         if (generosSeleccionados.includes(g)) {
             generosSeleccionados = generosSeleccionados.filter(x => x !== g);
-            el.classList.remove('border-purple-500','text-white','bg-purple-900/20');
-            el.classList.add('border-zinc-800','text-zinc-400','bg-zinc-900');
+            el.classList.remove('activo');
         } else if (generosSeleccionados.length < 5) {
             generosSeleccionados.push(g);
-            el.classList.add('border-purple-500','text-white','bg-purple-900/20');
-            el.classList.remove('border-zinc-800','text-zinc-400','bg-zinc-900');
+            el.classList.add('activo');
+        } else {
+            MusaUI.toast('Puedes elegir hasta 5 géneros.', 'info');
         }
+        actualizarPreview();
+    }
+
+    // ---------- Paso 2 ----------
+    function medirClave(clave) {
+        let puntos = 0;
+        if (clave.length >= 6) puntos++;
+        if (clave.length >= 10) puntos++;
+        if (/[A-Z]/.test(clave) && /[a-z]/.test(clave)) puntos++;
+        if (/\d/.test(clave) && /[^A-Za-z0-9]/.test(clave)) puntos++;
+        const colores = ['#f43f5e', '#f59e0b', '#22d3ee', '#34d399'];
+        const textos = ['Muy débil', 'Débil', 'Buena', 'Excelente'];
+        document.querySelectorAll('.fuerza i').forEach((barra, i) => { barra.style.background = i < puntos ? colores[puntos - 1] : ''; });
+        document.getElementById('fuerza-texto').textContent = clave ? textos[Math.max(0, puntos - 1)] : 'Usa letras, números y algún símbolo.';
     }
 
     function irPaso1() { mostrarPaso(1); }
@@ -241,12 +312,13 @@
     function irPaso3() {
         const err = document.getElementById('error-paso2');
         const e = document.getElementById('reg-email').value, p1 = document.getElementById('reg-password').value, p2 = document.getElementById('reg-password2').value;
-        if (!e || !p1) return mostrarError(err, 'Completa todo.');
-        if (p1.length < 6) return mostrarError(err, 'Mínimo 6 caracteres.');
+        if (!e || !p1) return mostrarError(err, 'Completa tu correo y tu contraseña.');
+        if (p1.length < 6) return mostrarError(err, 'La contraseña necesita mínimo 6 caracteres.');
         if (p1 !== p2) return mostrarError(err, 'Las contraseñas no coinciden.');
         err.classList.add('hidden'); mostrarPaso(3);
     }
 
+    // ---------- Registro ----------
     async function registrar() {
         const btn = document.getElementById('btn-registrar');
         const err = document.getElementById('error-paso3');
@@ -254,20 +326,20 @@
         const nom = document.getElementById('reg-nombre').value.trim();
         const bio = document.getElementById('reg-bio').value.trim();
         const nombreLegal = document.getElementById('reg-nombre-legal').value.trim();
-        
         const color = document.getElementById('reg-color').value;
         const fuente = document.getElementById('reg-fuente').value;
-        
-        if (!user || !nom) return mostrarError(err, 'Username y nombre son obligatorios.');
+        const email = document.getElementById('reg-email').value;
 
-        btn.disabled = true; 
-        btn.textContent = 'Procesando...';
-        
+        if (!user || !nom) return mostrarError(err, 'Tu usuario y tu nombre artístico son obligatorios.');
+
+        btn.disabled = true;
+        btn.textContent = 'Creando tu espacio…';
+
         // Todo el perfil viaja en los metadatos: el trigger handle_new_user lo guarda
         // aunque no haya sesión (confirmación por email). El nombre legal va a
         // perfiles_privados y el trigger lo quita de los metadatos.
-        const { error } = await client.auth.signUp({
-            email: document.getElementById('reg-email').value,
+        const { data, error } = await client.auth.signUp({
+            email: email,
             password: document.getElementById('reg-password').value,
             options: { data: {
                 username: user,
@@ -283,22 +355,49 @@
 
         if (error) {
             btn.disabled = false;
-            btn.textContent = 'Crear cuenta';
-            return mostrarError(err, error.message);
+            btn.textContent = 'Crear mi cuenta ✦';
+            const mensaje = /duplicate|unique|already/i.test(error.message)
+                ? 'Ese correo o ese @usuario ya están en uso. Prueba con otro.'
+                : error.message;
+            return mostrarError(err, mensaje);
         }
 
+        if (data && data.session) {
+            document.getElementById('exito-texto').textContent = 'Tu perfil ya está en línea. Entra y termina de darle forma.';
+            const link = document.getElementById('exito-link');
+            link.textContent = 'Ir a mi perfil →';
+            link.href = 'profile.html';
+        } else {
+            document.getElementById('exito-texto').textContent = `Te enviamos un correo de confirmación a ${email}. Ábrelo para activar tu cuenta y después inicia sesión.`;
+        }
         mostrarPaso('exito');
+        lanzarConfeti();
+    }
+
+    function lanzarConfeti() {
+        const cont = document.getElementById('confeti');
+        const colores = ['#8b5cf6', '#ec4899', '#f59e0b', '#34d399', '#22d3ee'];
+        cont.innerHTML = Array.from({ length: 36 }, (_, i) => {
+            const x = (Math.random() * 2 - 1) * 260, y = (Math.random() * -1) * 260 - 40, r = Math.random() * 720 - 360;
+            return `<span style="--x:${x.toFixed(0)}px; --y:${y.toFixed(0)}px; --r:${r.toFixed(0)}deg; background:${colores[i % colores.length]}; animation-delay:${(Math.random() * .2).toFixed(2)}s"></span>`;
+        }).join('');
     }
 
     function mostrarPaso(n) {
         document.querySelectorAll('.step').forEach(s => s.classList.remove('activo'));
         document.getElementById('step-' + (typeof n === 'number' ? n : 'exito')).classList.add('activo');
-        [1,2,3].forEach(i => {
-            const dot = document.getElementById('dot-'+i);
-            if(dot) { dot.classList.remove('activo','hecho'); if (typeof n==='number') { if(i<n) dot.classList.add('hecho'); else if(i===n) dot.classList.add('activo'); } }
+        [1, 2, 3].forEach(i => {
+            const dot = document.getElementById('dot-' + i);
+            dot.classList.remove('activo', 'hecho');
+            if (typeof n === 'number') { if (i < n) dot.classList.add('hecho'); else if (i === n) dot.classList.add('activo'); }
+            else dot.classList.add('hecho');
         });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function mostrarError(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }
+
+    pintarOpcionesEstilo();
+    actualizarPreview();
     </script>
 </body>
 </html>

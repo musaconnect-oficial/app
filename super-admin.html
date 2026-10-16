@@ -7,29 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .input-field {
-            width: 100%; background: #1c1c1c; border: 1.5px solid #27272a;
-            color: #fff; border-radius: 10px; padding: 10px 14px; font-size: 14px;
-        }
-        .input-field:focus { outline: none; border-color: #7c3aed; }
         .btn-action { transition: all 0.2s; }
         .btn-action:hover { transform: translateY(-1px); }
+        main .bg-\[\#141414\] { background: var(--mc-panel) !important; border-color: var(--mc-line) !important; border-radius: 24px !important; }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen pb-20 hidden" id="body-admin">
+<body class="min-h-screen pb-20 hidden" id="body-admin">
 
-    <header class="bg-purple-950/20 border-b border-purple-900/40 sticky top-0 z-50 backdrop-blur">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="bg-purple-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Modo Dios</span>
-                <h1 class="font-black text-lg tracking-tight">MUSA<span class="text-purple-500">CONNECT</span> SUPREMO</h1>
-            </div>
-            <a href="index.html" class="text-zinc-400 hover:text-white text-sm font-bold transition-colors">Salir al Inicio →</a>
-        </div>
-    </header>
+    <div class="max-w-5xl mx-auto px-4 pt-10">
+        <span class="inline-flex items-center gap-2 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[.18em] text-white" style="background:var(--mc-grad)">👑 Modo Dios</span>
+        <h1 class="mc-display text-4xl font-extrabold mt-3">Panel <span class="mc-grad-text">supremo</span></h1>
+        <p class="text-zinc-400 text-sm mt-1">Gestiona perfiles, canciones y accesos de toda la comunidad.</p>
+    </div>
 
     <main class="max-w-5xl mx-auto px-4 pt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -108,6 +101,7 @@
         const supabaseUrl = 'https://exekwnxlfhukaojxtlcj.supabase.co';
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        MusaUI.montar(client, { activo: null });
 
         let todosLosUsuarios = [];
 

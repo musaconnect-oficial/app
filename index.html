@@ -4,174 +4,191 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MusaConnect | La comunidad de música independiente</title>
+    <meta name="description" content="Conecta con artistas, productores, bandas, estudios y fans de la música independiente. Publica tu música, haz match en el Radar y chatea.">
+    <meta name="theme-color" content="#08070b">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/seguridad.js"></script>
+    <script src="js/campana.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/musa.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Permanent+Marker&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-
-        .btn-primary { background: #7c3aed; color: #fff; transition: all 0.2s; }
-        .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 0 20px rgba(124,58,237,0.4); }
-        
-        .btn-secondary { background: #141414; border: 1px solid #3f3f46; color: #fff; transition: all 0.2s; }
-        .btn-secondary:hover { background: #27272a; border-color: #52525b; transform: translateY(-2px); }
-
-        .hero-glow {
-            position: absolute; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, rgba(0,0,0,0) 70%);
-            top: -200px; left: 50%; transform: translateX(-50%); z-index: -1; pointer-events: none;
-        }
-
-        .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-
-        .feature-card {
-            background: linear-gradient(180deg, #141414 0%, #0e0e0e 100%);
-            border: 1px solid #27272a; transition: all 0.3s ease;
-        }
-        .feature-card:hover { border-color: #52525b; transform: translateY(-5px); }
-
-        .user-card { transition: all 0.3s ease; }
-        .user-card:hover { border-color: var(--usr-color) !important; box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--usr-color) 20%, transparent); transform: translateY(-3px); }
-        .user-card:hover h4 { color: var(--usr-color) !important; }
-        .user-card:hover .avatar-ring { box-shadow: 0 0 0 2px var(--usr-color); }
+        .hero-titulo { font-size: clamp(2rem, 8.6vw, 5.4rem); line-height: .95; }
+        @media (min-width: 1024px) { .hero-titulo { font-size: clamp(2.6rem, 6.4vw, 5.4rem); } }
+        .paso-num { font-size: 5rem; line-height: 1; }
+        .tab-dir.activo { color: #fff; background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+        .barra-progreso { animation: progreso 14s linear infinite; }
+        @keyframes progreso { from { width: 8%; } to { width: 96%; } }
     </style>
 </head>
-<body class="bg-[#0e0e0e] text-white min-h-screen flex flex-col relative z-0">
+<body class="min-h-screen flex flex-col">
 
-    <div class="hero-glow"></div>
-
-    <!-- NAVBAR -->
-    <header class="border-b border-zinc-800/50 bg-[#0e0e0e]/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-2">
-                <h1 class="text-xl font-black tracking-tight">MUSA<span class="text-purple-600">CONNECT</span></h1>
-            </a>
-            
-            <nav class="hidden md:flex gap-6 text-sm font-bold text-zinc-400">
-                <a href="feed.html" class="hover:text-white transition-colors flex items-center gap-1">🌍 Muro Global</a>
-                <a href="radar.html" class="text-pink-500/80 hover:text-pink-400 transition-colors flex items-center gap-1 drop-shadow-[0_0_8px_rgba(236,72,153,0.3)]">📡 Radar Match</a>
-            </nav>
-
-            <div id="nav-actions" class="flex items-center gap-3">
-                <div class="w-20 h-8 bg-zinc-900 animate-pulse rounded-full"></div>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN HERO -->
-    <main class="flex flex-col items-center justify-center text-center px-4 pt-16 pb-16">
-        <div class="max-w-3xl mx-auto w-full">
-            <span class="fade-in-up inline-block py-1 px-3 rounded-full bg-purple-900/30 border border-purple-800 text-purple-400 text-xs font-bold tracking-widest uppercase mb-6">
-                La nueva era musical
-            </span>
-            <h2 class="fade-in-up delay-1 text-5xl md:text-7xl font-black tracking-tight leading-[1.1] mb-6">
-                Conecta. Crea.<br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-red-500">Hazte escuchar.</span>
-            </h2>
-            <p class="fade-in-up delay-2 text-zinc-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
-                El ecosistema definitivo para la música independiente. Explora los perfiles y conecta con el underground.
-            </p>
-            
-            <div class="fade-in-up delay-3 flex flex-col items-center justify-center gap-4 mb-20 w-full max-w-sm mx-auto">
-                <a id="cta-principal" href="register.html" class="btn-primary w-full px-8 py-4 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(124,58,237,0.3)] flex justify-center items-center gap-2">
-                    Únete a la comunidad →
+    <!-- ================= HERO ================= -->
+    <main class="relative">
+        <section class="max-w-7xl mx-auto px-4 pt-12 md:pt-20 pb-16 grid lg:grid-cols-[1.1fr_.9fr] gap-14 items-center">
+            <div>
+                <a href="#comunidad" class="mc-in inline-flex items-center gap-2.5 pl-2 pr-4 py-1.5 rounded-full mc-glass text-xs font-bold text-zinc-300 hover:text-white transition-colors">
+                    <span class="relative flex w-2.5 h-2.5"><span class="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60"></span><span class="relative w-2.5 h-2.5 rounded-full bg-emerald-400"></span></span>
+                    <span><b id="hero-miembros" class="text-white">…</b> músicos y fans ya están conectados</span>
+                    <span class="text-zinc-500">→</span>
                 </a>
-                <a href="feed.html" class="btn-secondary w-full px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2">
-                    🌍 Explorar Muro Global
-                </a>
-                <div id="cta-login-box" class="mt-2 w-full text-center">
-                    <p class="text-sm text-zinc-400">¿Ya tienes una cuenta?</p>
-                    <a href="login.html" class="text-white font-bold hover:text-purple-400 transition-colors border-b border-purple-500/30 pb-0.5 inline-block mt-1">Ingresar aquí</a>
+
+                <h1 class="hero-titulo mc-display font-extrabold mt-7 mc-in mc-d1">
+                    Tu música<br>merece ser<br><span class="mc-grad-text">escuchada.</span>
+                </h1>
+
+                <p class="mc-in mc-d2 text-zinc-400 text-lg md:text-xl mt-7 max-w-xl leading-relaxed">
+                    El punto de encuentro del underground. Arma tu perfil de artista, comparte tus temas, encuentra productores en el <b class="text-white">Radar</b> y chatea con tus matches.
+                </p>
+
+                <div class="mc-in mc-d3 flex flex-col sm:flex-row gap-3 mt-9">
+                    <a id="cta-principal" href="register.html" class="mc-btn text-base px-8 py-4">Crear mi perfil gratis <span aria-hidden="true">→</span></a>
+                    <a href="#comunidad" class="mc-btn-ghost text-base px-7 py-4">🎧 Descubrir artistas</a>
+                </div>
+
+                <div class="mc-in mc-d4 flex items-center gap-4 mt-10">
+                    <div id="hero-avatares" class="mc-avatar-stack flex"></div>
+                    <p id="hero-avatares-texto" class="text-sm text-zinc-500"></p>
                 </div>
             </div>
+
+            <!-- Composición visual -->
+            <div class="relative h-[440px] md:h-[520px] mc-in mc-d2" aria-hidden="true">
+                <div class="absolute inset-0 m-auto w-[78%] aspect-square rounded-full opacity-60 blur-3xl" style="background:var(--mc-grad)"></div>
+                <div class="mc-vinilo absolute inset-0 m-auto w-[74%] max-w-[400px] aspect-square"></div>
+
+                <!-- Reproductor flotante -->
+                <div class="mc-glass mc-float absolute left-0 top-6 w-[260px] p-4 shadow-2xl">
+                    <div class="flex items-center gap-3">
+                        <div id="np-cover" class="w-12 h-12 rounded-xl shrink-0 overflow-hidden grid place-items-center text-xl" style="background:var(--mc-grad)">🎵</div>
+                        <div class="min-w-0">
+                            <p class="mc-kicker !text-[9px]">Sonando ahora</p>
+                            <p id="np-titulo" class="font-bold text-sm truncate">Noche de estudio</p>
+                            <p id="np-artista" class="text-xs text-zinc-400 truncate">@tu-próximo-artista</p>
+                        </div>
+                        <span class="mc-eq ml-auto"><i></i><i></i><i></i><i></i></span>
+                    </div>
+                    <div class="mt-3 h-1 rounded-full bg-white/10 overflow-hidden"><div class="barra-progreso h-full rounded-full" style="background:var(--mc-grad)"></div></div>
+                </div>
+
+                <!-- Notificación de match -->
+                <div class="mc-glass mc-float-2 absolute right-0 bottom-14 w-[270px] p-4 shadow-2xl">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/15 grid place-items-center text-lg">🤝</div>
+                        <div>
+                            <p class="font-bold text-sm">¡Es un match!</p>
+                            <p class="text-xs text-zinc-400 leading-snug mt-0.5">Un productor aceptó tu interés. Ya pueden chatear.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chip de seguidores -->
+                <div class="mc-glass mc-float absolute right-0 top-[40%] px-4 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-2xl">
+                    <span class="text-emerald-400">▲</span> +12 seguidores
+                </div>
+                <div class="mc-glass mc-float-2 absolute left-8 bottom-6 px-4 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 shadow-2xl">
+                    📡 <span>Busco beat de drill oscuro</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Marquesina de géneros -->
+        <div class="mc-marquee py-6 border-y border-white/5 select-none" aria-hidden="true">
+            <div class="mc-display font-extrabold text-4xl md:text-6xl">
+                <span class="mc-outline">TRAP</span><span class="mc-grad-text">R&amp;B</span><span class="mc-outline">HIP HOP</span><span>✦</span><span class="mc-outline">REGGAETON</span><span class="mc-grad-text">INDIE</span><span class="mc-outline">ROCK</span><span>✦</span><span class="mc-outline">ELECTRÓNICA</span><span class="mc-grad-text">DRILL</span><span class="mc-outline">CUMBIA</span><span>✦</span>
+            </div>
+            <div class="mc-display font-extrabold text-4xl md:text-6xl">
+                <span class="mc-outline">TRAP</span><span class="mc-grad-text">R&amp;B</span><span class="mc-outline">HIP HOP</span><span>✦</span><span class="mc-outline">REGGAETON</span><span class="mc-grad-text">INDIE</span><span class="mc-outline">ROCK</span><span>✦</span><span class="mc-outline">ELECTRÓNICA</span><span class="mc-grad-text">DRILL</span><span class="mc-outline">CUMBIA</span><span>✦</span>
+            </div>
         </div>
+
+        <!-- ================= ESTADÍSTICAS ================= -->
+        <section class="max-w-7xl mx-auto px-4 py-16">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="mc-panel p-6 mc-reveal"><p class="mc-kicker">Comunidad</p><p class="mc-display text-4xl md:text-5xl font-extrabold mt-2" id="stat-miembros">0</p><p class="text-sm text-zinc-500 mt-1">perfiles creados</p></div>
+                <div class="mc-panel p-6 mc-reveal"><p class="mc-kicker">Música</p><p class="mc-display text-4xl md:text-5xl font-extrabold mt-2" id="stat-canciones">0</p><p class="text-sm text-zinc-500 mt-1">temas compartidos</p></div>
+                <div class="mc-panel p-6 mc-reveal"><p class="mc-kicker">Muro</p><p class="mc-display text-4xl md:text-5xl font-extrabold mt-2" id="stat-posts">0</p><p class="text-sm text-zinc-500 mt-1">publicaciones</p></div>
+                <div class="mc-panel p-6 mc-reveal"><p class="mc-kicker">Radar</p><p class="mc-display text-4xl md:text-5xl font-extrabold mt-2" id="stat-radar">0</p><p class="text-sm text-zinc-500 mt-1">colaboraciones abiertas</p></div>
+            </div>
+        </section>
+
+        <!-- ================= CÓMO FUNCIONA ================= -->
+        <section class="max-w-7xl mx-auto px-4 py-10">
+            <div class="max-w-2xl mb-12 mc-reveal">
+                <p class="mc-kicker">Cómo funciona</p>
+                <h2 class="mc-display text-4xl md:text-5xl font-extrabold mt-3">Del cuarto al <span class="mc-grad-text">escenario</span> en tres pasos.</h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-5">
+                <div class="mc-card mc-glow p-7 mc-reveal">
+                    <span class="paso-num mc-display font-extrabold mc-outline">01</span>
+                    <h3 class="text-xl font-extrabold mt-4">Crea tu identidad</h3>
+                    <p class="text-zinc-400 text-sm mt-2 leading-relaxed">Elige tu color, tu tipografía y tu portada. Tu perfil se ve como tú, no como una plantilla.</p>
+                </div>
+                <div class="mc-card mc-glow p-7 mc-reveal">
+                    <span class="paso-num mc-display font-extrabold mc-outline">02</span>
+                    <h3 class="text-xl font-extrabold mt-4">Muestra tu música</h3>
+                    <p class="text-zinc-400 text-sm mt-2 leading-relaxed">Fija tu mejor tema, sube beats, adelantos exclusivos para tus seguidores y tus próximos shows.</p>
+                </div>
+                <div class="mc-card mc-glow p-7 mc-reveal">
+                    <span class="paso-num mc-display font-extrabold mc-outline">03</span>
+                    <h3 class="text-xl font-extrabold mt-4">Haz match y colabora</h3>
+                    <p class="text-zinc-400 text-sm mt-2 leading-relaxed">Publica lo que buscas en el Radar. Cuando aceptas a alguien, se abre un chat privado entre ustedes.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= COMUNIDAD ================= -->
+        <section id="comunidad" class="max-w-7xl mx-auto px-4 py-20 scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 mc-reveal">
+                <div>
+                    <p class="mc-kicker">La comunidad · <span id="total-comunidad">…</span></p>
+                    <h2 class="mc-display text-4xl md:text-5xl font-extrabold mt-3">Conoce a quienes <span class="mc-grad-text">ya suenan</span>.</h2>
+                </div>
+                <div class="relative md:w-80">
+                    <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                    <input id="buscador" type="search" placeholder="Buscar nombre, género o ciudad…" class="mc-input !pl-11 !rounded-full" autocomplete="off">
+                </div>
+            </div>
+
+            <div id="tabs-directorio" class="flex gap-2 overflow-x-auto pb-2 mb-8 -mx-4 px-4 md:mx-0 md:px-0"></div>
+
+            <div id="grid-directorio" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div class="mc-skel h-64"></div><div class="mc-skel h-64"></div><div class="mc-skel h-64"></div><div class="mc-skel h-64 hidden xl:block"></div>
+            </div>
+            <p id="sin-resultados" class="hidden text-center text-zinc-500 py-16">No encontramos a nadie con esa búsqueda. ¿Y si eres tú quien falta? <a href="register.html" class="text-pink-400 font-bold">Únete →</a></p>
+        </section>
+
+        <!-- ================= PARA CADA ROL ================= -->
+        <section class="max-w-7xl mx-auto px-4 py-16">
+            <div class="text-center max-w-2xl mx-auto mb-12 mc-reveal">
+                <p class="mc-kicker">Hecho para todo el ecosistema</p>
+                <h2 class="mc-display text-4xl md:text-5xl font-extrabold mt-3">Un lugar para cada <span class="mc-grad-text">rol</span>.</h2>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="mc-card mc-glow p-7 mc-reveal" style="--acento:#ec4899"><div class="text-3xl">🎤</div><h3 class="font-extrabold text-lg mt-5">Artistas y bandas</h3><p class="text-zinc-400 text-sm mt-2 leading-relaxed">Portafolio con tu identidad, track fijado, adelantos exclusivos y agenda de shows.</p></div>
+                <div class="mc-card mc-glow p-7 mc-reveal" style="--acento:#22d3ee"><div class="text-3xl">🎹</div><h3 class="font-extrabold text-lg mt-5">Productores</h3><p class="text-zinc-400 text-sm mt-2 leading-relaxed">Tu catálogo de beats con BPM y licencia, listo para que los artistas te encuentren.</p></div>
+                <div class="mc-card mc-glow p-7 mc-reveal" style="--acento:#3b82f6"><div class="text-3xl">🎙️</div><h3 class="font-extrabold text-lg mt-5">Estudios</h3><p class="text-zinc-400 text-sm mt-2 leading-relaxed">Muestra tu equipo, tu gente y tu sonido para que la escena local grabe contigo.</p></div>
+                <div class="mc-card mc-glow p-7 mc-reveal" style="--acento:#34d399"><div class="text-3xl">🎧</div><h3 class="font-extrabold text-lg mt-5">Fans</h3><p class="text-zinc-400 text-sm mt-2 leading-relaxed">Descubre música antes que nadie, sigue a tus artistas y desbloquea su contenido exclusivo.</p></div>
+            </div>
+        </section>
+
+        <!-- ================= CTA FINAL ================= -->
+        <section class="max-w-7xl mx-auto px-4 pb-24 pt-6">
+            <div class="relative overflow-hidden rounded-[28px] p-10 md:p-16 text-center mc-reveal" style="background:var(--mc-grad)">
+                <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/20 blur-3xl"></div>
+                <div class="absolute -bottom-24 -right-16 w-72 h-72 rounded-full bg-black/20 blur-3xl"></div>
+                <h2 class="relative mc-display text-4xl md:text-6xl font-extrabold text-white">El próximo hit puede<br class="hidden md:block"> salir de un match.</h2>
+                <p class="relative text-white/85 text-lg mt-4 max-w-xl mx-auto">Crea tu perfil en dos minutos. Es gratis y siempre lo será para artistas independientes.</p>
+                <a id="cta-final" href="register.html" class="relative inline-flex mt-8 bg-white text-black font-extrabold px-8 py-4 rounded-full hover:scale-105 transition-transform shadow-2xl">Empezar ahora →</a>
+            </div>
+        </section>
     </main>
 
-    <!-- DIRECTORIO DE TALENTOS Y COMUNIDAD -->
-    <section class="max-w-6xl mx-auto px-4 pb-20 w-full fade-in-up delay-3">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-black mb-4">La Comunidad Activa</h2>
-            <p class="text-zinc-400">Haz clic en un perfil para conocer su trabajo o descubrir a los fans más fieles.</p>
-        </div>
-
-        <div class="mb-12">
-            <h3 class="text-xl font-bold mb-6 text-white border-b border-zinc-800 pb-2">🎤 Artistas Solistas</h3>
-            <div id="grid-artistas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
-
-        <div class="mb-12">
-            <h3 class="text-xl font-bold mb-6 text-white border-b border-zinc-800 pb-2">🎸 Bandas y Grupos</h3>
-            <div id="grid-bandas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
-
-        <div class="mb-12">
-            <h3 class="text-xl font-bold mb-6 text-white border-b border-zinc-800 pb-2">🎼 Compositores</h3>
-            <div id="grid-compositores" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
-
-        <!-- SECCIÓN DE ESTUDIOS DE GRABACIÓN -->
-        <div class="mb-12">
-            <h3 class="text-xl font-bold mb-6 text-white border-b border-blue-900/50 pb-2 flex items-center gap-2">
-                <span class="text-blue-500">🎙️</span> Estudios de Grabación
-            </h3>
-            <p class="text-sm text-zinc-500 mb-4">Encuentra los mejores spots y home studios para grabar, mezclar y masterizar tus próximos temas.</p>
-            <div id="grid-estudios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
-
-        <div class="mb-12">
-            <h3 class="text-xl font-bold mb-6 text-white border-b border-emerald-900/50 pb-2 flex items-center gap-2">
-                <span class="text-emerald-500">🎧</span> Fans Destacados
-            </h3>
-            <div id="grid-fans" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
-    </section>
-
-    <!-- CARACTERÍSTICAS -->
-    <div class="w-full border-t border-zinc-800 bg-[#121212] pt-16 pb-20">
-        <div class="max-w-6xl mx-auto px-4 text-center mb-10">
-            <h2 class="text-3xl font-black text-white">¿Por qué unirte al ecosistema?</h2>
-        </div>
-        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
-            
-            <div class="feature-card rounded-2xl p-8 text-left">
-                <div class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-2xl mb-6">🎧</div>
-                <h3 class="text-xl font-black mb-3">Para los Fans</h3>
-                <p class="text-zinc-400 text-sm leading-relaxed">Descubre nueva música antes que nadie. Sigue a tus artistas favoritos e interactúa en el feed.</p>
-            </div>
-            
-            <div class="feature-card rounded-2xl p-8 text-left">
-                <div class="w-12 h-12 bg-purple-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-purple-800/50">🎤</div>
-                <h3 class="text-xl font-black mb-3 text-white">Para Artistas</h3>
-                <p class="text-zinc-400 text-sm leading-relaxed">Arma tu portafolio, sube tus canciones, conecta con tu audiencia y encuentra colaboradores.</p>
-            </div>
-            
-            <div class="feature-card rounded-2xl p-8 text-left">
-                <div class="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-red-800/50">🎼</div>
-                <h3 class="text-xl font-black mb-3">Para Compositores</h3>
-                <p class="text-zinc-400 text-sm leading-relaxed">¿Tienes letras o beats? Haz "Match" directamente con cantantes que buscan tu estilo.</p>
-            </div>
-
-            <!-- RECUADRO DE ESTUDIOS -->
-            <div class="feature-card rounded-2xl p-8 text-left">
-                <div class="w-12 h-12 bg-blue-900/30 rounded-xl flex items-center justify-center text-2xl mb-6 border border-blue-800/50">🎙️</div>
-                <h3 class="text-xl font-black mb-3 text-white">Promociona tu Estudio</h3>
-                <p class="text-zinc-400 text-sm leading-relaxed">Si tienes un home studio o un espacio pro, agrégalo a tu perfil para que los artistas de la zona reserven sus sesiones contigo.</p>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="border-t border-zinc-800 bg-[#0a0a0a]">
-        <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-bold text-zinc-600">
-            <p>© 2026 MusaConnect. Todos los derechos reservados.</p>
+    <footer class="border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
+            <p class="mc-display font-extrabold text-white">MUSA<span class="mc-grad-text">CONNECT</span></p>
+            <nav class="flex gap-6"><a href="feed.html" class="hover:text-white">Muro</a><a href="radar.html" class="hover:text-white">Radar</a><a href="explorar.html" class="hover:text-white">Explorar</a><a href="register.html" class="hover:text-white">Únete</a></nav>
+            <p>© 2026 MusaConnect · Hecho para la escena independiente</p>
         </div>
     </footer>
 
@@ -180,92 +197,109 @@
         const supabaseKey = 'sb_publishable_JtSnzoWtEwAHhmGvcpKe0g_OfciTXzh';
         const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function verificarSesion() {
-            const { data: { session } } = await client.auth.getSession();
-            const navActions = document.getElementById('nav-actions');
-            const ctaPrincipal = document.getElementById('cta-principal');
-            const ctaLoginBox = document.getElementById('cta-login-box');
+        const FILTROS = [
+            { id: 'todos', texto: 'Todos', emoji: '✦' },
+            { id: 'artista', texto: 'Artistas', emoji: '🎤' },
+            { id: 'banda', texto: 'Bandas', emoji: '🎸' },
+            { id: 'compositor', texto: 'Productores', emoji: '🎹' },
+            { id: 'estudio', texto: 'Estudios', emoji: '🎙️' },
+            { id: 'fan', texto: 'Fans', emoji: '🎧' }
+        ];
+        let perfiles = [];
+        let filtroActivo = 'todos';
 
-            if (session) {
-                navActions.innerHTML = `<a href="profile.html" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors border border-zinc-700">Mi Perfil</a>`;
-                ctaPrincipal.textContent = "Ir a mi panel de artista";
-                ctaPrincipal.href = "profile.html";
-                ctaLoginBox.style.display = 'none';
-            } else {
-                navActions.innerHTML = `
-                    <a href="login.html" class="text-zinc-400 hover:text-white text-xs font-bold transition-colors hidden sm:block">Ingresar</a>
-                    <a href="register.html" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors shadow-[0_0_10px_rgba(147,51,234,0.4)] hidden sm:block">Unirse gratis</a>
-                `;
+        MusaUI.montar(client, { activo: 'inicio' }).then(perfil => {
+            if (!perfil) return;
+            // Con sesión iniciada, los botones llevan al perfil en vez de al registro
+            const cta = document.getElementById('cta-principal');
+            cta.innerHTML = 'Ir a mi perfil <span aria-hidden="true">→</span>';
+            cta.href = 'profile.html';
+            const ctaFinal = document.getElementById('cta-final');
+            ctaFinal.textContent = 'Publicar en el Radar →';
+            ctaFinal.href = 'radar.html';
+        });
+
+        // Tipos que no son de creador quedan como fans, para que nadie quede fuera
+        const tipoDe = p => ['artista', 'banda', 'compositor', 'estudio'].includes(p.tipo) ? p.tipo : 'fan';
+
+        async function cargarComunidad() {
+            const { data, error } = await client.from('perfiles')
+                .select('id, username, nombre_display, tipo, bio, avatar_url, banner_url, color_acento, fuente_nombre, forma_avatar, generos, ciudad, verificado, created_at')
+                .order('created_at', { ascending: false });
+            if (error) {
+                document.getElementById('grid-directorio').innerHTML = '<p class="col-span-full text-center text-zinc-500 py-10">No pudimos cargar la comunidad. Intenta recargar.</p>';
+                return;
             }
+            perfiles = data || [];
+
+            const total = perfiles.length;
+            document.getElementById('hero-miembros').textContent = total;
+            document.getElementById('total-comunidad').textContent = total === 1 ? '1 miembro' : `${total} miembros`;
+            MusaUI.contar(document.getElementById('stat-miembros'), total);
+
+            // Pila de avatares reales en el hero
+            const conFoto = perfiles.filter(p => safeUrl(p.avatar_url)).slice(0, 5);
+            document.getElementById('hero-avatares').innerHTML = conFoto.map(p => MusaUI.avatarHtml(p, 'w-10 h-10 text-sm', 'rounded-full')).join('');
+            if (total > conFoto.length) document.getElementById('hero-avatares-texto').innerHTML = `<b class="text-white">+${total - conFoto.length}</b> ya crean y escuchan aquí`;
+
+            // El "sonando ahora" muestra a un creador real de la comunidad
+            const creadores = perfiles.filter(p => p.tipo !== 'fan');
+            if (creadores.length) {
+                const elegido = creadores[Math.floor(Math.random() * creadores.length)];
+                document.getElementById('np-artista').textContent = '@' + elegido.username;
+                document.getElementById('np-titulo').textContent = elegido.nombre_display || 'Nuevo lanzamiento';
+                if (safeUrl(elegido.avatar_url)) document.getElementById('np-cover').innerHTML = `<img src="${safeUrl(elegido.avatar_url)}" alt="" class="w-full h-full object-cover">`;
+            }
+
+            pintarTabs();
+            pintarDirectorio();
         }
 
-        async function cargarDirectorioRoles() {
-            const { data: perfiles, error } = await client.from('perfiles').select('*').order('id', { ascending: false }).limit(50);
-            if (error) return;
+        function pintarTabs() {
+            document.getElementById('tabs-directorio').innerHTML = FILTROS.map(f => {
+                const n = f.id === 'todos' ? perfiles.length : perfiles.filter(p => tipoDe(p) === f.id).length;
+                return `<button data-filtro="${f.id}" class="tab-dir ${f.id === filtroActivo ? 'activo' : ''} shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 text-sm font-bold text-zinc-400 hover:text-white transition-colors">
+                    <span>${f.emoji}</span>${f.texto}<span class="text-[11px] text-zinc-500 font-mono">${n}</span></button>`;
+            }).join('');
+            document.querySelectorAll('.tab-dir').forEach(b => b.addEventListener('click', () => {
+                filtroActivo = b.dataset.filtro;
+                pintarTabs();
+                pintarDirectorio();
+            }));
+        }
 
-            const renderCards = (lista, containerId, defaultColor = '#7c3aed') => {
-                const container = document.getElementById(containerId);
-                if (lista.length === 0) {
-                    container.innerHTML = '<p class="text-zinc-600 text-sm col-span-full">Aún no hay registros en esta categoría.</p>';
-                    return;
-                }
-                const mostrar = lista.slice(0, 6); 
-                container.innerHTML = mostrar.map(u => {
-                    const acento = safeColor(u.color_acento, defaultColor);
-                    const fuente = esc(safeFont(u.fuente_nombre));
+        function pintarDirectorio() {
+            const q = document.getElementById('buscador').value.trim().toLowerCase();
+            const lista = perfiles.filter(p => {
+                if (filtroActivo !== 'todos' && tipoDe(p) !== filtroActivo) return false;
+                if (!q) return true;
+                const texto = [p.nombre_display, p.username, p.ciudad, p.bio, ...(p.generos || [])].join(' ').toLowerCase();
+                return texto.includes(q);
+            });
+            document.getElementById('grid-directorio').innerHTML = lista.map(MusaUI.tarjetaPerfil).join('');
+            document.getElementById('sin-resultados').classList.toggle('hidden', lista.length > 0);
+        }
 
-                    let infoExtra = '';
-                    if (u.estudios && u.estudios.length > 0 && u.estudios[0].titulo) {
-                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎙️ ${esc(u.estudios[0].titulo)}</p>`;
-                    } else if (u.equipamiento && u.equipamiento.length > 0 && u.equipamiento[0].categoria) {
-                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">🎛️ ${esc(u.equipamiento[0].categoria)}: ${esc(u.equipamiento[0].detalle)}</p>`;
-                    } else if (u.track_destacado) {
-                        infoExtra = `<p class="text-[10px] font-bold mt-2 truncate flex items-center gap-1 opacity-80" style="color: ${acento}">⭐ Track Destacado</p>`;
-                    }
-
-                    return `
-                    <a href="visor.html?id=${encodeURIComponent(u.id)}" style="--usr-color: ${acento};" class="user-card relative bg-[#141414] border border-zinc-800 p-5 rounded-2xl flex items-center gap-4 group cursor-pointer block z-0 overflow-hidden">
-
-                        ${safeUrl(u.banner_url) ? `<div class="absolute inset-0 opacity-10 group-hover:opacity-30 transition-opacity -z-10" style="background-image: url(&quot;${safeUrl(u.banner_url)}&quot;); background-size: cover; background-position: center;"></div>` : ''}
-
-                        <div class="avatar-ring w-16 h-16 rounded-full bg-zinc-800 overflow-hidden shrink-0 ring-2 ring-zinc-700 transition-all">
-                            ${safeUrl(u.avatar_url) ? `<img src="${safeUrl(u.avatar_url)}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-xl">👤</div>'}
-                        </div>
-                        <div class="overflow-hidden text-left flex-1 relative z-10">
-                            <h4 class="font-bold text-white truncate transition-colors" style="font-family: ${fuente};">${esc(u.nombre_display || '@' + u.username)}</h4>
-                            <p class="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">${esc(u.bio || 'Músico en la plataforma...')}</p>
-                            ${infoExtra}
-                        </div>
-                    </a>
-                    `;
-                }).join('');
+        async function cargarEstadisticas() {
+            const contarTabla = async (tabla, filtro) => {
+                let q = client.from(tabla).select('id', { count: 'exact', head: true });
+                if (filtro) q = filtro(q);
+                const { count } = await q;
+                return count || 0;
             };
-
-            renderCards(perfiles.filter(u => u.tipo === 'artista'), 'grid-artistas');
-            renderCards(perfiles.filter(u => u.tipo === 'banda'), 'grid-bandas');
-            renderCards(perfiles.filter(u => u.tipo === 'compositor'), 'grid-compositores');
-            renderCards(perfiles.filter(u => u.tipo === 'fan'), 'grid-fans', '#10b981'); 
-
-            // FILTRAR POR LA GENTE QUE TIENE ROL DE ESTUDIO DE GRABACIÓN
-            renderCards(perfiles.filter(u => u.tipo === 'estudio'), 'grid-estudios', '#3b82f6');
+            const [canciones, posts, radar] = await Promise.all([
+                contarTabla('canciones'),
+                contarTabla('posts'),
+                contarTabla('radar_anuncios', q => q.eq('activa', true))
+            ]);
+            MusaUI.contar(document.getElementById('stat-canciones'), canciones);
+            MusaUI.contar(document.getElementById('stat-posts'), posts);
+            MusaUI.contar(document.getElementById('stat-radar'), radar);
         }
 
-        verificarSesion();
-        cargarDirectorioRoles();
+        document.getElementById('buscador').addEventListener('input', pintarDirectorio);
+        cargarComunidad();
+        cargarEstadisticas();
     </script>
-
-    <div class="sm:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-md border-t border-zinc-800 z-[100] px-8 py-2 flex justify-between items-center">
-        <a href="feed.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
-            <span class="text-2xl mb-0.5">🌍</span>
-            <span class="text-[9px] font-black uppercase tracking-widest">Muro</span>
-        </a>
-        <a href="radar.html" class="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 bg-gradient-to-tr from-pink-600 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(236,72,153,0.5)] border-[5px] border-[#0e0e0e] hover:scale-105 active:scale-95 transition-all">
-            <span class="text-3xl drop-shadow-lg">📡</span>
-        </a>
-        <a href="profile.html" class="flex flex-col items-center text-zinc-500 hover:text-white transition-colors">
-            <span class="text-2xl mb-0.5">👤</span>
-            <span class="text-[9px] font-black uppercase tracking-widest">Perfil</span>
-        </a>
-    </div>
 </body>
 </html>
