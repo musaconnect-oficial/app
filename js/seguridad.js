@@ -36,6 +36,34 @@ window.safeFont = function (fuente) {
     return FUENTES_PERMITIDAS.includes(fuente) ? fuente : 'Inter';
 };
 
+// Los adelantos exclusivos viven en el bucket privado 'previews': la tabla guarda la ruta
+// del archivo. Los registros viejos guardaban la URL pública completa; de ella se saca la ruta.
+window.rutaPreview = function (urlMedia) {
+    if (!urlMedia) return '';
+    const v = String(urlMedia).trim();
+    const m = v.match(/\/storage\/v1\/object\/(?:public|sign|authenticated)\/previews\/([^?#]+)/);
+    if (m) {
+        try { return decodeURIComponent(m[1]); } catch (e) { return ''; }
+    }
+    return /^[a-z][a-z0-9+.-]*:/i.test(v) ? '' : v;   // cualquier otra URL se descarta
+};
+
+// Pide URLs firmadas (válidas 1 hora) para una lista de adelantos.
+// Supabase solo las entrega al dueño y a sus seguidores. Devuelve { id del adelanto: url }.
+window.firmarPreviews = async function (client, previews) {
+    const rutas = {};
+    (previews || []).forEach(p => { const r = rutaPreview(p.url_media); if (r) rutas[p.id] = r; });
+    const lista = [...new Set(Object.values(rutas))];
+    if (!lista.length) return {};
+    const { data, error } = await client.storage.from('previews').createSignedUrls(lista, 3600);
+    if (error || !data) return {};
+    const porRuta = {};
+    data.forEach(d => { const u = d.signedUrl || d.signedURL; if (u && !d.error) porRuta[d.path] = u; });
+    const urls = {};
+    Object.keys(rutas).forEach(id => { if (porRuta[rutas[id]]) urls[id] = porRuta[rutas[id]]; });
+    return urls;
+};
+
 // Convierte un código <iframe> o un link de Spotify / YouTube / SoundCloud / Apple Music / Bandcamp
 // en un reproductor seguro. Cualquier otra cosa se descarta.
 window.embedSeguro = function (codigo) {
